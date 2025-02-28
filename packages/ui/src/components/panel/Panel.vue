@@ -88,36 +88,3 @@
     bodyRef
   });
 </script>
-<style lang="scss" scoped>
-  .x-panel__badge-wrapper {
-    position: relative;
-    overflow: hidden;
-    :deep(.x-panel__body) {
-      padding-right: 30px !important;
-    }
-  }
-  .x-panel__badge {
-    position: absolute;
-    font-size: 12px;
-    height: 20px;
-    line-height: 20px;
-    text-align: center;
-    width: 74px;
-    color: rgb(255, 255, 255);
-    transform: rotate(45deg);
-    right: -20px;
-    top: 6px;
-  }
-  .is-badge-success {
-    background-color: var(--vxe-success-lighten-color);
-  }
-  .is-badge-primary {
-    background-color: var(--vxe-primary-lighten-color);
-  }
-  .is-badge-warning {
-    background-color: var(--vxe-warning-lighten-color);
-  }
-  .is-badge-danger {
-    background-color: var(--vxe-danger-lighten-color);
-  }
-</style>
