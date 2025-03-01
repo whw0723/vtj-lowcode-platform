@@ -1,0 +1,121 @@
+@use '../core' as *;
+
+@include b(ai-widget) {
+  > .x-panel__body {
+    position: relative;
+  }
+  .footer {
+    text-align: center;
+    font-size: 12px;
+    opacity: 0.7;
+    border-top: 1px solid var(--el-border-color-lighter);
+    padding-top: 10px;
+  }
+  @include e(drawer-modal) {
+    position: absolute !important;
+    width: 100%;
+    height: 100%;
+  }
+  @include e(drawer) {
+    box-shadow: none;
+  }
+
+  @include e(bubble-list) {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow-y: auto;
+  }
+
+  @include e(input) {
+    text-align: center;
+    .new-btn {
+      margin-bottom: 10px;
+    }
+  }
+}
+
+@include b(ai-widget-record) {
+  .new-btn {
+    width: 100%;
+  }
+
+  @include e(list) {
+    .v-item {
+      margin-bottom: 10px;
+    }
+    .v-item__title {
+      flex-shrink: 1;
+    }
+    .v-item__content {
+      line-height: 1.5em;
+      font-size: 12px;
+    }
+  }
+}
+
+@include b(ai-widget-input) {
+  .el-button {
+    margin: 10px 0;
+    width: 100%;
+  }
+}
+
+@include b(ai-widget-bubble) {
+  display: flex;
+  column-gap: 8px;
+  @include e(avatar) {
+    flex-shrink: 0;
+  }
+  @include e(main) {
+    font-size: 12px;
+    line-height: 1.5em;
+    > div {
+      margin-bottom: 8px;
+    }
+  }
+  @include e(content) {
+    padding: 8px;
+    font-size: 12px;
+    line-height: 1.5em;
+    background-color: var(--el-color-primary-light-9);
+    border-radius: 4px;
+  }
+
+  @include when(user) {
+    justify-content: end;
+    flex-direction: row-reverse;
+  }
+
+  @include when(ai) {
+    @include e(content) {
+      background-color: var(--el-color-info-light-9);
+    }
+  }
+
+  @include e(avatar) {
+    background: var(--el-color-primary-light-5);
+  }
+}
+
+@include b(ai-widget-new-chat) {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-top: -100px;
+  @include e(welcome) {
+    text-align: center;
+    line-height: 1.5em;
+    padding: 20px 0;
+    > div {
+      font-size: 12px;
+      margin-top: 10px;
+      color: var(--el-text-color-placeholder);
+    }
+  }
+
+  @include e(options) {
+    margin-bottom: 8px;
+  }
+}
