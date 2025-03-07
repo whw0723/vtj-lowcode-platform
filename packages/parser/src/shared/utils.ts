@@ -5,6 +5,8 @@ import generate from '@babel/generator';
 import type { Node } from '@babel/types';
 import type { TraverseOptions } from '@babel/traverse';
 
+import type { JSExpression, JSFunction } from '@vtj/core';
+
 export function parseSFC(source: string) {
   const { descriptor } = parse(source);
   const template = descriptor.template?.content || '';
@@ -44,4 +46,16 @@ export function generateCode(node: Node) {
     console.error('代码生成错误', e);
     return '';
   }
+}
+
+export function isJSExpression(data: any): data is JSExpression {
+  return data && data.type === 'JSExpression';
+}
+
+export function isJSFunction(x: any): x is JSFunction {
+  return typeof x === 'object' && x && x.type === 'JSFunction';
+}
+
+export function isJSCode(data: unknown): data is JSExpression | JSFunction {
+  return isJSExpression(data) || isJSFunction(data);
 }

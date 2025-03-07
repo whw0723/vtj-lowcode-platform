@@ -4,7 +4,7 @@ export const source = `
     <ElInput
       v-model:modelValue="state.value"
       class="ElInput_sz3ep4zvw">
-    <template #prefix="scope_45tvs3h3q">
+    <template #prefix="{row,index}">
       <span> http://</span>
     </template>
     <template #append="scope_45tvs3h3q">

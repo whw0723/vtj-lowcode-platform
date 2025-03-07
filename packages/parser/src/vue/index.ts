@@ -1,6 +1,6 @@
 import type { BlockSchema, NodeSchema } from '@vtj/core';
-import { parseSFC, parseScript } from '../shared';
-import { parseTemplate } from './helper';
+import { parseSFC } from '../shared';
+import { parseTemplate } from './template';
 
 export function parseVue(source: string) {
   const sfc = parseSFC(source);
