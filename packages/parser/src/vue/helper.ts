@@ -1,9 +1,4 @@
-import type {
-  NodeSchema,
-  JSExpression,
-  JSFunction,
-  NodeChildren
-} from '@vtj/core';
+import type { NodeSchema, JSExpression, JSFunction } from '@vtj/core';
 import { compileTemplate } from '@vue/compiler-sfc';
 import { NodeTypes, type TemplateChildNode } from '@vue/compiler-core';
 
@@ -32,18 +27,12 @@ export function parseTemplate(content: string = '') {
 export function transformNode(node: TemplateChildNode): any {
   // 处理元素节点
   if (node.type === NodeTypes.ELEMENT) {
-    let children: NodeChildren = node.children.map((child: TemplateChildNode) =>
-      transformNode(child)
-    );
-    if (children.length === 1) {
-      const first = children[0];
-      children =
-        typeof first === 'string' || isJSExpression(first) ? first : children;
-    }
-    return {
-      name: node.tag,
-      children
-    } as NodeSchema;
+    const result: NodeSchema = {
+      name: node.tag
+    };
+    transformChildren(result, node.children);
+
+    return result;
   }
 
   // 处理文本节点
@@ -65,7 +54,7 @@ export function transformNode(node: TemplateChildNode): any {
     }
   }
 
-  // 带表达式的文本
+  // 文本和表达式合成
   if (node.type === NodeTypes.COMPOUND_EXPRESSION) {
     // 暂不处理这种情况
   }
@@ -73,4 +62,28 @@ export function transformNode(node: TemplateChildNode): any {
   console.log('未处理', node.type, node);
 
   return null;
+}
+
+export function transformChildren(
+  node: NodeSchema,
+  childNodes: TemplateChildNode[] = []
+) {
+  const nodes: NodeSchema[] = [];
+  for (const child of childNodes) {
+    if (child.type === NodeTypes.ELEMENT && child.tag === 'template') {
+      nodes.push(...transformChildren(node, child.children));
+    } else {
+      nodes.push(transformNode(child));
+    }
+  }
+
+  if (nodes.length === 1) {
+    const first = nodes[0];
+    node.children =
+      typeof first === 'string' || isJSExpression(first) ? first : nodes;
+  } else {
+    node.children = nodes;
+  }
+
+  return nodes;
 }

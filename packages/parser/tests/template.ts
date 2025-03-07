@@ -3,7 +3,14 @@ export const source = `
   <div>
     <ElInput
       v-model:modelValue="state.value"
-      class="ElInput_sz3ep4zvw"></ElInput>
+      class="ElInput_sz3ep4zvw">
+    <template #prefix="scope_45tvs3h3q">
+      <span> http://</span>
+    </template>
+    <template #append="scope_45tvs3h3q">
+      <ElButton type="primary"> 按钮</ElButton>
+    </template>
+      </ElInput>
     <ElButton type="primary" @click="show"> 按钮</ElButton>
   </div>
   <div class="div_1lbywfn73x">{{count}}</div>
@@ -13,6 +20,7 @@ export const source = `
   // @ts-nocheck
   import { defineComponent, reactive } from 'vue';
   import { ElInput, ElButton } from 'element-plus';
+  import { Search } from '@vtj/icons';
   import { useProvider } from '@vtj/renderer';
   export default defineComponent({
     name: 'Test',
