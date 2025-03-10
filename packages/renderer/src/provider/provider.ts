@@ -163,8 +163,10 @@ export class Provider extends Base {
     }
     const { apis = [], meta = [] } = this.project as ProjectSchema;
     const _window = window as any;
-    // 解决CkEditor错误提示问题
-    _window.CKEDITOR_VERSION = undefined;
+    if (_window) {
+      // 解决CkEditor错误提示问题
+      _window.CKEDITOR_VERSION = undefined;
+    }
 
     /**
      * 源码模式只加载原生代码依赖
