@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.10.12](https://gitee.com/newgateway/vtj/compare/@vtj/coder@0.10.11...@vtj/coder@0.10.12) (2025-03-11)
+
+
+### Bug Fixes
+
+* 🐛 coder uniapp packagename ([3385d01](https://gitee.com/newgateway/vtj/commits/3385d0154862808415490051a460ec0b1d4542ab))
+
+
+
+
+
 ## [0.10.11](https://gitee.com/newgateway/vtj/compare/@vtj/coder@0.10.10...@vtj/coder@0.10.11) (2025-03-11)
 
 
