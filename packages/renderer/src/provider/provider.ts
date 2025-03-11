@@ -391,6 +391,7 @@ export class Provider extends Base {
   async getDslByUrl(url: string): Promise<BlockSchema | null> {
     const cache = this.urlDslCaches[url];
     if (cache) return cache;
+    if (!this.adapter.request) return null;
     return (this.urlDslCaches[url] = this.adapter.request
       .send({
         url,
