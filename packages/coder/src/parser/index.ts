@@ -116,6 +116,6 @@ export function parser(
     blockPlugins: blockPlugins.join('\n'),
     asyncComponents: asyncComponents.join(','),
     uniComponents,
-    renderer: platform === 'uniapp' ? '@vtj/uniapp' : '@vtj/renderer'
+    renderer: platform === 'uniapp' ? '@vtj/uni-app' : '@vtj/renderer'
   };
 }
