@@ -16,7 +16,7 @@ importers:
         version: 19.7.1
       axios:
         specifier: ~1.8.0
-        version: 1.8.2
+        version: 1.8.3
       fs-extra:
         specifier: ~11.3.0
         version: 11.3.0
@@ -354,10 +354,10 @@ importers:
     dependencies:
       '@vitepress-demo-preview/component':
         specifier: ~2.3.2
-        version: 2.3.2(vitepress@1.6.3(@algolia/client-search@5.21.0)(@types/node@22.13.10)(async-validator@4.2.5)(axios@1.8.2)(less@4.2.2)(postcss@8.5.3)(qrcode@1.5.4)(sass@1.85.1)(search-insights@2.17.3)(sortablejs@1.15.6)(terser@5.39.0)(typescript@5.8.2))(vue@3.5.13(typescript@5.8.2))
+        version: 2.3.2(vitepress@1.6.3(@algolia/client-search@5.21.0)(@types/node@22.13.10)(async-validator@4.2.5)(axios@1.8.3)(less@4.2.2)(postcss@8.5.3)(qrcode@1.5.4)(sass@1.85.1)(search-insights@2.17.3)(sortablejs@1.15.6)(terser@5.39.0)(typescript@5.8.2))(vue@3.5.13(typescript@5.8.2))
       '@vitepress-demo-preview/plugin':
         specifier: ~1.3.0
-        version: 1.3.0(markdown-it-container@3.0.0)(vitepress@1.6.3(@algolia/client-search@5.21.0)(@types/node@22.13.10)(async-validator@4.2.5)(axios@1.8.2)(less@4.2.2)(postcss@8.5.3)(qrcode@1.5.4)(sass@1.85.1)(search-insights@2.17.3)(sortablejs@1.15.6)(terser@5.39.0)(typescript@5.8.2))(vue@3.5.13(typescript@5.8.2))
+        version: 1.3.0(markdown-it-container@3.0.0)(vitepress@1.6.3(@algolia/client-search@5.21.0)(@types/node@22.13.10)(async-validator@4.2.5)(axios@1.8.3)(less@4.2.2)(postcss@8.5.3)(qrcode@1.5.4)(sass@1.85.1)(search-insights@2.17.3)(sortablejs@1.15.6)(terser@5.39.0)(typescript@5.8.2))(vue@3.5.13(typescript@5.8.2))
       '@vtj/icons':
         specifier: workspace:*
         version: link:../packages/icons
@@ -388,7 +388,7 @@ importers:
         version: link:../packages/cli
       vitepress:
         specifier: ^1.4.0
-        version: 1.6.3(@algolia/client-search@5.21.0)(@types/node@22.13.10)(async-validator@4.2.5)(axios@1.8.2)(less@4.2.2)(postcss@8.5.3)(qrcode@1.5.4)(sass@1.85.1)(search-insights@2.17.3)(sortablejs@1.15.6)(terser@5.39.0)(typescript@5.8.2)
+        version: 1.6.3(@algolia/client-search@5.21.0)(@types/node@22.13.10)(async-validator@4.2.5)(axios@1.8.3)(less@4.2.2)(postcss@8.5.3)(qrcode@1.5.4)(sass@1.85.1)(search-insights@2.17.3)(sortablejs@1.15.6)(terser@5.39.0)(typescript@5.8.2)
 
   lcdp:
     dependencies:
@@ -756,7 +756,7 @@ importers:
         version: link:../base
       axios:
         specifier: ~1.8.0
-        version: 1.8.2
+        version: 1.8.3
       fs-extra:
         specifier: ~11.3.0
         version: 11.3.0
@@ -915,7 +915,7 @@ importers:
         version: link:../cli
       axios:
         specifier: ~1.8.0
-        version: 1.8.2
+        version: 1.8.3
       fetch-jsonp:
         specifier: ~1.3.0
         version: 1.3.0
@@ -4402,8 +4402,8 @@ packages:
     resolution: {integrity: sha512-wvUjBtSGN7+7SjNpq/9M2Tg350UZD3q62IFZLbRAR1bSMlCo1ZaeW+BJ+D090e4hIIZLBcTDWe4Mh4jvUDajzQ==}
     engines: {node: '>= 0.4'}
 
-  axios@1.8.2:
-    resolution: {integrity: sha512-ls4GYBm5aig9vWx8AWDSGLpnpDQRtWAfrjU+EuytuODrFBkqesN2RkOQCBzrA1RQNHw1SmRMSDDDSwzNAYQ6Rg==}
+  axios@1.8.3:
+    resolution: {integrity: sha512-iP4DebzoNlP/YN2dpwCgb8zoCmhtkajzS48JvwmkSkXvPI3DHc7m+XYL5tGnSlJtR6nImXZmdCuN5aP8dh1d8A==}
 
   babel-jest@27.5.1:
     resolution: {integrity: sha512-cdQ5dXjGRd0IBRATiQ4mZGlGlRE8kJpjPOixdNRdT+m3UcNqmYWN6rK6nvtXYfY3D76cb8s/O1Ss8ea24PIwcg==}
@@ -4624,8 +4624,8 @@ packages:
   caniuse-api@3.0.0:
     resolution: {integrity: sha512-bsTwuIg/BZZK/vreVTYYbSWoe2F+71P7K5QGEX+pT250DZbfU1MQ5prOKpPR+LL6uWKK3KMwMCAS74QB3Um1uw==}
 
-  caniuse-lite@1.0.30001703:
-    resolution: {integrity: sha512-kRlAGTRWgPsOj7oARC9m1okJEXdL/8fekFVcxA8Hl7GH4r/sN4OJn/i6Flde373T50KS7Y37oFbMwlE8+F42kQ==}
+  caniuse-lite@1.0.30001704:
+    resolution: {integrity: sha512-+L2IgBbV6gXB4ETf0keSvLr7JUrRVbIaB/lrQ1+z8mRcQiisG5k+lG6O4n6Y5q6f5EuNfaYXKgymucphlEXQew==}
 
   ccount@2.0.1:
     resolution: {integrity: sha512-eyrF0jiFpY+3drT6383f1qhkbGsLSifNAjA61IUjZjmLCWjItY6LB9ft9YhoDgwfmclB2zhu51Lc7+95b8NRAg==}
@@ -5300,8 +5300,8 @@ packages:
     engines: {node: '>=0.10.0'}
     hasBin: true
 
-  electron-to-chromium@1.5.114:
-    resolution: {integrity: sha512-DFptFef3iktoKlFQK/afbo274/XNWD00Am0xa7M8FZUepHlHT8PEuiNBoRfFHbH1okqN58AlhbJ4QTkcnXorjA==}
+  electron-to-chromium@1.5.116:
+    resolution: {integrity: sha512-mufxTCJzLBQVvSdZzX1s5YAuXsN1M4tTyYxOOL1TcSKtIzQ9rjIrm7yFK80rN5dwGTePgdoABDSHpuVtRQh0Zw==}
 
   element-plus@2.9.6:
     resolution: {integrity: sha512-D9zU28Ce0s/9O/Vp3ewemikxzFVA6gdZyMwmWijHijo+t5/9H3sHRTIm1WlfeNpFW2Yq0y8nHXD0fU5YxU6qlQ==}
@@ -13616,17 +13616,17 @@ snapshots:
       vite: 6.2.1(@types/node@22.13.10)(jiti@2.4.2)(less@4.2.2)(sass@1.85.1)(terser@5.39.0)(yaml@2.7.0)
       vue: 3.5.13(typescript@5.8.2)
 
-  '@vitepress-demo-preview/component@2.3.2(vitepress@1.6.3(@algolia/client-search@5.21.0)(@types/node@22.13.10)(async-validator@4.2.5)(axios@1.8.2)(less@4.2.2)(postcss@8.5.3)(qrcode@1.5.4)(sass@1.85.1)(search-insights@2.17.3)(sortablejs@1.15.6)(terser@5.39.0)(typescript@5.8.2))(vue@3.5.13(typescript@5.8.2))':
+  '@vitepress-demo-preview/component@2.3.2(vitepress@1.6.3(@algolia/client-search@5.21.0)(@types/node@22.13.10)(async-validator@4.2.5)(axios@1.8.3)(less@4.2.2)(postcss@8.5.3)(qrcode@1.5.4)(sass@1.85.1)(search-insights@2.17.3)(sortablejs@1.15.6)(terser@5.39.0)(typescript@5.8.2))(vue@3.5.13(typescript@5.8.2))':
     dependencies:
-      vitepress: 1.6.3(@algolia/client-search@5.21.0)(@types/node@22.13.10)(async-validator@4.2.5)(axios@1.8.2)(less@4.2.2)(postcss@8.5.3)(qrcode@1.5.4)(sass@1.85.1)(search-insights@2.17.3)(sortablejs@1.15.6)(terser@5.39.0)(typescript@5.8.2)
+      vitepress: 1.6.3(@algolia/client-search@5.21.0)(@types/node@22.13.10)(async-validator@4.2.5)(axios@1.8.3)(less@4.2.2)(postcss@8.5.3)(qrcode@1.5.4)(sass@1.85.1)(search-insights@2.17.3)(sortablejs@1.15.6)(terser@5.39.0)(typescript@5.8.2)
       vue: 3.5.13(typescript@5.8.2)
 
-  '@vitepress-demo-preview/plugin@1.3.0(markdown-it-container@3.0.0)(vitepress@1.6.3(@algolia/client-search@5.21.0)(@types/node@22.13.10)(async-validator@4.2.5)(axios@1.8.2)(less@4.2.2)(postcss@8.5.3)(qrcode@1.5.4)(sass@1.85.1)(search-insights@2.17.3)(sortablejs@1.15.6)(terser@5.39.0)(typescript@5.8.2))(vue@3.5.13(typescript@5.8.2))':
+  '@vitepress-demo-preview/plugin@1.3.0(markdown-it-container@3.0.0)(vitepress@1.6.3(@algolia/client-search@5.21.0)(@types/node@22.13.10)(async-validator@4.2.5)(axios@1.8.3)(less@4.2.2)(postcss@8.5.3)(qrcode@1.5.4)(sass@1.85.1)(search-insights@2.17.3)(sortablejs@1.15.6)(terser@5.39.0)(typescript@5.8.2))(vue@3.5.13(typescript@5.8.2))':
     dependencies:
       '@flypeng/tool': 5.7.0
       markdown-it: 14.1.0
       markdown-it-container: 3.0.0
-      vitepress: 1.6.3(@algolia/client-search@5.21.0)(@types/node@22.13.10)(async-validator@4.2.5)(axios@1.8.2)(less@4.2.2)(postcss@8.5.3)(qrcode@1.5.4)(sass@1.85.1)(search-insights@2.17.3)(sortablejs@1.15.6)(terser@5.39.0)(typescript@5.8.2)
+      vitepress: 1.6.3(@algolia/client-search@5.21.0)(@types/node@22.13.10)(async-validator@4.2.5)(axios@1.8.3)(less@4.2.2)(postcss@8.5.3)(qrcode@1.5.4)(sass@1.85.1)(search-insights@2.17.3)(sortablejs@1.15.6)(terser@5.39.0)(typescript@5.8.2)
       vue: 3.5.13(typescript@5.8.2)
 
   '@vitest/coverage-v8@3.0.8(vitest@3.0.8(@types/node@22.13.10)(jiti@2.4.2)(jsdom@26.0.0)(less@4.2.2)(sass@1.85.1)(terser@5.39.0)(yaml@2.7.0))':
@@ -13960,14 +13960,14 @@ snapshots:
       - '@vue/composition-api'
       - vue
 
-  '@vueuse/integrations@12.8.2(async-validator@4.2.5)(axios@1.8.2)(focus-trap@7.6.4)(qrcode@1.5.4)(sortablejs@1.15.6)(typescript@5.8.2)':
+  '@vueuse/integrations@12.8.2(async-validator@4.2.5)(axios@1.8.3)(focus-trap@7.6.4)(qrcode@1.5.4)(sortablejs@1.15.6)(typescript@5.8.2)':
     dependencies:
       '@vueuse/core': 12.8.2(typescript@5.8.2)
       '@vueuse/shared': 12.8.2(typescript@5.8.2)
       vue: 3.5.13(typescript@5.8.2)
     optionalDependencies:
       async-validator: 4.2.5
-      axios: 1.8.2
+      axios: 1.8.3
       focus-trap: 7.6.4
       qrcode: 1.5.4
       sortablejs: 1.15.6
@@ -14230,7 +14230,7 @@ snapshots:
   autoprefixer@10.4.21(postcss@8.5.3):
     dependencies:
       browserslist: 4.24.4
-      caniuse-lite: 1.0.30001703
+      caniuse-lite: 1.0.30001704
       fraction.js: 4.3.7
       normalize-range: 0.1.2
       picocolors: 1.1.1
@@ -14241,7 +14241,7 @@ snapshots:
     dependencies:
       possible-typed-array-names: 1.1.0
 
-  axios@1.8.2:
+  axios@1.8.3:
     dependencies:
       follow-redirects: 1.15.9
       form-data: 4.0.2
@@ -14458,8 +14458,8 @@ snapshots:
 
   browserslist@4.24.4:
     dependencies:
-      caniuse-lite: 1.0.30001703
-      electron-to-chromium: 1.5.114
+      caniuse-lite: 1.0.30001704
+      electron-to-chromium: 1.5.116
       node-releases: 2.0.19
       update-browserslist-db: 1.1.3(browserslist@4.24.4)
 
@@ -14542,11 +14542,11 @@ snapshots:
   caniuse-api@3.0.0:
     dependencies:
       browserslist: 4.24.4
-      caniuse-lite: 1.0.30001703
+      caniuse-lite: 1.0.30001704
       lodash.memoize: 4.1.2
       lodash.uniq: 4.5.0
 
-  caniuse-lite@1.0.30001703: {}
+  caniuse-lite@1.0.30001704: {}
 
   ccount@2.0.1: {}
 
@@ -15226,7 +15226,7 @@ snapshots:
     dependencies:
       jake: 10.9.2
 
-  electron-to-chromium@1.5.114: {}
+  electron-to-chromium@1.5.116: {}
 
   element-plus@2.9.6(vue@3.5.13(typescript@5.8.2)):
     dependencies:
@@ -17840,7 +17840,7 @@ snapshots:
       '@yarnpkg/lockfile': 1.1.0
       '@yarnpkg/parsers': 3.0.2
       '@zkochan/js-yaml': 0.0.7
-      axios: 1.8.2
+      axios: 1.8.3
       chalk: 4.1.0
       cli-cursor: 3.1.0
       cli-spinners: 2.6.1
@@ -20004,7 +20004,7 @@ snapshots:
       terser: 5.39.0
       yaml: 2.7.0
 
-  vitepress@1.6.3(@algolia/client-search@5.21.0)(@types/node@22.13.10)(async-validator@4.2.5)(axios@1.8.2)(less@4.2.2)(postcss@8.5.3)(qrcode@1.5.4)(sass@1.85.1)(search-insights@2.17.3)(sortablejs@1.15.6)(terser@5.39.0)(typescript@5.8.2):
+  vitepress@1.6.3(@algolia/client-search@5.21.0)(@types/node@22.13.10)(async-validator@4.2.5)(axios@1.8.3)(less@4.2.2)(postcss@8.5.3)(qrcode@1.5.4)(sass@1.85.1)(search-insights@2.17.3)(sortablejs@1.15.6)(terser@5.39.0)(typescript@5.8.2):
     dependencies:
       '@docsearch/css': 3.8.2
       '@docsearch/js': 3.8.2(@algolia/client-search@5.21.0)(search-insights@2.17.3)
@@ -20017,7 +20017,7 @@ snapshots:
       '@vue/devtools-api': 7.7.2
       '@vue/shared': 3.5.13
       '@vueuse/core': 12.7.0(typescript@5.8.2)
-      '@vueuse/integrations': 12.8.2(async-validator@4.2.5)(axios@1.8.2)(focus-trap@7.6.4)(qrcode@1.5.4)(sortablejs@1.15.6)(typescript@5.8.2)
+      '@vueuse/integrations': 12.8.2(async-validator@4.2.5)(axios@1.8.3)(focus-trap@7.6.4)(qrcode@1.5.4)(sortablejs@1.15.6)(typescript@5.8.2)
       focus-trap: 7.6.4
       mark.js: 8.11.1
       minisearch: 7.1.2
