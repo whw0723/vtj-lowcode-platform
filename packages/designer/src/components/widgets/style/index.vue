@@ -69,7 +69,7 @@
   });
 
   const styleJson = computed(() =>
-    normalizedStyle(node.value?.getPropValue('style') || {})
+    normalizedStyle((node.value?.getPropValue('style') as any) || {})
   );
 
   const setStyle = (name: string, value?: any) => {

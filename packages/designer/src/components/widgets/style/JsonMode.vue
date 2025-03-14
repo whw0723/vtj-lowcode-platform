@@ -38,7 +38,7 @@
 
   const style = computed(() =>
     JSON.stringify(
-      normalizedStyle(node.value?.getPropValue('style') || {}),
+      normalizedStyle((node.value?.getPropValue('style') as any) || {}),
       null,
       2
     )
