@@ -20,7 +20,7 @@ export interface CreateAdapterOptions {
   settings?: IRequestSettings;
   Startup?: any;
   access?: Partial<AccessOptions>;
-  remote?: string;
+  useTitle?: UseTitle;
 }
 
 export interface ProvideAdapter {
@@ -29,23 +29,12 @@ export interface ProvideAdapter {
   metaQuery?: (...args: any[]) => Promise<any>;
   access?: Access;
   startupComponent?: any;
-  /**
-   * 远程服务 host
-   */
-  remote?: string;
   useTitle?: UseTitle;
   [index: string]: any;
 }
 
 export function createAdapter(options: CreateAdapterOptions = {}) {
-  const {
-    notify,
-    loading,
-    settings = {},
-    Startup,
-    access,
-    remote = 'https://lcdp.vtj.pro'
-  } = options;
+  const { notify, loading, settings = {}, Startup, access, useTitle } = options;
   let _loading: any = null;
   const request = createRequest({
     settings: {
@@ -84,9 +73,9 @@ export function createAdapter(options: CreateAdapterOptions = {}) {
     jsonp,
     notify,
     loading,
+    useTitle,
     startupComponent: Startup,
-    remote,
-    access: access ? createAccess(access) : undefined
+    access: access ? new Access(access) : undefined
   } as ProvideAdapter;
 }
 
