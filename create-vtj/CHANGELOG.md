@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.11.0](https://gitee.com/newgateway/vtj/compare/create-vtj@0.10.8...create-vtj@0.11.0) (2025-03-17)
+
+
+### Features
+
+* ✨ 设计器扩展开发项目工程模版 ([1565b46](https://gitee.com/newgateway/vtj/commits/1565b46d82c9aab71daa1bf06b3a194cc028921b))
+
+
+
+
+
 ## [0.10.8](https://gitee.com/newgateway/vtj/compare/create-vtj@0.10.7...create-vtj@0.10.8) (2025-03-14)
 
 **Note:** Version bump only for package create-vtj

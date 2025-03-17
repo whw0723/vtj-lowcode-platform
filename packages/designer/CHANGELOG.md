@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.11.0](https://gitee.com/newgateway/vtj/compare/@vtj/designer@0.10.15...@vtj/designer@0.11.0) (2025-03-17)
+
+**Note:** Version bump only for package @vtj/designer
+
+
+
+
+
 ## [0.10.15](https://gitee.com/newgateway/vtj/compare/@vtj/designer@0.10.14...@vtj/designer@0.10.15) (2025-03-14)
 
 
