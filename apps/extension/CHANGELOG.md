@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.2.1-alpha.0](https://gitee.com/newgateway/vtj/compare/vtj-extension@0.2.0...vtj-extension@0.2.1-alpha.0) (2025-03-18)
+
+
+### Bug Fixes
+
+* 🐛 __access__ ([39a0ce2](https://gitee.com/newgateway/vtj/commits/39a0ce264f5993883b44c3f6e9016e862da9a0cd))
+
+
+
+
+
 # 0.2.0 (2025-03-17)
 
 
