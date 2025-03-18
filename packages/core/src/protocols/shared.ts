@@ -117,9 +117,14 @@ export interface VTJConfig {
   platform?: PlatformType;
 
   /**
-   *  引擎 Access 配置
+   *  应用 Access 配置
    */
   access?: Record<string, any>;
+
+  /**
+   * 设计器是由Access 配置
+   */
+  __ACCESS__?: Record<string, any>;
 }
 
 /**

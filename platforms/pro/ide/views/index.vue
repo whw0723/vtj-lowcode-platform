@@ -19,16 +19,18 @@
 
   const route = useRoute();
   const container = ref();
+  const service = new LocalService(createServiceRequest(notify));
+  const config = await service.getExtension().catch(() => null);
   const adapter = createAdapter({
     loading,
     notify,
-    useTitle
-  });
-  const service = new LocalService(createServiceRequest(notify));
-  const config = await service.getExtension().catch(() => null);
-  const access = createAccess({
+    useTitle,
     alert,
-    ...config?.access
+    access: config?.access
+  });
+  const __ACCESS__ = createAccess({
+    alert,
+    ...config?.__ACCESS__
   });
   const options = config ? await new Extension(config).load() : {};
   const {
@@ -92,7 +94,7 @@
     materialPath: __BASE_PATH__,
     pageBasePath: base === '/' ? '' : base,
     adapter,
-    access,
+    access: __ACCESS__,
     remote,
     ...options
   });

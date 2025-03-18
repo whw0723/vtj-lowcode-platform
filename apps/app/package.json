@@ -30,5 +30,11 @@
     "@vtj/renderer": "workspace:~",
     "@vtj/ui": "workspace:~",
     "@vtj/utils": "workspace:~"
+  },
+  "vtj": {
+    "remote": "http://localhost:9528",
+    "__ACCESS__": {
+      "auth": "http://localhost:9528/auth.html"
+    }
   }
 }

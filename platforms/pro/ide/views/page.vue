@@ -15,14 +15,17 @@
   } from '../../src';
   import { IconsPlugin } from '@vtj/icons';
   import { useTitle } from '@vueuse/core';
-  import { notify, loading } from '../utils';
+  import { notify, loading, alert } from '../utils';
+
+  const service = new LocalService(createServiceRequest(notify));
+  const config = await service.getExtension().catch(() => null);
   const adapter = createAdapter({
     loading,
     notify,
-    useTitle
+    useTitle,
+    alert,
+    access: config?.access
   });
-  const service = new LocalService(createServiceRequest(notify));
-  const config = await service.getExtension().catch(() => null);
   const options = config ? await new Extension(config).load() : {};
   const { __BASE_PATH__ = '/' } = config || {};
   const { provider, onReady } = createProvider({

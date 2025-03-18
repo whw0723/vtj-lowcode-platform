@@ -21,7 +21,7 @@ widgetManager.set('Logo', {
  *  在此处实现自定义
  */
 
-export default (_config: VTJConfig, ...args: any[]) => {
+export default (_config: VTJConfig, ..._args: any[]) => {
   const options: ExtensionOutput = {
     service,
     install(_app: App, _engine?: Engine) {

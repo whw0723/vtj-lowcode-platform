@@ -21,6 +21,7 @@ export interface CreateAdapterOptions {
   Startup?: any;
   access?: Partial<AccessOptions>;
   useTitle?: UseTitle;
+  alert?: (msg: string, opt?: any) => any;
 }
 
 export interface ProvideAdapter {
@@ -34,7 +35,15 @@ export interface ProvideAdapter {
 }
 
 export function createAdapter(options: CreateAdapterOptions = {}) {
-  const { notify, loading, settings = {}, Startup, access, useTitle } = options;
+  const {
+    notify,
+    loading,
+    settings = {},
+    Startup,
+    access,
+    useTitle,
+    alert
+  } = options;
   let _loading: any = null;
   const request = createRequest({
     settings: {
@@ -75,16 +84,10 @@ export function createAdapter(options: CreateAdapterOptions = {}) {
     loading,
     useTitle,
     startupComponent: Startup,
-    access: access ? new Access(access) : undefined
+    access: access ? new Access({ alert, ...access }) : undefined
   } as ProvideAdapter;
 }
 
 export function createAccess(options: Partial<AccessOptions> = {}) {
-  const opts: Partial<AccessOptions> = {
-    storageKey: 'RRO_IDE_ACCESS_STORAGE__',
-    auth: 'https://lcdp.vtj.pro/auth.html',
-    privateKey:
-      'MIIBOgIBAAJBAKoIzmn1FYQ1YOhOBw9EhABxZ+PySAIaydI+zdhoKflrdgJ4A5E4/5gbQmRpk09hPWG8nvX7h+l/QLU8kXxAIBECAwEAAQJAAlgpxQY6sByLsXqzJcthC8LSGsLf2JEJkHwlnpwFqlEV8UCkoINpuZ2Wzl+aftURu5rIfAzRCQBvHmeOTW9/zQIhAO5ufWDmnSLyfAAsNo5JRNpVuLFCFodR8Xm+ulDlosR/AiEAtpAltyP9wmCABKG/v/hrtTr3mcvFNGCjoGa9bUAok28CIHbrVs9w1ijrBlvTsXYwJw46uP539uKRRT4ymZzlm9QjAiB+1KH/G9f9pEEL9rtaSOG7JF5D0JcOjlze4MGVFs+ZrQIhALKOUFBNr2zEsyJIjw2PlvEucdlG77UniszjXTROHSPd'
-  };
-  return new Access(Object.assign(opts, options));
+  return new Access(options);
 }
