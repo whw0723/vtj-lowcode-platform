@@ -44,13 +44,11 @@
   const container = ref();
   const service = new StorageService();
   const adapter = createAdapter({ loading, notify, Startup, useTitle });
-  const access = createAccess({ alert: ElMessageBox.alert });
   const engine = new Engine({
     container,
     service,
     adapter,
     project,
-    access,
     ...engineOptions
   });
 
