@@ -3,7 +3,7 @@
 </template>
 <script lang="ts" setup>
   import { useRoute } from 'vue-router';
-  import { createAccess } from '@vtj/pro';
+  import { createAccess, ACCESS, REMOTE, alert } from '@vtj/pro';
   import { ElMessageBox } from 'element-plus';
   import { jsonp } from '@vtj/utils';
 
@@ -13,19 +13,14 @@
   }
 
   const props = withDefaults(defineProps<Props>(), {
-    remote: 'https://lcdp.vtj.top',
+    remote: REMOTE,
     access: () => {
-      return {
-        auth: 'https://lcdp.vtj.top/auth.html',
-        storageKey: 'RRO_IDE_ACCESS_STORAGE__',
-        privateKey:
-          'MIIBOgIBAAJBAKoIzmn1FYQ1YOhOBw9EhABxZ+PySAIaydI+zdhoKflrdgJ4A5E4/5gbQmRpk09hPWG8nvX7h+l/QLU8kXxAIBECAwEAAQJAAlgpxQY6sByLsXqzJcthC8LSGsLf2JEJkHwlnpwFqlEV8UCkoINpuZ2Wzl+aftURu5rIfAzRCQBvHmeOTW9/zQIhAO5ufWDmnSLyfAAsNo5JRNpVuLFCFodR8Xm+ulDlosR/AiEAtpAltyP9wmCABKG/v/hrtTr3mcvFNGCjoGa9bUAok28CIHbrVs9w1ijrBlvTsXYwJw46uP539uKRRT4ymZzlm9QjAiB+1KH/G9f9pEEL9rtaSOG7JF5D0JcOjlze4MGVFs+ZrQIhALKOUFBNr2zEsyJIjw2PlvEucdlG77UniszjXTROHSPd'
-      };
+      return ACCESS;
     }
   });
 
   const access = createAccess({
-    alert: ElMessageBox.alert,
+    alert,
     ...props.access
   });
 

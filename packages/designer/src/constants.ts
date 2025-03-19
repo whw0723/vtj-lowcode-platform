@@ -79,6 +79,8 @@ export const VUE_DEVTOOLS_OVERLAY_PATH =
 
 export const NPM_REGISTRY_URL = 'https://registry.npmmirror.com/@vtj/pro';
 
+export const REMOTE = 'https://lcdp.vtj.pro';
+
 export const ACCESS = {
   auth: 'https://lcdp.vtj.pro/auth.html',
   storageKey: 'RRO_IDE_ACCESS_STORAGE__',
