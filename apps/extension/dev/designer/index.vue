@@ -8,8 +8,6 @@
     StorageService,
     createAdapter,
     widgetManager,
-    depsManager,
-    createAccess,
     type BlockFile
   } from '@vtj/pro';
   import { notify, loading, Startup } from '@vtj/web';
