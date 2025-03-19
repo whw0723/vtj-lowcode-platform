@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.11.3](https://gitee.com/newgateway/vtj/compare/@vtj/pro@0.11.2...@vtj/pro@0.11.3) (2025-03-19)
+
+
+### Bug Fixes
+
+* 🐛 remote config url ([e663bfd](https://gitee.com/newgateway/vtj/commits/e663bfdd254641dbc9a088e34ee5b4df2dc091eb))
+
+
+
+
+
 ## [0.11.2](https://gitee.com/newgateway/vtj/compare/@vtj/pro@0.11.1...@vtj/pro@0.11.2) (2025-03-19)
 
 
