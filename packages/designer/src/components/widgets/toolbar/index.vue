@@ -11,7 +11,7 @@
         <VtjIconPad></VtjIconPad>
       </ElRadioButton>
       <ElRadioButton label="custom" value="custom">
-        <ElIcon><Edit /></ElIcon>
+        <VtjIconEdit></VtjIconEdit>
       </ElRadioButton>
     </ElRadioGroup>
 
@@ -63,8 +63,7 @@
     ElRadioButton,
     ElInput,
     ElSwitch,
-    ElDivider,
-    ElIcon
+    ElDivider
   } from 'element-plus';
   import {
     ZoomIn,
@@ -74,7 +73,7 @@
     VtjIconPhone,
     VtjIconUndo,
     VtjIconRedo,
-    Edit
+    VtjIconEdit
   } from '@vtj/icons';
   import { useHistory } from '../../hooks';
 
@@ -94,9 +93,9 @@
   const outline = ref(true);
 
   const customSize = ref({
-    width:1920,
-    height:1080
-  })
+    width: 1920,
+    height: 1080
+  });
 
   watch(
     isWebPlatform,
