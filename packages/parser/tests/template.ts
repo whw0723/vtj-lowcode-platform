@@ -69,3 +69,9 @@ export const source = `
 </style>
 
 `;
+
+export const template1 = `
+<template>
+  <div></div>
+</template>
+`;

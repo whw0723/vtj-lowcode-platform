@@ -2,7 +2,7 @@ import { expect, test } from 'vitest';
 
 import { parseUniApp, parseVue } from '../src';
 import { App } from './UniApp';
-import { source } from './template';
+import { template1 } from './template';
 
 // test('index', async () => {
 //   const result = parseUniApp(App);
@@ -11,8 +11,8 @@ import { source } from './template';
 //   expect(true).toBeTruthy();
 // });
 
-test('vue', async () => {
-  const result = parseVue(source);
+test('template1', async () => {
+  const result = parseVue(template1);
   console.log(JSON.stringify(result, null, 2));
 
   expect(true).toBeTruthy();
