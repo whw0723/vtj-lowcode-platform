@@ -4,7 +4,7 @@ import { parseTemplate } from './template';
 
 export function parseVue(id: string, name: string, source: string) {
   const sfc = parseSFC(source);
-  const nodes = parseTemplate(sfc.template);
+  const nodes = parseTemplate(id, name, sfc.template);
 
   // const ast = parseScript(sfc.script);
 

@@ -15,6 +15,16 @@ import {
 } from '@vue/compiler-core';
 import { isJSExpression, isNodeSchema } from '../shared';
 
+export function parseTemplate(id: string, name: string, content: string = '') {
+  const result = compileTemplate({
+    id,
+    filename: name,
+    source: content
+  });
+  const children = result.ast?.children || [];
+  return children.map((child) => transformNode(child)) as NodeSchema[];
+}
+
 function getJSExpression(content: string) {
   return {
     type: 'JSExpression',
@@ -182,14 +192,4 @@ function transformChildren(
   }
 
   return el;
-}
-
-export function parseTemplate(content: string = '') {
-  const result = compileTemplate({
-    id: 'id',
-    filename: 'filename',
-    source: content
-  });
-  const children = result.ast?.children || [];
-  return children.map((child) => transformNode(child)) as NodeSchema[];
 }
