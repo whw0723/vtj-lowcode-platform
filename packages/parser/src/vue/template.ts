@@ -1,4 +1,11 @@
-import { type NodeSchema, type NodeProps, DirectiveModel } from '@vtj/core';
+import {
+  type NodeSchema,
+  type NodeProps,
+  type NodeEvents,
+  type JSExpression,
+  DirectiveModel,
+  type JSFunction
+} from '@vtj/core';
 import { compileTemplate } from '@vue/compiler-sfc';
 import {
   NodeTypes,
@@ -6,15 +13,69 @@ import {
   type AttributeNode,
   type DirectiveNode
 } from '@vue/compiler-core';
-import { isJSExpression } from '../shared';
+import { isJSExpression, isNodeSchema } from '../shared';
+
+function getJSExpression(content: string) {
+  return {
+    type: 'JSExpression',
+    value: content
+  } as JSExpression;
+}
+
+function getJSFunction(content: string) {
+  return {
+    type: 'JSFunction',
+    value: content
+  } as JSFunction;
+}
 
 function getProps(nodes: Array<AttributeNode | DirectiveNode>) {
-  return nodes
-    .filter((prop) => prop.type === NodeTypes.ATTRIBUTE)
-    .reduce((acc, prop) => {
-      acc[prop.name] = prop.value?.content || '';
-      return acc;
-    }, {} as NodeProps);
+  const props: NodeProps = {};
+  for (const item of nodes) {
+    // 普通属性
+    if (item.type === NodeTypes.ATTRIBUTE) {
+      props[item.name] = item.value?.content || '';
+    }
+
+    // 动态绑定的属性
+    if (item.type === NodeTypes.DIRECTIVE) {
+      if (
+        item.name === 'bind' &&
+        item.exp?.type === NodeTypes.SIMPLE_EXPRESSION &&
+        item.arg?.type === NodeTypes.SIMPLE_EXPRESSION
+      ) {
+        props[item.arg.content] = getJSExpression(`(${item.exp.content})`);
+      }
+    }
+  }
+  return props;
+}
+
+function getEvents(nodes: Array<AttributeNode | DirectiveNode>) {
+  const events: NodeEvents = {};
+  for (const item of nodes) {
+    // 动态绑定的属性
+    if (item.type === NodeTypes.DIRECTIVE) {
+      if (
+        item.name === 'on' &&
+        item.arg?.type === NodeTypes.SIMPLE_EXPRESSION
+      ) {
+        const modifiers = item.modifiers.reduce(
+          (result, cur) => {
+            result[cur.content] = true;
+            return result;
+          },
+          {} as Record<string, boolean>
+        );
+        events[item.arg.content] = {
+          name: item.arg.content,
+          handler: getJSFunction(`(${item.exp?.loc.source})`),
+          modifiers
+        };
+      }
+    }
+  }
+  return events;
 }
 
 function getDirectives(nodes: Array<AttributeNode | DirectiveNode>) {
@@ -27,10 +88,7 @@ function getDirectives(nodes: Array<AttributeNode | DirectiveNode>) {
         new DirectiveModel({
           name: 'vModel',
           arg: (item.arg as any)?.content,
-          value: {
-            type: 'JSExpression',
-            value: 'this.' + item.exp?.loc.source || ''
-          }
+          value: getJSExpression('this.' + item.exp?.loc.source || '')
         })
       );
     });
@@ -40,17 +98,18 @@ function getDirectives(nodes: Array<AttributeNode | DirectiveNode>) {
   return DirectiveModel.toDsl(directives);
 }
 
-function transformNode(node: TemplateChildNode): any {
+function transformNode(
+  node: TemplateChildNode
+): NodeSchema | JSExpression | string | null {
   // 处理元素节点
   if (node.type === NodeTypes.ELEMENT) {
-    const elNode: NodeSchema = {
+    const el: NodeSchema = {
       name: node.tag,
       props: getProps(node.props),
-      directives: getDirectives(node.props)
+      events: getEvents(node.props)
+      // directives: getDirectives(node.props)
     };
-    transformChildren(elNode, node.children);
-
-    return elNode;
+    return transformChildren(el, node.children);
   }
 
   // 处理文本节点
@@ -65,56 +124,64 @@ function transformNode(node: TemplateChildNode): any {
 
   // 处理插值
   if (node.type === NodeTypes.INTERPOLATION) {
-    if (node.content.type === NodeTypes.SIMPLE_EXPRESSION) {
-      return {
-        type: 'JSExpression',
-        value: node.content.loc.source
-      };
+    if (
+      node.content.type === NodeTypes.SIMPLE_EXPRESSION ||
+      node.content.type === NodeTypes.COMPOUND_EXPRESSION
+    ) {
+      return getJSExpression(node.content.loc.source);
     }
   }
 
   // 文本和表达式合成
   if (node.type === NodeTypes.COMPOUND_EXPRESSION) {
     // 暂不处理这种情况
+    console.warn('未处理节点', node);
   }
 
-  console.log('未处理', node.type, node);
-
+  console.warn('未处理', node.type);
   return null;
 }
 
 function transformChildren(
-  node: NodeSchema,
+  el: NodeSchema,
   childNodes: TemplateChildNode[] = []
 ) {
-  const nodes: NodeSchema[] = [];
-  for (const child of childNodes) {
-    if (child.type === NodeTypes.ELEMENT && child.tag === 'template') {
-      const slot = child.props.find((n) => n.name === 'slot');
-      const children = transformChildren(node, child.children);
-      if (slot?.type === NodeTypes.DIRECTIVE) {
-        children.forEach((child) => {
-          child.slot = {
-            name: (slot.arg as any)?.content || 'default',
-            params: slot.arg?.identifiers || []
-          };
-        });
+  const nodes: Array<NodeSchema | JSExpression | string> = [];
+  for (const childNode of childNodes) {
+    // 处理 template 标签
+    if (childNode.type === NodeTypes.ELEMENT && childNode.tag === 'template') {
+      const slot = childNode.props.find((n) => n.name === 'slot');
+      for (const child of childNode.children) {
+        const node = transformNode(child);
+        if (node) {
+          // 补充插槽指令
+          if (isNodeSchema(node) && slot?.type === NodeTypes.DIRECTIVE) {
+            node.slot = {
+              name: (slot.arg as any)?.content || 'default',
+              params: slot.arg?.identifiers || []
+            };
+          }
+          nodes.push(node);
+        }
       }
-      nodes.push(...children);
     } else {
-      nodes.push(transformNode(child));
+      const node = transformNode(childNode);
+      if (node) {
+        nodes.push(node);
+      }
     }
   }
 
+  // 当只有一个节点时，有可能是字符串或表达式
   if (nodes.length === 1) {
     const first = nodes[0];
-    node.children =
-      typeof first === 'string' || isJSExpression(first) ? first : nodes;
+    el.children =
+      typeof first === 'string' || isJSExpression(first) ? first : [first];
   } else {
-    node.children = nodes;
+    el.children = nodes as NodeSchema[];
   }
 
-  return nodes;
+  return el;
 }
 
 export function parseTemplate(content: string = '') {
@@ -124,5 +191,5 @@ export function parseTemplate(content: string = '') {
     source: content
   });
   const children = result.ast?.children || [];
-  return children.map((child) => transformNode(child));
+  return children.map((child) => transformNode(child)) as NodeSchema[];
 }

@@ -1,17 +1,20 @@
-import type { BlockSchema, NodeSchema } from '@vtj/core';
+import { type BlockSchema, BlockModel } from '@vtj/core';
 import { parseSFC } from '../shared';
 import { parseTemplate } from './template';
 
-export function parseVue(source: string) {
+export function parseVue(id: string, name: string, source: string) {
   const sfc = parseSFC(source);
-  const nodes: NodeSchema[] = parseTemplate(sfc.template);
+  const nodes = parseTemplate(sfc.template);
 
   // const ast = parseScript(sfc.script);
 
   const dsl: BlockSchema = {
-    name: 'Test',
+    id,
+    name,
     nodes
   };
+
+  const model = new BlockModel(dsl);
 
   //   console.log(ast);
   // traverseAST(ast, {
@@ -19,5 +22,6 @@ export function parseVue(source: string) {
   //     console.log(path);
   //   }
   // });
-  return dsl;
+  return model.toDsl();
+  // return dsl;
 }

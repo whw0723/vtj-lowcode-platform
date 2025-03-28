@@ -5,7 +5,7 @@ import generate from '@babel/generator';
 import type { Node } from '@babel/types';
 import type { TraverseOptions } from '@babel/traverse';
 
-import type { JSExpression, JSFunction } from '@vtj/core';
+import type { JSExpression, JSFunction, NodeSchema } from '@vtj/core';
 
 export function parseSFC(source: string) {
   const { descriptor } = parse(source);
@@ -58,4 +58,10 @@ export function isJSFunction(x: any): x is JSFunction {
 
 export function isJSCode(data: unknown): data is JSExpression | JSFunction {
   return isJSExpression(data) || isJSFunction(data);
+}
+
+export function isNodeSchema(
+  node: NodeSchema | JSExpression | string | null
+): node is NodeSchema {
+  return !!node && !isJSExpression(node) && typeof node !== 'string';
 }

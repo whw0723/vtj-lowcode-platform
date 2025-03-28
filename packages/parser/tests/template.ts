@@ -72,6 +72,8 @@ export const source = `
 
 export const template1 = `
 <template>
-  <div></div>
+  <div :style="{color:'red'}" @click="()=>{alert('clicked')}">
+  Content
+  </div>
 </template>
 `;

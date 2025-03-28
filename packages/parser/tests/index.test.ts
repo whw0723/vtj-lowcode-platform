@@ -12,7 +12,7 @@ import { template1 } from './template';
 // });
 
 test('template1', async () => {
-  const result = parseVue(template1);
+  const result = parseVue('235w0t1w', 'Bbb', template1);
   console.log(JSON.stringify(result, null, 2));
 
   expect(true).toBeTruthy();

@@ -14,6 +14,7 @@ import { version } from '../version';
 export type ReportType = 'init' | 'online' | 'event' | 'error';
 
 export const excludeErrors = [
+  '"ResizeObserver loop completed with undelivered notifications."',
   'ResizeObserver loop completed with undelivered notifications.',
   'ResizeObserver loop limit exceeded'
 ];
