@@ -76,7 +76,7 @@ export class Report {
             event: e,
             eventString: e.toString()
           });
-          return e;
+          return Promise.reject(e);
         }
       );
     }
