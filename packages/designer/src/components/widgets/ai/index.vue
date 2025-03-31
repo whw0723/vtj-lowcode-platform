@@ -10,11 +10,12 @@
         @click="showChatRecored"></XAction>
     </template>
     <ElAlert
+      v-if="isNewChat"
       title="当前设计视图无任何文件，请新建或打开文件后再使用AI助手"
       type="warning"
       :closable="false"></ElAlert>
 
-    <div class="v-ai-widget-new-chat">
+    <div v-if="isNewChat" class="v-ai-widget-new-chat">
       <div class="v-ai-widget-new-chat__welcome">
         <h3>嗨！我是您的智能助手</h3>
         <div>我可以帮你开发低代码页面，请把你的任务交给我吧~</div>
@@ -45,7 +46,8 @@
           plain
           type="primary"
           size="small"
-          :icon="VtjIconNewChat">
+          :icon="VtjIconNewChat"
+          @click="onNewChat">
           开启新对话
         </ElButton>
         <ChatInput></ChatInput>
@@ -79,11 +81,11 @@
 
   const panelRef = ref();
   const showDrawer = ref(false);
-  const isNewChat = ref(true);
+  const isNewChat = ref(false);
 
   const options = [
     {
-      label: '新建',
+      label: '重置',
       value: 'new'
     },
     {
@@ -100,6 +102,10 @@
 
   const showChatRecored = () => {
     showDrawer.value = !showDrawer.value;
+  };
+
+  const onNewChat = () => {
+    isNewChat.value = true;
   };
 
   defineOptions({

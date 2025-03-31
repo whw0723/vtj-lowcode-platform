@@ -50,6 +50,9 @@ export const source = `
         handler(value) {
           console.log('change', value);
         }
+      },
+      count(val, old) {
+        console.log(val,old);
       }
     },
     mounted() {
@@ -72,8 +75,83 @@ export const source = `
 
 export const template1 = `
 <template>
-  <div :style="{color:'red'}" @click="()=>{alert('clicked')}">
-  Content
+  <div>
+    <span v-for="(item, index) in 10" class="span_t3h8lxwn">
+      内联容器文本内容示例</span
+    >
+      <slot :data="{}"></slot>
   </div>
 </template>
+<script lang="ts">
+  // @ts-nocheck
+  import { defineComponent, reactive } from 'vue';
+  import { useProvider } from '@vtj/renderer';
+  export default defineComponent({
+    name: 'Bbb',
+    props: {
+      a1: {
+        type: String,
+        required:true,
+        default:'ABC'
+      },
+       a2: {
+        type: [String],
+        default:'ABC'
+      },
+         a3: {
+        type: [String,Object,Array],
+        default: ()=>[]
+      }
+    },
+    setup(props) {
+      const provider = useProvider({ id: '13dbje0g', version: '1743235696452' });
+      const state = reactive({ title: 'Title', test:null, prop: [] });
+      return { state, props, provider };
+    },
+    computed: {
+      length() {
+        return this.state.title.length;
+      },
+      watcher_203h9w2vf() {
+        return this.state.title;
+      }
+    },
+    methods: {
+      say(msg) {
+        console.log(msg);
+      },
+      async asyncSay(msg,abc) {
+        console.log(msg);
+      }  
+    },
+    watch: {
+      watcher_203h9w2vf: {
+        deep: false,
+        immediate: false,
+        handler(val) {
+          console.log('change', val);
+        }
+      },
+      length(val, old) {
+         console.log(val,old)
+      },
+      'state.dd': {
+        deep:true,
+        handler(val, old) {
+         console.log(val,old)
+        }
+      }
+
+    },
+    mounted() {
+      this.say('hello');
+    }
+  });
+</script>
+<style lang="scss" scoped>
+  .span_t3h8lxwn {
+    display: block;
+  }
+</style>
+
 `;

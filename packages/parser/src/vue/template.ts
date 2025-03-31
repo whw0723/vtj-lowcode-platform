@@ -3,40 +3,56 @@ import {
   type NodeProps,
   type NodeEvents,
   type JSExpression,
-  DirectiveModel,
-  type JSFunction
+  type NodeDirective,
+  type BlockSlot
 } from '@vtj/core';
 import { compileTemplate } from '@vue/compiler-sfc';
 import {
   NodeTypes,
   type TemplateChildNode,
   type AttributeNode,
-  type DirectiveNode
+  type DirectiveNode,
+  type ElementNode,
+  type IfNode,
+  type ForNode,
+  type IfConditionalExpression
 } from '@vue/compiler-core';
 import { isJSExpression, isNodeSchema } from '../shared';
+import { getJSExpression, getJSFunction } from './utils';
+
+let __slots: BlockSlot[] = [];
 
 export function parseTemplate(id: string, name: string, content: string = '') {
+  __slots = [];
   const result = compileTemplate({
     id,
     filename: name,
     source: content
   });
   const children = result.ast?.children || [];
-  return children.map((child) => transformNode(child)) as NodeSchema[];
+  const nodes = children.map((child) => transformNode(child)) as NodeSchema[];
+  return {
+    nodes: nodes.filter((n) => !!n),
+    slots: __slots
+  };
 }
 
-function getJSExpression(content: string) {
-  return {
-    type: 'JSExpression',
-    value: content
-  } as JSExpression;
-}
-
-function getJSFunction(content: string) {
-  return {
-    type: 'JSFunction',
-    value: content
-  } as JSFunction;
+function pickSlot(node: NodeSchema) {
+  if (node.name === 'slot') {
+    let name: any = 'default';
+    const params: any[] = [];
+    for (const [key, value] of Object.entries(node.props || {})) {
+      if (key === 'name') {
+        name = value;
+      } else {
+        params.push(key);
+      }
+    }
+    __slots.push({
+      name,
+      params
+    });
+  }
 }
 
 function getProps(nodes: Array<AttributeNode | DirectiveNode>) {
@@ -54,7 +70,7 @@ function getProps(nodes: Array<AttributeNode | DirectiveNode>) {
         item.exp?.type === NodeTypes.SIMPLE_EXPRESSION &&
         item.arg?.type === NodeTypes.SIMPLE_EXPRESSION
       ) {
-        props[item.arg.content] = getJSExpression(`(${item.exp.content})`);
+        props[item.arg.content] = getJSExpression(item.exp.content);
       }
     }
   }
@@ -88,24 +104,86 @@ function getEvents(nodes: Array<AttributeNode | DirectiveNode>) {
   return events;
 }
 
-function getDirectives(nodes: Array<AttributeNode | DirectiveNode>) {
-  const directives: DirectiveModel[] = [];
-  const props = nodes.filter((prop) => prop.type === NodeTypes.DIRECTIVE);
-  const vModels = props.filter((n) => n.name === 'model');
-  if (vModels.length) {
-    vModels.forEach((item) => {
-      directives.push(
-        new DirectiveModel({
-          name: 'vModel',
-          arg: (item.arg as any)?.content,
-          value: getJSExpression('this.' + item.exp?.loc.source || '')
-        })
-      );
+function getDirectives(node: IfNode | ForNode | ElementNode) {
+  const directives: NodeDirective[] = [];
+  // v-if
+  if (node.type === NodeTypes.IF) {
+    const test = (node.codegenNode as IfConditionalExpression)?.test;
+    if (test) {
+      directives.push({
+        name: 'vIf',
+        value: getJSExpression(test.loc.source)
+      });
+    }
+  }
+
+  // v-for
+  if (node.type === NodeTypes.FOR) {
+    directives.push({
+      name: 'vFor',
+      value: getJSExpression(node.source.loc.source),
+      iterator: {
+        item: node.valueAlias?.loc.source || 'item',
+        index: node.keyAlias?.loc.source || 'index'
+      }
     });
   }
-  // todo: vIf/vFor/vShow/vBind ...
 
-  return DirectiveModel.toDsl(directives);
+  if (node.type === NodeTypes.ELEMENT) {
+    const directivProps = node.props.filter(
+      (prop) => prop.type === NodeTypes.DIRECTIVE
+    );
+    // v-model
+    const vModels = directivProps.filter((n) => n.name === 'model');
+    if (vModels.length) {
+      vModels.forEach((item) => {
+        directives.push({
+          name: 'vModel',
+          arg: (item.arg as any)?.content,
+          value: getJSExpression(item.exp?.loc.source || '')
+        });
+      });
+    }
+
+    // v-show
+    const vShow = directivProps.find((n) => n.name === 'show');
+    if (vShow) {
+      directives.push({
+        name: 'vShow',
+        value: getJSExpression(vShow.exp?.loc.source || '')
+      });
+    }
+
+    // v-bind
+    const vBind = directivProps.find((n) => n.name === 'bind' && !n.arg);
+    if (vBind) {
+      directives.push({
+        name: 'vBind',
+        value: getJSExpression(vBind.exp?.loc.source || '')
+      });
+    }
+
+    // v-html
+    const vHtml = directivProps.find((n) => n.name === 'html');
+    if (vHtml) {
+      directives.push({
+        name: 'vHtml',
+        value: getJSExpression(vHtml.exp?.loc.source || '')
+      });
+    }
+  }
+  return directives;
+}
+
+function createNodeSchema(node: ElementNode, scope?: IfNode | ForNode) {
+  const el: NodeSchema = {
+    name: node.tag,
+    props: getProps(node.props),
+    events: getEvents(node.props),
+    directives: getDirectives(scope || node)
+  };
+  pickSlot(el);
+  return transformChildren(el, node.children);
 }
 
 function transformNode(
@@ -113,13 +191,25 @@ function transformNode(
 ): NodeSchema | JSExpression | string | null {
   // 处理元素节点
   if (node.type === NodeTypes.ELEMENT) {
-    const el: NodeSchema = {
-      name: node.tag,
-      props: getProps(node.props),
-      events: getEvents(node.props)
-      // directives: getDirectives(node.props)
-    };
-    return transformChildren(el, node.children);
+    return createNodeSchema(node);
+  }
+
+  // 处理 v-if 节点
+  if (node.type === NodeTypes.IF) {
+    const el = node.branches[0].children[0];
+    if (el) {
+      if (el.type === NodeTypes.ELEMENT) {
+        return createNodeSchema(el, node);
+      }
+    }
+  }
+
+  // 处理 v-for 节点
+  if (node.type === NodeTypes.FOR) {
+    const el = node.children[0];
+    if (el.type === NodeTypes.ELEMENT) {
+      return createNodeSchema(el, node);
+    }
   }
 
   // 处理文本节点

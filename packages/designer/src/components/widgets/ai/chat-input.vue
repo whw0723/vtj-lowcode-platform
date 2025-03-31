@@ -3,7 +3,7 @@
     <ElInput
       v-model="value"
       type="textarea"
-      :autosize="{ minRows: props.minRows, maxRows: 10 }"
+      :autosize="{ minRows: props.minRows, maxRows: 20 }"
       placeholder="请描述您的需求"></ElInput>
     <ElButton :icon="Promotion" type="primary">发送</ElButton>
   </div>

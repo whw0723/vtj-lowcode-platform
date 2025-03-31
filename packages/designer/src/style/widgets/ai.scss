@@ -96,6 +96,11 @@
   @include e(avatar) {
     background: var(--el-color-primary-light-5);
   }
+
+  @include e(tools) {
+    justify-content: flex-end;
+    display: flex;
+  }
 }
 
 @include b(ai-widget-new-chat) {
