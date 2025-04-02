@@ -17,13 +17,16 @@ import {
   type ForNode,
   type IfConditionalExpression
 } from '@vue/compiler-core';
+import { uid } from '@vtj/base';
 import { isJSExpression, isNodeSchema } from '../shared';
 import { getJSExpression, getJSFunction } from './utils';
 
 let __slots: BlockSlot[] = [];
+let __context: Record<string, Set<string>> = {};
 
 export function parseTemplate(id: string, name: string, content: string = '') {
   __slots = [];
+  __context = {};
   const result = compileTemplate({
     id,
     filename: name,
@@ -33,7 +36,8 @@ export function parseTemplate(id: string, name: string, content: string = '') {
   const nodes = children.map((child) => transformNode(child)) as NodeSchema[];
   return {
     nodes: nodes.filter((n) => !!n),
-    slots: __slots
+    slots: __slots,
+    context: __context
   };
 }
 
@@ -175,23 +179,79 @@ function getDirectives(node: IfNode | ForNode | ElementNode) {
   return directives;
 }
 
-function createNodeSchema(node: ElementNode, scope?: IfNode | ForNode) {
-  const el: NodeSchema = {
+function getNodeId(el: NodeSchema) {
+  let id: string = '';
+  const { name, props, events = {} } = el;
+  const classes = props?.class || '';
+  // 从class提取id
+  if (typeof classes === 'string') {
+    const clsRegex = new RegExp(`${name}_\(\[\\w\]\+\)`);
+    const matches = classes.match(clsRegex);
+    if (matches && matches[1]) {
+      id = matches[1];
+    }
+  }
+
+  // 从事件绑定句柄提取id
+  for (const { name, handler } of Object.values(events)) {
+    const regex = new RegExp(`${name}_\(\[\\w\]\+\)`);
+    const matches = handler.value.match(regex);
+    if (matches && matches[1]) {
+      id = matches[1];
+    }
+  }
+
+  return id || uid();
+}
+
+function pickContext(el: NodeSchema, parent?: NodeSchema) {
+  const parentContext = new Set(parent?.id ? __context[parent.id] : []);
+
+  const vFor = (el.directives || []).find((n) => n.name === 'vFor');
+  let nodeContext = new Set<string>(Array.from(parentContext));
+  // 循环上下文
+  if (vFor) {
+    const { item = 'item', index = 'index' } = vFor.iterator || {};
+    nodeContext = new Set([item, index, ...Array.from(nodeContext)]);
+  }
+  // 插槽上下文
+  const slot = el.slot;
+  if (slot) {
+    const params = typeof slot === 'string' ? [] : slot.params || [];
+    const items = params.length ? params : [`scope_${parent?.id}`];
+    nodeContext = new Set([...items, ...Array.from(nodeContext)]);
+  }
+  __context[el.id as string] = nodeContext;
+}
+
+function createNodeSchema(
+  node: ElementNode,
+  parent?: NodeSchema,
+  scope?: IfNode | ForNode
+) {
+  const dsl: NodeSchema = {
     name: node.tag,
     props: getProps(node.props),
     events: getEvents(node.props),
     directives: getDirectives(scope || node)
   };
+  dsl.id = getNodeId(dsl);
+  // v-for 上下文
+  pickContext(dsl, parent);
+  const el = transformChildren(dsl, node.children);
+  // slot 上下文
+  pickContext(dsl, parent);
   pickSlot(el);
-  return transformChildren(el, node.children);
+  return el;
 }
 
 function transformNode(
-  node: TemplateChildNode
+  node: TemplateChildNode,
+  parent?: NodeSchema
 ): NodeSchema | JSExpression | string | null {
   // 处理元素节点
   if (node.type === NodeTypes.ELEMENT) {
-    return createNodeSchema(node);
+    return createNodeSchema(node, parent);
   }
 
   // 处理 v-if 节点
@@ -199,7 +259,7 @@ function transformNode(
     const el = node.branches[0].children[0];
     if (el) {
       if (el.type === NodeTypes.ELEMENT) {
-        return createNodeSchema(el, node);
+        return createNodeSchema(el, parent, node);
       }
     }
   }
@@ -208,7 +268,7 @@ function transformNode(
   if (node.type === NodeTypes.FOR) {
     const el = node.children[0];
     if (el.type === NodeTypes.ELEMENT) {
-      return createNodeSchema(el, node);
+      return createNodeSchema(el, parent, node);
     }
   }
 
@@ -252,7 +312,7 @@ function transformChildren(
     if (childNode.type === NodeTypes.ELEMENT && childNode.tag === 'template') {
       const slot = childNode.props.find((n) => n.name === 'slot');
       for (const child of childNode.children) {
-        const node = transformNode(child);
+        const node = transformNode(child, el);
         if (node) {
           // 补充插槽指令
           if (isNodeSchema(node) && slot?.type === NodeTypes.DIRECTIVE) {
@@ -265,7 +325,7 @@ function transformChildren(
         }
       }
     } else {
-      const node = transformNode(childNode);
+      const node = transformNode(childNode, el);
       if (node) {
         nodes.push(node);
       }

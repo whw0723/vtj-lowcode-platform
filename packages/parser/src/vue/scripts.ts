@@ -4,11 +4,19 @@ import type {
   ObjectExpression,
   ObjectProperty,
   ObjectMethod,
-  BooleanLiteral,
-  ArrayExpression
+  ArrayExpression,
+  CallExpression,
+  Identifier
 } from '@babel/types';
 import { parseScript as toAST, traverseAST, generateCode } from '../shared';
-import type { BlockState, JSFunction, BlockWatch, BlockProp } from '@vtj/core';
+import type {
+  BlockState,
+  JSFunction,
+  BlockWatch,
+  BlockProp,
+  BlockEmit,
+  BlockInject
+} from '@vtj/core';
 import { getJSExpression, getJSFunction, LIFE_CYCLES_LIST } from './utils';
 
 export interface ImportStatement {
@@ -26,12 +34,16 @@ export interface ParseScriptsResult {
   lifeCycles?: Record<string, JSFunction>;
   watch?: BlockWatch[];
   props?: Array<string | BlockProp>;
+  emits?: BlockEmit[];
+  inject?: BlockInject[];
+  handlers?: Record<string, JSFunction>;
 }
 
 export function parseScripts(content: string) {
   const imports = parseImports(content);
   const result: ParseScriptsResult = {
-    imports
+    imports,
+    emits: []
   };
   const ast = toAST(content);
   traverseAST(ast, {
@@ -63,7 +75,8 @@ export function parseScripts(content: string) {
             result.name = (item.value as StringLiteral).value;
             break;
           case 'methods':
-            result.methods = getMethods(item.value as ObjectExpression);
+            result.handlers = getEventHandlers(item.value as ObjectExpression);
+            result.methods = getDefineMethods(item.value as ObjectExpression);
             break;
           case 'watch':
             result.watch = getWatches(
@@ -73,6 +86,9 @@ export function parseScripts(content: string) {
             break;
           case 'props':
             result.props = processProps(item.value as any);
+            break;
+          case 'inject':
+            result.inject = processInject(item.value as any);
             break;
         }
       }
@@ -87,12 +103,19 @@ export function parseScripts(content: string) {
       }
 
       result.lifeCycles = getLifeCycles(methods);
+    },
+    CallExpression(path) {
+      const emits = processEmits(path.node);
+      if (emits.length) {
+        for (let item of emits) {
+          const isExist = result.emits?.find((n) => n.name === item.name);
+          if (!isExist) {
+            result.emits?.push(item);
+          }
+        }
+      }
     }
   });
-  //   console.log(ast);
-
-  // console.log(result);
-  console.log('----------');
 
   return result;
 }
@@ -144,13 +167,24 @@ function getState(block: BlockStatement) {
 
 function getFunction(item: ObjectMethod) {
   const { key, async, params, body } = item;
-  const paramsStr = params.map((n: any) => n.name).join(', ');
+  const paramsStr = params
+    .map((n: any) => {
+      if (n.type === 'ObjectPattern') {
+        const pattern = n.properties
+          .map((n: any) => n.key?.name || n.name)
+          .join(',');
+        return `{${pattern}}`;
+      }
+      return n.name;
+    })
+    .join(', ');
   if (key.type === 'Identifier') {
     const name = key.name;
     const code = generateCode(body);
     const asyncContent = async ? 'async ' : '';
     const content = `${asyncContent}(${paramsStr}) => ${code}`;
     const watcher = name.startsWith('watcher_');
+
     return {
       name,
       watcher,
@@ -172,6 +206,42 @@ function getMethods(expression: ObjectExpression) {
   return methods;
 }
 
+function getDefineMethods(expression: ObjectExpression) {
+  const methods = getMethods(expression);
+  const regex = /\_([\w]{5,})$/;
+  const result: Record<string, JSFunction> = {};
+  for (const key of Object.keys(methods)) {
+    if (!regex.test(key)) {
+      result[key] = methods[key];
+    }
+  }
+  return result;
+}
+
+function getEventHandlers(expression: ObjectExpression) {
+  if (!expression) return {};
+  const methods: Record<string, JSFunction> = {};
+  const regex = /\_([\w]{5,})$/;
+  for (const item of expression.properties) {
+    const key = (item as any).key.name;
+    if (regex.test(key)) {
+      try {
+        if ((item as any).body.body[0]?.argument) {
+          const content = generateCode(
+            (item as any).body.body[0].argument.callee.object
+          );
+          methods[key] = getJSFunction(content);
+        } else {
+          methods[key] = getFunction(item as any)?.exp as JSFunction;
+        }
+      } catch (e) {
+        console.warn(e);
+      }
+    }
+  }
+  return methods;
+}
+
 function getWatchers(expression: ObjectExpression) {
   if (!expression) return {};
   const watchers: Record<string, JSFunction> = {};
@@ -185,10 +255,14 @@ function getWatchers(expression: ObjectExpression) {
 }
 
 function getBooleanValue(properties: ObjectProperty[], name: string) {
+  return !!getStringValue(properties, name);
+}
+
+function getStringValue(properties: ObjectProperty[], name: string) {
   const node = properties.find(
     (n) => (n as any).key?.name === name
   ) as ObjectProperty;
-  return !!(node?.value as BooleanLiteral)?.value;
+  return (node?.value as any)?.value;
 }
 
 function getFunctionExp(
@@ -212,8 +286,7 @@ function getWatches(
   const watches: BlockWatch[] = [];
   for (const item of expression.properties) {
     const { key, value } = item as ObjectProperty;
-    const name = (key as StringLiteral).value || '';
-
+    const name = (key as StringLiteral).value || (key as Identifier).name || '';
     if (watchers[name]) {
       const properties = (value as ObjectExpression)
         .properties as ObjectProperty[];
@@ -311,4 +384,46 @@ function processProps(expression: ObjectExpression | ArrayExpression) {
   }
 
   return props;
+}
+
+function processEmits(expression: CallExpression): BlockEmit[] {
+  const emits: BlockEmit[] = [];
+  if (expression.callee.type === 'MemberExpression') {
+    const property = expression.callee.property as any;
+
+    if (property?.name === '$emit') {
+      const [name, ...params] = (expression.arguments || []).map(
+        (n: any) => n.value || n.name
+      );
+      if (name) {
+        emits.push({
+          name,
+          params
+        });
+      }
+    }
+  }
+  return emits;
+}
+
+function processInject(
+  expression: ObjectExpression | ArrayExpression
+): BlockInject[] {
+  let inject: BlockInject[] = [];
+  if (expression.type === 'ObjectExpression') {
+    inject = expression.properties.map((n) => {
+      const { key, value } = n as ObjectProperty;
+      const properties = (value as any).properties;
+      const name = (key as any).name;
+      const from = getStringValue(properties, 'from');
+      const defaults = getPropDefault(properties);
+      return {
+        name,
+        from: from || name,
+        default: defaults
+      };
+    });
+  }
+  // console.log(expression);
+  return inject;
 }

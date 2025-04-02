@@ -1,29 +1,26 @@
-import { type BlockSchema, BlockModel } from '@vtj/core';
-import { parseSFC } from '../shared';
+import { type BlockSchema, type NodeSchema, BlockModel } from '@vtj/core';
+import { tsFormatter } from '@vtj/coder';
+import { parseSFC, isJSCode } from '../shared';
 import { parseTemplate } from './template';
 import { parseScripts } from './scripts';
+import { patchCode } from './utils';
 
 export interface ParseVueOptions {
   id: string;
   name: string;
   source: string;
-  dependencies?: Record<string, string[]>;
 }
 
-export function parseVue(options: ParseVueOptions) {
-  const { id, name, source, dependencies } = options;
-  const depsMap = parseDeps(dependencies);
+export async function parseVue(options: ParseVueOptions) {
+  const { id, name, source } = options;
   const sfc = parseSFC(source);
-  const { state, watch, lifeCycles, computed, methods, props } = parseScripts(
-    sfc.script
-  );
-  const { nodes, slots } = parseTemplate(id, name, sfc.template);
-
-  // const ast = parseScript(sfc.script);
-
+  const { state, watch, lifeCycles, computed, methods, props, emits, inject } =
+    parseScripts(sfc.script);
+  const { nodes, slots, context } = parseTemplate(id, name, sfc.template);
   const dsl: BlockSchema = {
     id,
     name,
+    inject,
     props,
     state,
     watch,
@@ -31,27 +28,63 @@ export function parseVue(options: ParseVueOptions) {
     computed,
     methods,
     slots,
+    emits,
     nodes
   };
 
-  const model = new BlockModel(dsl);
+  await walkDsl(dsl, async (node: NodeSchema) => {
+    await walkNode(node, async (content: any) => {
+      if (isJSCode(content)) {
+        const options = {
+          context,
+          computed: [],
+          libs: {}
+        };
+        const code = await tsFormatter(content.value);
+        content.value = patchCode(code, node.id as string, options);
+      }
+    });
+  });
 
-  //   console.log(ast);
-  // traverseAST(ast, {
-  //   ExportDefaultDeclaration(path) {
-  //     console.log(path);
-  //   }
-  // });
+  const model = new BlockModel(dsl);
   return model.toDsl();
-  // return dsl;
 }
 
-function parseDeps(dependencies: Record<string, string[]> = {}) {
-  const map: Record<string, string> = {};
-  for (const [name, list] of Object.entries(dependencies)) {
-    for (const item of list) {
-      map[item] = name;
+async function walkDsl(
+  dsl: BlockSchema,
+  callback: (n: NodeSchema, p?: NodeSchema) => Promise<void>
+) {
+  const walking = async (node: NodeSchema, parent?: NodeSchema) => {
+    await callback(node, parent);
+    if (Array.isArray(node.children)) {
+      node.children.forEach((n) => walking(n, node));
+    }
+  };
+
+  if (Array.isArray(dsl.nodes)) {
+    for (const n of dsl.nodes) {
+      await walking(n);
     }
   }
-  return map;
+}
+
+async function walkNode(node: NodeSchema, callback: (n: any) => Promise<void>) {
+  const walking = async (item: unknown) => {
+    if (!item) return;
+    if (typeof item !== 'object') return;
+    if (Array.isArray(item)) {
+      for (let n of item) {
+        await callback(n);
+        await walking(n);
+      }
+      return;
+    }
+
+    const values = Object.values(item as Record<string, any>);
+    for (const value of values) {
+      await callback(value);
+      await walking(value);
+    }
+  };
+  await walking(node);
 }
