@@ -4,14 +4,17 @@ export interface ExpressionOptions {
   context: Record<string, Set<string>>;
   computed: string[];
   libs: Record<string, string>;
+  members: string[];
 }
 
 export function replacer(content: string, key: string, to: string) {
-  const r1 = new RegExp(key, 'g');
-  const r2 = /(\{|\.|\,)$/;
+  const r1 = new RegExp(`${key}`, 'g');
+  const r2 = /(\{|\.|\,|\w)$/;
+  const r3 = /^\w/;
   return content.replace(r1, (str, index, source) => {
-    const leftStr = source.substring(0, index);
-    if (r2.test(leftStr.trim())) {
+    const start = source.substring(0, index);
+    const end = source.substring(index + key.length);
+    if (r2.test(start.trim()) || r3.test(end.trim())) {
       return str;
     }
     return to;
@@ -23,7 +26,12 @@ export function patchCode(
   id: string,
   options: ExpressionOptions
 ) {
-  const { context = {}, computed = [], libs = {} } = options || {};
+  const {
+    context = {},
+    computed = [],
+    libs = {},
+    members = []
+  } = options || {};
   const contextKeys = Array.from(context[id || ''] || new Set());
   if (contextKeys) {
     for (const key of contextKeys) {
@@ -37,6 +45,10 @@ export function patchCode(
 
   for (const [key, value] of Object.entries(libs)) {
     content = replacer(content, key, `this.$libs.${value}.${key}`);
+  }
+
+  for (const key of members) {
+    content = replacer(content, key, `this.${key}`);
   }
 
   return content;

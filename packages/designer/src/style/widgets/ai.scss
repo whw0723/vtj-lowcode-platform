@@ -33,6 +33,16 @@
       margin-bottom: 10px;
     }
   }
+
+  @include e(mask) {
+    position: absolute;
+    inset: 0;
+    background-color: var(--el-mask-color-extra-light);
+    z-index: 10;
+  }
+  @include e(wrapper) {
+    position: relative;
+  }
 }
 
 @include b(ai-widget-record) {

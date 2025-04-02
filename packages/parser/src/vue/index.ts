@@ -9,7 +9,9 @@ import { parseSFC, isJSCode } from '../shared';
 import { parseTemplate } from './template';
 import { parseScripts, type ImportStatement } from './scripts';
 import { parseStyle } from './style';
-import { patchCode } from './utils';
+import { patchCode, replacer } from './utils';
+
+export { patchCode, replacer };
 
 export interface ParseVueOptions {
   id: string;
@@ -55,6 +57,24 @@ export async function parseVue(options: ParseVueOptions) {
   };
 
   const computedKeys = Object.keys(computed || {});
+  const members: string[] = [
+    '$el',
+    '$emit',
+    '$nextTick',
+    '$parent',
+    '$root',
+    '$refs',
+    '$attrs',
+    '$slots',
+    '$watch',
+    '$props',
+    '$options',
+    '$forceUpdate',
+    'state',
+    '$props',
+    'props',
+    ...Object.keys(methods || {})
+  ];
   const { libs } = parseDeps(imports, dependencies);
   await walkDsl(dsl, async (node: NodeSchema) => {
     await walkNode(node, async (content: any) => {
@@ -62,7 +82,8 @@ export async function parseVue(options: ParseVueOptions) {
         const options = {
           context,
           computed: computedKeys,
-          libs
+          libs,
+          members
         };
         const code = await tsFormatter(content.value);
         content.value = patchCode(code, node.id as string, options);
