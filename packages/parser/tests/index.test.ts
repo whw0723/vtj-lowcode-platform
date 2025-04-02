@@ -2,11 +2,7 @@ import { expect, test } from 'vitest';
 import { tsFormatter } from '@vtj/coder';
 import { parseUniApp, parseVue } from '../src';
 import { App } from './UniApp';
-import { template1 } from './template';
-
-const dependencies = {
-  'element-plus': ['ElInput', 'ElButton']
-};
+import { template1, dependencies } from './template';
 
 // test('index', async () => {
 //   const result = parseUniApp(App);
@@ -19,7 +15,8 @@ test('template1', async () => {
   const result = await parseVue({
     id: '235w0t1w',
     name: 'Bbb',
-    source: template1
+    source: template1,
+    dependencies: dependencies as any
   });
   console.log(JSON.stringify(result, null, 2));
 

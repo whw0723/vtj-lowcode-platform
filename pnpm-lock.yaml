@@ -822,6 +822,9 @@ importers:
       '@vue/compiler-sfc':
         specifier: ~3.5.13
         version: 3.5.13
+      postcss:
+        specifier: ~8.5.0
+        version: 8.5.3
     devDependencies:
       '@vtj/cli':
         specifier: workspace:~

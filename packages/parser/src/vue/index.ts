@@ -1,22 +1,43 @@
-import { type BlockSchema, type NodeSchema, BlockModel } from '@vtj/core';
+import {
+  type BlockSchema,
+  type NodeSchema,
+  type Dependencie,
+  BlockModel
+} from '@vtj/core';
 import { tsFormatter } from '@vtj/coder';
 import { parseSFC, isJSCode } from '../shared';
 import { parseTemplate } from './template';
-import { parseScripts } from './scripts';
+import { parseScripts, type ImportStatement } from './scripts';
+import { parseStyle } from './style';
 import { patchCode } from './utils';
 
 export interface ParseVueOptions {
   id: string;
   name: string;
   source: string;
+  dependencies?: Dependencie[];
 }
 
 export async function parseVue(options: ParseVueOptions) {
-  const { id, name, source } = options;
+  const { id, name, source, dependencies = [] } = options;
   const sfc = parseSFC(source);
-  const { state, watch, lifeCycles, computed, methods, props, emits, inject } =
-    parseScripts(sfc.script);
-  const { nodes, slots, context } = parseTemplate(id, name, sfc.template);
+  const { styles, css } = parseStyle(sfc.styles.join('\n'));
+  const {
+    state,
+    watch,
+    lifeCycles,
+    computed,
+    methods,
+    props,
+    emits,
+    inject,
+    handlers,
+    imports
+  } = parseScripts(sfc.script);
+  const { nodes, slots, context } = parseTemplate(id, name, sfc.template, {
+    handlers,
+    styles
+  });
   const dsl: BlockSchema = {
     id,
     name,
@@ -29,16 +50,19 @@ export async function parseVue(options: ParseVueOptions) {
     methods,
     slots,
     emits,
-    nodes
+    nodes,
+    css
   };
 
+  const computedKeys = Object.keys(computed || {});
+  const { libs } = parseDeps(imports, dependencies);
   await walkDsl(dsl, async (node: NodeSchema) => {
     await walkNode(node, async (content: any) => {
       if (isJSCode(content)) {
         const options = {
           context,
-          computed: [],
-          libs: {}
+          computed: computedKeys,
+          libs
         };
         const code = await tsFormatter(content.value);
         content.value = patchCode(code, node.id as string, options);
@@ -87,4 +111,29 @@ async function walkNode(node: NodeSchema, callback: (n: any) => Promise<void>) {
     }
   };
   await walking(node);
+}
+
+function parseDeps(
+  imports: ImportStatement[] = [],
+  dependencies: Dependencie[] = []
+) {
+  const libs: Record<string, string> = {};
+  const depsMap = dependencies.reduce(
+    (prev, current) => {
+      prev[current.package] = current.library;
+      return prev;
+    },
+    {} as Record<string, string>
+  );
+  for (const { from, imports: names } of imports) {
+    names.forEach((name) => {
+      const library = depsMap[from];
+      if (library) {
+        libs[name] = library;
+      }
+    });
+  }
+  return {
+    libs
+  };
 }

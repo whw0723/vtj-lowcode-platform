@@ -4,7 +4,8 @@ import {
   type NodeEvents,
   type JSExpression,
   type NodeDirective,
-  type BlockSlot
+  type BlockSlot,
+  type JSFunction
 } from '@vtj/core';
 import { compileTemplate } from '@vue/compiler-sfc';
 import {
@@ -20,13 +21,29 @@ import {
 import { uid } from '@vtj/base';
 import { isJSExpression, isNodeSchema } from '../shared';
 import { getJSExpression, getJSFunction } from './utils';
+import type { CSSRules } from './style';
 
 let __slots: BlockSlot[] = [];
 let __context: Record<string, Set<string>> = {};
+let __handlers: Record<string, JSFunction> = {};
+let __styles: CSSRules = {};
 
-export function parseTemplate(id: string, name: string, content: string = '') {
+export interface ParseTemplateOptions {
+  handlers?: Record<string, JSFunction>;
+  styles?: CSSRules;
+}
+
+export function parseTemplate(
+  id: string,
+  name: string,
+  content: string = '',
+  options?: ParseTemplateOptions
+) {
   __slots = [];
   __context = {};
+  __handlers = options?.handlers || {};
+  __styles = options?.styles || {};
+
   const result = compileTemplate({
     id,
     filename: name,
@@ -64,7 +81,21 @@ function getProps(nodes: Array<AttributeNode | DirectiveNode>) {
   for (const item of nodes) {
     // 普通属性
     if (item.type === NodeTypes.ATTRIBUTE) {
-      props[item.name] = item.value?.content || '';
+      if (item.name === 'class') {
+        const classValue = item.value?.content || '';
+        const classRegex = /[\w]+_[\w]{5,}/;
+        const selector = classValue.match(classRegex)?.[0] || '';
+        const classes = classValue.split(' ').filter((n) => n !== selector);
+        const style = __styles[`.${selector}`];
+        if (style) {
+          props.style = style;
+        }
+        if (classes.length) {
+          props.class = classes.join(' ');
+        }
+      } else {
+        props[item.name] = item.value?.content || '';
+      }
     }
 
     // 动态绑定的属性
@@ -81,7 +112,10 @@ function getProps(nodes: Array<AttributeNode | DirectiveNode>) {
   return props;
 }
 
-function getEvents(nodes: Array<AttributeNode | DirectiveNode>) {
+function getEvents(
+  nodes: Array<AttributeNode | DirectiveNode>,
+  handlers: Record<string, JSFunction> = {}
+) {
   const events: NodeEvents = {};
   for (const item of nodes) {
     // 动态绑定的属性
@@ -97,11 +131,23 @@ function getEvents(nodes: Array<AttributeNode | DirectiveNode>) {
           },
           {} as Record<string, boolean>
         );
-        events[item.arg.content] = {
-          name: item.arg.content,
-          handler: getJSFunction(`(${item.exp?.loc.source})`),
-          modifiers
-        };
+        const code = item.exp?.loc.source || '';
+        const regex = new RegExp(`${item.arg.content}_\[\\w\]\{5\,\}`);
+        const name = code.match(regex)?.[0] || '';
+        const handler = handlers[name];
+        if (name && handler) {
+          events[item.arg.content] = {
+            name: item.arg.content,
+            handler,
+            modifiers
+          };
+        } else {
+          events[item.arg.content] = {
+            name: item.arg.content,
+            handler: getJSFunction(`(${code})`),
+            modifiers
+          };
+        }
       }
     }
   }
@@ -232,7 +278,7 @@ function createNodeSchema(
   const dsl: NodeSchema = {
     name: node.tag,
     props: getProps(node.props),
-    events: getEvents(node.props),
+    events: getEvents(node.props, __handlers),
     directives: getDirectives(scope || node)
   };
   dsl.id = getNodeId(dsl);
