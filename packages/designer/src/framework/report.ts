@@ -16,7 +16,7 @@ export type ReportType = 'init' | 'online' | 'event' | 'error';
 export const excludeErrors = [
   '"ResizeObserver loop completed with undelivered notifications."',
   'ResizeObserver loop completed with undelivered notifications.',
-  'ResizeObserver loop completed with undelivered notifications.',
+  '"ResizeObserver loop completed with undelivered notifications."',
   'ResizeObserver loop limit exceeded'
 ];
 
@@ -62,12 +62,16 @@ export class Report {
         (res) => {
           if (res && res.data && res.data.code !== 0) {
             const { url, data, params, headers } = res.config;
-            this.error(res.data, {
-              url,
-              data,
-              params,
-              headers
-            });
+            const urls = ['/__vtj__/', 'lcdp.vtj.pro'];
+            const isVtj = urls.some((n) => url?.includes(n));
+            if (isVtj) {
+              this.error(res.data, {
+                url,
+                data,
+                params,
+                headers
+              });
+            }
           }
           return res;
         },
@@ -77,7 +81,7 @@ export class Report {
             event: e,
             eventString: e.toString()
           });
-          return e;
+          return Promise.reject(e);
         }
       );
     }
