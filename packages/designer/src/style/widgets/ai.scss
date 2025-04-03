@@ -81,7 +81,7 @@
     font-size: 12px;
     line-height: 1.5em;
     > div {
-      margin-bottom: 8px;
+      margin-bottom: 4px;
     }
   }
   @include e(content) {
@@ -110,6 +110,7 @@
   @include e(tools) {
     justify-content: flex-end;
     display: flex;
+    margin-bottom: 4px;
   }
 }
 
@@ -117,8 +118,7 @@
   height: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  margin-top: -100px;
+  overflow: hidden;
   @include e(welcome) {
     text-align: center;
     line-height: 1.5em;

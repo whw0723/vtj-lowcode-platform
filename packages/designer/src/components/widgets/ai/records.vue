@@ -1,6 +1,12 @@
 <template>
   <div class="v-ai-widget-record">
-    <ElButton class="new-btn" round plain type="primary" :icon="VtjIconNewChat">
+    <ElButton
+      class="new-btn"
+      round
+      plain
+      type="primary"
+      :icon="VtjIconNewChat"
+      @click="onNewChat">
       开启新对话
     </ElButton>
     <ElDivider content-position="left" border-style="dotted">
@@ -15,7 +21,9 @@
         :model-value="item"
         :active="index == 1"
         background
-        :actions="['remove']">
+        :actions="['remove']"
+        @click="onClickItem"
+        @action="onAction">
       </Item>
     </div>
   </div>
@@ -24,4 +32,18 @@
   import { VtjIconNewChat } from '@vtj/icons';
   import { ElDivider, ElButton, ElEmpty } from 'element-plus';
   import { Item } from '../../shared';
+
+  const emit = defineEmits(['new', 'load']);
+
+  const onNewChat = () => {
+    emit('new');
+  };
+
+  const onClickItem = () => {
+    emit('load');
+  };
+
+  const onAction = (e: any) => {
+    console.log(e);
+  };
 </script>

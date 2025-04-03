@@ -52,9 +52,14 @@
   @include e(title-wrapper) {
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap;
     width: 1px;
     flex-grow: 1;
+  }
+
+  @include when(nowrap) {
+    @include e(title-wrapper) {
+      white-space: nowrap;
+    }
   }
 
   @include e(title) {
