@@ -147,7 +147,7 @@ export const template1 = `
     header="标题"
     @click.stop="(...args: any[]) => click_13mxuu2q({ item, index }, args)">
     <div class="my-div div_193l8saav">
-      <span> {{ item }}</span>
+      <span style="font-size:20px"> {{ item }}</span>
     </div></XPanel
   >
   <ElButton type="primary" @click="click_33mxuu2q"> 按钮</ElButton>

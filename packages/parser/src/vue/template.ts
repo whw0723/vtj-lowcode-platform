@@ -76,6 +76,17 @@ function pickSlot(node: NodeSchema) {
   }
 }
 
+function styleToJson(style: string) {
+  const cleaned = style.replace(/\s+/g, ' ');
+  return cleaned.split(';').reduce((acc: Record<string, string>, current) => {
+    const [property, value] = current.split(':').map((item) => item.trim());
+    if (property && value) {
+      acc[property] = value;
+    }
+    return acc;
+  }, {});
+}
+
 function getProps(nodes: Array<AttributeNode | DirectiveNode>) {
   const props: NodeProps = {};
   for (const item of nodes) {
@@ -93,6 +104,11 @@ function getProps(nodes: Array<AttributeNode | DirectiveNode>) {
         if (classes.length) {
           props.class = classes.join(' ');
         }
+      } else if (item.name === 'style') {
+        const styleValue = item.value?.content || '';
+        if (styleValue) {
+          props.style = styleToJson(styleValue);
+        }
       } else {
         props[item.name] = item.value?.content || '';
       }
@@ -105,10 +121,11 @@ function getProps(nodes: Array<AttributeNode | DirectiveNode>) {
         item.exp?.type === NodeTypes.SIMPLE_EXPRESSION &&
         item.arg?.type === NodeTypes.SIMPLE_EXPRESSION
       ) {
-        props[item.arg.content] = getJSExpression(item.exp.content);
+        props[item.arg.content] = getJSExpression(`(${item.exp.content})`);
       }
     }
   }
+
   return props;
 }
 

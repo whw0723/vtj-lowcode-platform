@@ -11,7 +11,7 @@ import {
   type VTJConfig
 } from '@vtj/core';
 import { resolve } from 'path';
-import { readJsonSync, upperFirstCamelCase, timestamp } from '@vtj/node';
+import { readJsonSync, upperFirstCamelCase, timestamp, uuid } from '@vtj/node';
 import { generator, createEmptyPage } from '@vtj/coder';
 import formidable from 'formidable';
 import { fail, success, type ApiRequest } from './shared';
@@ -94,6 +94,9 @@ export async function init(_body: any, opts: DevToolsOptions) {
       repository.save(id, dsl);
     }
     dsl.__BASE_PATH__ = opts.staticBase;
+    if (!dsl.__UID__) {
+      dsl.__UID__ = uuid(true);
+    }
     return success(dsl);
   } else {
     const model = new ProjectModel({
