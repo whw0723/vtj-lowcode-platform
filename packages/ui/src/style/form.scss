@@ -6,4 +6,18 @@
       margin-right: 0;
     }
   }
+  @include when(sticky) {
+    position: relative;
+    height: 100%;
+    overflow: auto;
+
+    @include e(footer) {
+      position: sticky;
+      bottom: 0;
+      width: 100%;
+      margin-bottom: 0;
+      padding: 0 18px;
+      background-color: var(--el-mask-color);
+    }
+  }
 }

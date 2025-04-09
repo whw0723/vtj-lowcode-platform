@@ -49,7 +49,11 @@ const desc: MaterialDescription = {
       title: '回车键触发提交',
       setters: 'BooleanSetter'
     },
-
+    {
+      name: 'sticky',
+      title: '开启底部sticky定位',
+      setters: 'BooleanSetter'
+    },
     ...omitPropItem(elForm[0].props, ['model', 'inline'])
   ],
   events: [

@@ -66,6 +66,14 @@ export const formProps = {
   enterSubmit: {
     type: Boolean,
     default: true
+  },
+
+  /**
+   * 开启 sticky
+   */
+  sticky: {
+    type: Boolean,
+    default: false
   }
 };
 

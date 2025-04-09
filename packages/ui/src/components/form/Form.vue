@@ -2,6 +2,7 @@
   <ElForm
     ref="formRef"
     class="x-form"
+    :class="classes"
     :inline="props.inline"
     :model="model"
     @keyup.enter="onEnter"
@@ -37,7 +38,8 @@
     watch,
     ref,
     reactive,
-    toRaw
+    toRaw,
+    computed
   } from 'vue';
   import { ElForm, ElButton } from 'element-plus';
   import {
@@ -60,6 +62,11 @@
   const formRef = ref();
   const model = reactive<FormModel>(props.model || {});
   const loading = ref(false);
+  const classes = computed(() => {
+    return {
+      'is-sticky': !!props.sticky
+    };
+  });
 
   provide(formInstanceKey, instance);
   provide(formModelKey, model);
