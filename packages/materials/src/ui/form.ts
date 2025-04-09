@@ -54,6 +54,13 @@ const desc: MaterialDescription = {
       title: '开启底部sticky定位',
       setters: 'BooleanSetter'
     },
+    {
+      name: 'footerAlign',
+      title: '底部对齐方式',
+      setters: 'SelectSetter',
+      defaultValue: 'left',
+      options: ['left', 'center', 'right']
+    },
     ...omitPropItem(elForm[0].props, ['model', 'inline'])
   ],
   events: [

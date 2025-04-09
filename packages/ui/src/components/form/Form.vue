@@ -9,7 +9,12 @@
     @submit.stop.prevent
     v-bind="$attrs">
     <slot></slot>
-    <XField v-if="props.footer" editor="none" class="x-form__footer" label=" ">
+    <XField
+      v-if="props.footer"
+      editor="none"
+      class="x-form__footer"
+      :class="footerClasses"
+      label=" ">
       <template #editor>
         <slot name="footer">
           <ElButton
@@ -65,6 +70,12 @@
   const classes = computed(() => {
     return {
       'is-sticky': !!props.sticky
+    };
+  });
+
+  const footerClasses = computed(() => {
+    return {
+      [`is-algin-${props.footerAlign}`]: true
     };
   });
 

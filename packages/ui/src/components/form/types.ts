@@ -74,6 +74,13 @@ export const formProps = {
   sticky: {
     type: Boolean,
     default: false
+  },
+  /**
+   * 底部按钮对齐方式
+   */
+  footerAlign: {
+    type: String as PropType<'left' | 'center' | 'right'>,
+    default: 'left'
   }
 };
 
