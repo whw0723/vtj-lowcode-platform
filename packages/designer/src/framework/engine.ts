@@ -38,7 +38,8 @@ import {
   type ProjectModelEvent,
   type PageFile,
   type HistoryItem,
-  type HistoryModelEvent
+  type HistoryModelEvent,
+  type BlockSchema
 } from '@vtj/core';
 import {
   type Context,
@@ -426,6 +427,11 @@ export class Engine extends Base {
       };
       return dsl ? await this.service.genSource(dsl) : undefined;
     }
+  }
+
+  public async applyAI(dsl: BlockSchema) {
+    const block = new BlockModel(dsl);
+    block.update(dsl);
   }
 
   private async publishCurrent() {

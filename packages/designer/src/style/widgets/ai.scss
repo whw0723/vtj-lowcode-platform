@@ -18,13 +18,13 @@
   }
   @include e(drawer) {
     box-shadow: none;
+    --el-drawer-padding-primary: 0;
   }
 
   @include e(bubble-list) {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    overflow-y: auto;
   }
 
   @include e(input) {
@@ -65,15 +65,44 @@
 }
 
 @include b(ai-widget-input) {
-  .el-button {
-    margin: 10px 0;
+  position: relative;
+
+  .el-textarea__inner {
+    padding-bottom: 45px;
+  }
+
+  @include e(footer) {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    position: absolute;
     width: 100%;
+    bottom: 0;
+    padding: 5px;
+    border-top: 1px solid var(--el-border-color-lighter);
+    .el-select {
+      width: 120px;
+    }
+    .el-select__wrapper:not(.is-disabled) {
+      box-shadow: 0 0 0 1px var(--el-color-primary) inset !important;
+      color: var(--el-color-primary);
+    }
+    .el-select__input,
+    .el-select__placeholder {
+      color: var(--el-color-primary);
+    }
+    .el-button {
+      margin-left: auto;
+    }
   }
 }
 
 @include b(ai-widget-bubble) {
   display: flex;
   column-gap: 8px;
+  pre {
+    white-space: pre-wrap;
+  }
   @include e(avatar) {
     flex-shrink: 0;
   }
@@ -90,6 +119,8 @@
     line-height: 1.5em;
     background-color: var(--el-color-primary-light-9);
     border-radius: 4px;
+    position: relative;
+    min-height: 32px;
   }
 
   @include when(user) {
@@ -100,6 +131,10 @@
   @include when(ai) {
     @include e(content) {
       background-color: var(--el-color-info-light-9);
+      @include when(Failed) {
+        background-color: var(--el-color-error-light-9);
+        color: var(--el-color-error);
+      }
     }
   }
 
@@ -111,6 +146,22 @@
     justify-content: flex-end;
     display: flex;
     margin-bottom: 4px;
+  }
+
+  @include e(loading) {
+    position: absolute !important;
+    left: -10px;
+    bottom: -25px;
+  }
+
+  @include e(reasoning) {
+    border-left: 3px solid var(--el-border-color-light);
+    padding-left: 5px;
+    margin-bottom: 5px;
+  }
+  @include e(toggle) {
+    cursor: pointer;
+    margin-bottom: 5px;
   }
 }
 
@@ -132,5 +183,12 @@
 
   @include e(options) {
     margin-bottom: 8px;
+  }
+}
+
+.llm-popper {
+  .el-select-dropdown__item {
+    height: 26px;
+    line-height: 26px;
   }
 }

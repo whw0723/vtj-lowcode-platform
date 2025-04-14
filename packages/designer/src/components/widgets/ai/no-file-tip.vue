@@ -2,8 +2,9 @@
   <div class="v-ai-widget__mask"></div>
   <div class="login-tip">
     <ElAlert
-      title="当前设计视图无任何文件，请新建或打开文件后再使用AI助手"
+      title="请新建或打开文件后再使用AI助手"
       type="warning"
+      show-icon
       :closable="false"></ElAlert>
   </div>
 </template>

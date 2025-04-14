@@ -142,56 +142,108 @@ export const dependencies = [
 
 export const template1 = `
 <template>
-  <XPanel
-    v-for="(item, index) in 3"
-    header="标题"
-    @click.stop="(...args: any[]) => click_13mxuu2q({ item, index }, args)">
-    <div class="my-div div_193l8saav">
-      <span style="font-size:20px"> {{ item }}</span>
-    </div></XPanel
-  >
-  <ElButton type="primary" @click="click_33mxuu2q"> 按钮</ElButton>
+  <div class="login-container">
+    <el-card class="login-card">
+      <h2 class="login-title">用户登录</h2>
+      <el-form :model="state.form" :rules="state.rules" ref="loginForm">
+        <el-form-item prop="username">
+          <el-input
+            v-model="state.form.username"
+            placeholder="请输入用户名"
+            prefix-icon="el-icon-user"
+          ></el-input>
+        </el-form-item>
+        <el-form-item prop="password">
+          <el-input
+            v-model="state.form.password"
+            placeholder="请输入密码"
+            type="password"
+            prefix-icon="el-icon-lock"
+            show-password
+          ></el-input>
+        </el-form-item>
+        <el-form-item>
+          <el-button
+            type="primary"
+            @click="handleLogin"
+            class="login-btn"
+            :loading="state.loading"
+          >登录</el-button>
+        </el-form-item>
+      </el-form>
+    </el-card>
+  </div>
 </template>
-<script lang="ts">
-  // @ts-nocheck
+<script>
   import { defineComponent, reactive } from 'vue';
-  import { XPanel } from '@vtj/ui';
-  import { ElButton } from 'element-plus';
-  import { dateFormat } from '@vtj/utils';
   import { useProvider } from '@vtj/renderer';
+  import { ElCard, ElForm, ElFormItem, ElInput, ElButton } from 'element-plus';
   export default defineComponent({
-    name: 'Bbb',
-    components: { XPanel, ElButton },
+    name: 'LoginPage',
+    components: {
+      ElCard,
+      ElForm,
+      ElFormItem,
+      ElInput,
+      ElButton
+    },
     setup(props) {
-      const provider = useProvider({ id: '13dbje0g', version: '1743578537999' });
-      const state = reactive({});
-      return { state, props, provider, dateFormat };
+      const provider = useProvider({ id: '45tltwv09', version: '1740707174334' });
+      const state = reactive({
+        form: {
+          username: '',
+          password: ''
+        },
+        rules: {
+          username: [
+            { required: true, message: '请输入用户名', trigger: 'blur' }
+          ],
+          password: [
+            { required: true, message: '请输入密码', trigger: 'blur' }
+          ]
+        },
+        loading: false
+      });
+      return { state, props, provider };
     },
     methods: {
-      click_13mxuu2q({ item, index }, args) {
-        return (() => {
-          console.log('click panel!', item);
-        }).apply(this, args);
-      },
-      click_33mxuu2q(e) {
-        console.log('click button!', e);
-        console.log(dateFormat(new Date(), 'YYYY-MM-DD'));
+      handleLogin() {
+        this.$refs.loginForm.validate(valid => {
+          if (valid) {
+            this.state.loading = true;
+            // 这里可以添加登录逻辑
+            console.log('登录信息:', this.state.form);
+            // 模拟登录请求
+            setTimeout(() => {
+              this.state.loading = false;
+              this.$message.success('登录成功');
+            }, 1000);
+          }
+        });
       }
     }
-  })
+  });
 </script>
-<style lang="scss" scoped>
-  .my-div {
-    color: red;
+<style lang="css" scoped>
+  .login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f5f7fa;
   }
-
-  .div_193l8saav {
-    padding-top: 20px;
-    padding-bottom: 20px;
-    padding-left: 20px;
-    padding-right: 20px;
+  .login-card {
+    width: 400px;
+    padding: 20px;
+  }
+  .login-title {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #409eff;
+  }
+  .login-btn {
+    width: 100%;
   }
 </style>
-
 
 `;

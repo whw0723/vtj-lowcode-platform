@@ -12,38 +12,49 @@
     <ElDivider content-position="left" border-style="dotted">
       历史对话
     </ElDivider>
-    <ElEmpty description="暂无历史对话"></ElEmpty>
-    <div class="v-ai-widget-record__list">
+
+    <div v-if="props.topics.length" class="v-ai-widget-record__list">
       <Item
-        v-for="(item, index) in 20"
+        v-for="(item, index) in props.topics"
         :index="index + 1"
-        title="用户让我制作一个VTJ低代码引擎的着陆页用"
+        :title="item.title"
         :model-value="item"
-        :active="index == 1"
+        :active="current?.id === item.id"
         background
         :actions="['remove']"
-        @click="onClickItem"
+        @click="onClickItem(item)"
         @action="onAction">
       </Item>
     </div>
+    <ElEmpty v-else description="暂无历史对话"></ElEmpty>
   </div>
 </template>
 <script setup lang="ts">
   import { VtjIconNewChat } from '@vtj/icons';
   import { ElDivider, ElButton, ElEmpty } from 'element-plus';
   import { Item } from '../../shared';
+  import { type AITopic } from '../../hooks';
 
-  const emit = defineEmits(['new', 'load']);
+  export interface Props {
+    topics?: AITopic[];
+    current?: AITopic | null;
+  }
+
+  const props = withDefaults(defineProps<Props>(), {
+    topics: () => []
+  });
+
+  const emit = defineEmits(['new', 'load', 'remove']);
 
   const onNewChat = () => {
     emit('new');
   };
 
-  const onClickItem = () => {
-    emit('load');
+  const onClickItem = (item: AITopic) => {
+    emit('load', item);
   };
 
   const onAction = (e: any) => {
-    console.log(e);
+    emit('remove', e.modelValue as AITopic);
   };
 </script>

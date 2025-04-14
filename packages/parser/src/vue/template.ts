@@ -20,7 +20,7 @@ import {
 } from '@vue/compiler-core';
 import { uid } from '@vtj/base';
 import { isJSExpression, isNodeSchema } from '../shared';
-import { getJSExpression, getJSFunction } from './utils';
+import { getJSExpression, getJSFunction, formatTagName } from './utils';
 import type { CSSRules } from './style';
 
 let __slots: BlockSlot[] = [];
@@ -293,7 +293,7 @@ function createNodeSchema(
   scope?: IfNode | ForNode
 ) {
   const dsl: NodeSchema = {
-    name: node.tag,
+    name: formatTagName(node.tag),
     props: getProps(node.props),
     events: getEvents(node.props, __handlers),
     directives: getDirectives(scope || node)

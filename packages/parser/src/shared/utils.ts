@@ -27,12 +27,14 @@ export function traverseAST(
   ast: ReturnType<typeof parseScript>,
   options: TraverseOptions
 ) {
-  return traverse(ast, options);
+  const func = (traverse as any).default || traverse;
+  return func(ast, options);
 }
 
 export function generateCode(node: Node) {
   try {
-    const generated = generate(node, {
+    const func = (generate as any).default || generate;
+    const generated = func(node, {
       comments: false,
       concise: true,
       retainLines: false,

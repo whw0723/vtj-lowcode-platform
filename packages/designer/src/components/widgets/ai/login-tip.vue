@@ -1,12 +1,19 @@
 <template>
   <div class="v-ai-widget__mask"></div>
   <div class="login-tip">
-    <ElAlert type="info" :closable="false">
+    <ElAlert type="warning" :closable="false" title="使用AI助手需登录">
       <div class="login-tip__content">
-        使用AI助手需登录，您还没登录或登录已失效，请重新登录！
-        <ElButton size="small" type="primary" round plain @click="toRemoteAuth">
-          立即登录
-        </ElButton>
+        <div>
+          您还没登录或登录已失效，请重新登录！
+          <ElButton
+            size="small"
+            type="primary"
+            round
+            plain
+            @click="toRemoteAuth">
+            立即登录
+          </ElButton>
+        </div>
       </div>
     </ElAlert>
   </div>

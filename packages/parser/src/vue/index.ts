@@ -2,6 +2,7 @@ import {
   type BlockSchema,
   type NodeSchema,
   type Dependencie,
+  type ParseVueOptions,
   BlockModel
 } from '@vtj/core';
 import { tsFormatter } from '@vtj/coder';
@@ -12,13 +13,6 @@ import { parseStyle } from './style';
 import { patchCode, replacer } from './utils';
 
 export { patchCode, replacer };
-
-export interface ParseVueOptions {
-  id: string;
-  name: string;
-  source: string;
-  dependencies?: Dependencie[];
-}
 
 export async function parseVue(options: ParseVueOptions) {
   const { id, name, source, dependencies = [] } = options;

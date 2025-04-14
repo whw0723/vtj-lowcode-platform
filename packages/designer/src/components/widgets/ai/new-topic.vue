@@ -5,15 +5,19 @@
       <div>我可以帮你开发低代码页面，请把你的任务交给我吧~</div>
     </div>
 
-    <div v-if="!disabledType" class="v-ai-widget-new-chat__options">
+    <div class="v-ai-widget-new-chat__options">
       <ElSegmented
-        :disabled="disabledType"
+        :disabled="loading || disabledType"
         v-model="currentOption"
-        :options="options"
+        :options="props.types"
         size="small"
         :block="false"></ElSegmented>
     </div>
-    <ChatInput :min-rows="5" @send="onSend"></ChatInput>
+    <ChatInput
+      :min-rows="5"
+      :models="props.models"
+      :loading="props.loading"
+      @send="onSend"></ChatInput>
 
     <ElDivider content-position="left">热门需求</ElDivider>
     <div>
@@ -30,43 +34,49 @@
   </div>
 </template>
 <script lang="ts" setup>
-  import { ref, computed } from 'vue';
+  import { ref, computed, watch } from 'vue';
   import { ElSegmented, ElDivider } from 'element-plus';
   import ChatInput from './chat-input.vue';
   import { Item } from '../../shared';
-  import { useOpenApi } from '../../hooks';
+  import { useOpenApi, type Dict, type AISendData } from '../../hooks';
 
   export interface Props {
-    type: 'new' | 'edit';
+    models?: Dict[];
+    types?: Dict[];
+    loading?: boolean;
   }
 
-  const emit = defineEmits(['send']);
+  const props = withDefaults(defineProps<Props>(), {
+    models: () => [],
+    types: () => []
+  });
+
+  const emit = defineEmits<{
+    send: [data: AISendData];
+  }>();
 
   const { engine } = useOpenApi();
 
-  const options = [
-    {
-      label: '重置',
-      value: 'new'
-    },
-    {
-      label: '迭代',
-      value: 'edit'
-    }
-  ];
-
-  // 如果是空白页面，只能是新增，不能为迭代选项
   const disabledType = computed(() => {
     return !engine.current.value?.nodes.length;
   });
 
-  const currentOption = ref(disabledType.value ? 'new' : 'edit');
+  const currentOption = ref('New');
+
+  // 如果是空白页面，只能是新增，不能为迭代选项
+  watch(
+    disabledType,
+    (v) => {
+      currentOption.value = v ? 'New' : 'Edit';
+    },
+    { immediate: true }
+  );
 
   const onTopicClick = () => {
     console.log('click topic');
   };
 
-  const onSend = (text: string) => {
-    emit('send', { type: currentOption.value, content: text });
+  const onSend = (data: AISendData) => {
+    emit('send', { type: currentOption.value, ...data } as AISendData);
   };
 </script>

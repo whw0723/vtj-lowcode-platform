@@ -1,7 +1,7 @@
 <template>
   <ElAvatar
     class="v-user-avatar"
-    :size="24"
+    :size="26"
     :icon="UserFilled"
     :src="avatarSrc"></ElAvatar>
 </template>

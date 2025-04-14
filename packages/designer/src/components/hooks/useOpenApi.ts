@@ -29,6 +29,24 @@ export interface TemplateDto {
   platform: string;
 }
 
+export interface TopicDto {
+  model: string;
+  projectId: string;
+  appId: string;
+  fileId: string;
+  type: string;
+  prompt: string;
+  dsl: string;
+  platform: PlatformType;
+  dependencies: string[];
+  vue: string;
+}
+
+export interface ChatDto {
+  topicId: string;
+  prompt: string;
+}
+
 export function useOpenApi() {
   const engine = useEngine();
   const { access, remote } = engine || {};
@@ -119,6 +137,119 @@ export function useOpenApi() {
       .then((res) => res.json());
   };
 
+  const postTopic = async (dto: TopicDto) => {
+    const token = access?.getData()?.token;
+    const api = `${remote}/api/open/topic/post/${token}`;
+    const res = await window.fetch(api, {
+      method: 'post',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(dto)
+    });
+    return await res.json();
+  };
+
+  const getChats = async (topicId: string) => {
+    const token = access?.getData()?.token;
+    const api = `${remote}/api/open/chat/list/${token}?id=${topicId}`;
+    const res = await window.fetch(api, {
+      method: 'get'
+    });
+    return await res.json();
+  };
+
+  const getTopics = async (fileId: string) => {
+    const token = access?.getData()?.token;
+    const api = `${remote}/api/open/topic/list/${token}?id=${fileId}`;
+    const res = await window.fetch(api, {
+      method: 'get'
+    });
+    return await res.json();
+  };
+
+  const postChat = async (dto: ChatDto) => {
+    const token = access?.getData()?.token;
+    const api = `${remote}/api/open/chat/post/${token}`;
+    const res = await window.fetch(api, {
+      method: 'post',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(dto)
+    });
+    return await res.json();
+  };
+
+  const saveChat = async (chat: any) => {
+    const token = access?.getData()?.token;
+    const api = `${remote}/api/open/chat/save/${token}`;
+    const res = await window.fetch(api, {
+      method: 'post',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(chat)
+    });
+    return await res.json();
+  };
+
+  const removeTopic = async (topicId: string) => {
+    const token = access?.getData()?.token;
+    const api = `${remote}/api/open/topic/remove/${token}?id=${topicId}`;
+    const res = await window.fetch(api, {
+      method: 'get'
+    });
+    return await res.json();
+  };
+
+  const chatCompletions = async (
+    topicId: string,
+    chatId: string,
+    callback?: (data: any, done?: boolean) => void,
+    error?: (err: any, cancel?: boolean) => void
+  ) => {
+    const token = access?.getData()?.token;
+    const api = `${remote}/api/open/completions/${token}?tid=${topicId}&id=${chatId}`;
+    const controller = new AbortController();
+    fetch(api, {
+      method: 'get'
+    })
+      .then(async (res) => {
+        const reader = res.body?.getReader();
+        if (!reader) return;
+        const decoder = new TextDecoder();
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) {
+            callback && callback(null, true);
+            break;
+          }
+
+          const lines = decoder.decode(value).split('\n');
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              try {
+                const data = JSON.parse(line.slice(6));
+                callback && callback(data, done);
+              } catch (e) {
+                const msg = line.slice(6);
+                error && error(msg ? new Error(msg) : e);
+                break;
+              }
+            }
+          }
+        }
+      })
+      .catch((err) => {
+        error && error(err, err.name === 'AbortError');
+      });
+
+    return () => {
+      controller.abort();
+    };
+  };
+
   return {
     engine,
     access,
@@ -131,6 +262,13 @@ export function useOpenApi() {
     getTemplateCategories,
     publishTemplate,
     getTemplateById,
-    removeTemplate
+    removeTemplate,
+    postTopic,
+    getChats,
+    getTopics,
+    postChat,
+    removeTopic,
+    chatCompletions,
+    saveChat
   };
 }

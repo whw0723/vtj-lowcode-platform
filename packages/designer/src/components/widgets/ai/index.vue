@@ -9,33 +9,31 @@
         <XAction
           mode="icon"
           size="large"
-          :icon="recordsIcon"
+          :icon="VtjIconChatRecord"
           background="hover"
           title="对话历史"
           @click="showChatRecored"></XAction>
       </template>
 
       <LoginTip v-if="!logined"></LoginTip>
-      <NoFileTip v-if="isNoFile"></NoFileTip>
-      <NewTopic v-if="isNoFile || isNewChat" @send="onSend"></NewTopic>
+      <NoFileTip v-if="logined && isNoFile"></NoFileTip>
+      <NewTopic
+        v-if="isNoFile || isNewChat"
+        :models="models"
+        :types="topicTypes"
+        :loading="loading"
+        @send="onPostTopic"></NewTopic>
 
-      <div v-if="!isNewChat" class="v-ai-widget__bubble-list">
-        <Bubble type="user">
-          制作一个用户登录页面，表单字段包含用户名和密码，需要对输入进行校验。</Bubble
-        >
-
-        <Bubble
-          type="ai"
-          v-for="i in 1"
-          :key="i"
-          @download="onApply"
-          @view="onView">
-          以下是一个VTJ低代码引擎的现代化着陆页HTML代码，包含响应式设计和关键产品信息展示：
-          以下是一个VTJ低代码引擎的现代化着陆页HTML代码，包含响应式设计和关键产品信息展示：
-        </Bubble>
-        <Bubble type="user">
-          制作一个用户登录页面，表单字段包含用户名和密码，需要对输入进行校验。</Bubble
-        >
+      <div v-if="!isNewChat" ref="listRef" class="v-ai-widget__bubble-list">
+        <template v-for="chat of chats" :key="chat.id">
+          <Bubble type="user" :data="chat"></Bubble>
+          <Bubble
+            type="ai"
+            :data="chat"
+            @view="onView(chat)"
+            @refresh="onRefresh(chat)"
+            @apply="onApply(chat)"></Bubble>
+        </template>
       </div>
 
       <template v-if="!isNewChat" #footer>
@@ -50,25 +48,51 @@
             @click="onNewChat">
             开启新对话
           </ElButton>
-          <ChatInput></ChatInput>
+          <ChatInput
+            v-if="currentTopic"
+            :models="models"
+            :loading="loading"
+            :model="currentTopic?.model"
+            lock-model
+            @send="onPostChat"></ChatInput>
           <div class="footer">内容由 AI 生成，请仔细甄别</div>
         </div>
       </template>
 
-      <ElDrawer
-        class="v-ai-widget__drawer"
-        title="历史对话"
-        size="100%"
-        direction="ltr"
-        :modal="false"
-        :with-header="false"
-        modal-class="v-ai-widget__drawer-modal"
-        :append-to-body="false"
-        v-model="showDrawer">
-        <ChatRecords @new="onNewChat" @load="onRecordLoad"></ChatRecords>
-      </ElDrawer>
-      <Detial v-model="showDetail"></Detial>
+      <Detial
+        v-if="currentChat"
+        v-model="showDetail"
+        :chat="currentChat"></Detial>
     </Panel>
+    <ElDrawer
+      class="v-ai-widget__drawer"
+      title="历史对话"
+      size="100%"
+      direction="ltr"
+      :modal="false"
+      :with-header="false"
+      modal-class="v-ai-widget__drawer-modal"
+      :append-to-body="false"
+      v-model="showDrawer">
+      <Panel class="v-ai-widget" title="AI助手">
+        <template #actions>
+          <XAction
+            mode="icon"
+            size="large"
+            :icon="VtjIconClose"
+            background="hover"
+            title="对话历史"
+            @click="showChatRecored"></XAction>
+        </template>
+
+        <ChatRecords
+          :current="currentTopic"
+          :topics="topics"
+          @new="onNewChat"
+          @load="onRecordLoad"
+          @remove="onRemoveTopic"></ChatRecords>
+      </Panel>
+    </ElDrawer>
   </XContainer>
 </template>
 <script setup lang="ts">
@@ -76,7 +100,7 @@
   import { VtjIconChatRecord, VtjIconClose, VtjIconNewChat } from '@vtj/icons';
   import { XAction, XContainer } from '@vtj/ui';
   import { ElDrawer, ElButton } from 'element-plus';
-  import { useOpenApi } from '../../hooks';
+  import { useOpenApi, useAI, type AITopic, type AIChat } from '../../hooks';
   import { Panel } from '../../shared';
   import { message } from '../../../utils';
   import ChatRecords from './records.vue';
@@ -87,15 +111,53 @@
   import NoFileTip from './no-file-tip.vue';
   import Detial from './detail.vue';
 
-  const { isLogined, engine } = useOpenApi();
+  const {
+    isLogined,
+    engine,
+    getDictOptions,
+    postTopic,
+    getTopics,
+    getChats,
+    postChat,
+    removeTopic,
+    chatCompletions,
+    saveChat
+  } = useOpenApi();
+
+  const {
+    isNewChat,
+    loading,
+    models,
+    topicTypes,
+    onPostTopic,
+    chats,
+    currentTopic,
+    onPostChat,
+    topics,
+    loadChats,
+    onRemoveTopic,
+    getVueCode,
+    onRefresh,
+    onApply,
+    listRef,
+    panelRef
+  } = useAI({
+    getDictOptions,
+    engine,
+    postTopic,
+    getTopics,
+    getChats,
+    postChat,
+    removeTopic,
+    chatCompletions,
+    saveChat
+  });
 
   const logined = ref(true);
-  const panelRef = ref();
   const showDrawer = ref(false);
-  const isNewChat = ref(true);
   const showDetail = ref(false);
-
   const isNoFile = computed(() => !engine.current.value);
+  const currentChat = ref();
 
   const bodyOverflow = computed(() => {
     return !logined.value || isNoFile.value ? 'hidden' : 'auto';
@@ -103,10 +165,8 @@
 
   onMounted(async () => {
     logined.value = await isLogined();
-  });
 
-  const recordsIcon = computed(() => {
-    return showDrawer.value ? VtjIconClose : VtjIconChatRecord;
+    // console.log(panelRef.value.scrollToBotttom());
   });
 
   const showChatRecored = () => {
@@ -132,20 +192,16 @@
     showDrawer.value = false;
   };
 
-  const onSend = () => {
-    isNewChat.value = false;
-  };
-
-  const onRecordLoad = () => {
+  const onRecordLoad = (item: AITopic) => {
     showDrawer.value = false;
     isNewChat.value = false;
+    currentTopic.value = item;
+    loadChats(item.id);
   };
 
-  const onApply = (e: any) => {
-    console.log('apply', e);
-  };
-
-  const onView = () => {
+  const onView = (chat: AIChat) => {
+    chat.vue = getVueCode(chat.content);
+    currentChat.value = chat;
     showDetail.value = true;
   };
 
