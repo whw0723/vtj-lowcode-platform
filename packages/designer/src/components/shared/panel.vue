@@ -184,9 +184,29 @@
     }
   };
 
+  const scrollToTop = () => {
+    const body = panelRef.value?.bodyRef?.$el;
+    if (body) {
+      body.scrollTo(0, 0);
+    }
+  };
+
+  const autoScrollToBottom = (diff: number = 200) => {
+    const body = panelRef.value?.bodyRef?.$el;
+    if (body) {
+      const { offsetHeight, scrollHeight, scrollTop } = body;
+      const distance = scrollHeight - (offsetHeight + scrollTop);
+      if (distance < diff) {
+        body.scrollTo(0, body.scrollHeight);
+      }
+    }
+  };
+
   defineExpose({
     panelRef,
-    scrollToBottom
+    scrollToBottom,
+    autoScrollToBottom,
+    scrollToTop
   });
 
   defineOptions({

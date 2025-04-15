@@ -203,6 +203,14 @@ export function useOpenApi() {
     return await res.json();
   };
 
+  const getHotTopics = async () => {
+    const api = `${remote}/api/open/topic/hot`;
+    const res = await window.fetch(api, {
+      method: 'get'
+    });
+    return await res.json();
+  };
+
   const chatCompletions = async (
     topicId: string,
     chatId: string,
@@ -269,6 +277,7 @@ export function useOpenApi() {
     postChat,
     removeTopic,
     chatCompletions,
-    saveChat
+    saveChat,
+    getHotTopics
   };
 }

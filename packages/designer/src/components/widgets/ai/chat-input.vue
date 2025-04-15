@@ -43,7 +43,8 @@
     ElButton,
     ElSelect,
     ElOption,
-    ElCheckbox
+    ElCheckbox,
+    ElMessage
   } from 'element-plus';
   import { Promotion } from '@vtj/icons';
   import { storage } from '@vtj/utils';
@@ -98,6 +99,11 @@
 
   watch(auto, (v) => {
     storage.save(autoCacheKey, v, { type: 'local' });
+    ElMessage.success({
+      message: v
+        ? '您已开启自动应用到页面功能，当AI生成代码后将会自动更改当前低代码页面。'
+        : '您已经关闭自动应用到页面功能，您可以通过手动的方式更改当前低代码页面'
+    });
   });
 
   const onChange = (v: string) => {

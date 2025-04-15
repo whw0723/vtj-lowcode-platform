@@ -3,7 +3,7 @@
   <div class="login-tip">
     <ElAlert
       title="请新建或打开文件后再使用AI助手"
-      type="warning"
+      type="info"
       show-icon
       :closable="false"></ElAlert>
   </div>

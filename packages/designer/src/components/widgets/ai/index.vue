@@ -8,6 +8,51 @@
       <template #actions>
         <XAction
           mode="icon"
+          size="small"
+          :disabled="isNewChat"
+          v-bind="showCodeProps"
+          @click="toggleHideCode"></XAction>
+        <ElDivider direction="vertical"></ElDivider>
+        <XAction
+          mode="icon"
+          size="small"
+          type="primary"
+          :icon="Top"
+          title="滚动到顶部"
+          background="hover"
+          :disabled="isNewChat"
+          @click="scrollToTop"></XAction>
+        <XAction
+          mode="icon"
+          size="small"
+          type="primary"
+          :icon="Bottom"
+          title="滚动到底部"
+          background="hover"
+          :disabled="isNewChat"
+          @click="scrollToBottom"></XAction>
+        <ElDivider direction="vertical"></ElDivider>
+        <XAction
+          mode="icon"
+          size="small"
+          type="primary"
+          :icon="ArrowUp"
+          title="全部折叠"
+          background="hover"
+          :disabled="isNewChat"
+          @click="collapseAll"></XAction>
+        <XAction
+          mode="icon"
+          size="small"
+          type="primary"
+          :icon="ArrowDown"
+          title="全部展开"
+          background="hover"
+          :disabled="isNewChat"
+          @click="expandAll"></XAction>
+        <ElDivider direction="vertical"></ElDivider>
+        <XAction
+          mode="icon"
           size="large"
           :icon="VtjIconChatRecord"
           background="hover"
@@ -22,6 +67,8 @@
         :models="models"
         :types="topicTypes"
         :loading="loading"
+        :model-value="promptText"
+        :fillPromptInput="fillPromptInput"
         @send="onPostTopic"></NewTopic>
 
       <div v-if="!isNewChat" ref="listRef" class="v-ai-widget__bubble-list">
@@ -30,9 +77,11 @@
           <Bubble
             type="ai"
             :data="chat"
+            :code="!isHideCode"
             @view="onView(chat)"
             @refresh="onRefresh(chat)"
-            @apply="onApply(chat)"></Bubble>
+            @apply="onApply(chat)"
+            @fix="onFix(chat)"></Bubble>
         </template>
       </div>
 
@@ -53,6 +102,7 @@
             :models="models"
             :loading="loading"
             :model="currentTopic?.model"
+            :model-value="promptText"
             lock-model
             @send="onPostChat"></ChatInput>
           <div class="footer">内容由 AI 生成，请仔细甄别</div>
@@ -62,7 +112,8 @@
       <Detial
         v-if="currentChat"
         v-model="showDetail"
-        :chat="currentChat"></Detial>
+        :chat="currentChat"
+        @apply="onApply"></Detial>
     </Panel>
     <ElDrawer
       class="v-ai-widget__drawer"
@@ -97,10 +148,20 @@
 </template>
 <script setup lang="ts">
   import { ref, computed, onMounted } from 'vue';
-  import { VtjIconChatRecord, VtjIconClose, VtjIconNewChat } from '@vtj/icons';
+  import {
+    VtjIconChatRecord,
+    VtjIconClose,
+    VtjIconNewChat,
+    ArrowUp,
+    ArrowDown,
+    Top,
+    Bottom,
+    View,
+    Hide
+  } from '@vtj/icons';
   import { XAction, XContainer } from '@vtj/ui';
-  import { ElDrawer, ElButton } from 'element-plus';
-  import { useOpenApi, useAI, type AITopic, type AIChat } from '../../hooks';
+  import { ElDrawer, ElButton, ElDivider } from 'element-plus';
+  import { useAI, type AITopic, type AIChat } from '../../hooks';
   import { Panel } from '../../shared';
   import { message } from '../../../utils';
   import ChatRecords from './records.vue';
@@ -112,19 +173,8 @@
   import Detial from './detail.vue';
 
   const {
-    isLogined,
     engine,
-    getDictOptions,
-    postTopic,
-    getTopics,
-    getChats,
-    postChat,
-    removeTopic,
-    chatCompletions,
-    saveChat
-  } = useOpenApi();
-
-  const {
+    isLogined,
     isNewChat,
     loading,
     models,
@@ -136,28 +186,42 @@
     topics,
     loadChats,
     onRemoveTopic,
-    getVueCode,
+    onView,
     onRefresh,
     onApply,
     listRef,
-    panelRef
-  } = useAI({
-    getDictOptions,
-    engine,
-    postTopic,
-    getTopics,
-    getChats,
-    postChat,
-    removeTopic,
-    chatCompletions,
-    saveChat
-  });
+    panelRef,
+    currentChat,
+    showDetail,
+    scrollToTop,
+    scrollToBottom,
+    expandAll,
+    collapseAll,
+    isPending,
+    toggleHideCode,
+    isHideCode,
+    onFix,
+    promptText,
+    fillPromptInput
+  } = useAI();
 
   const logined = ref(true);
   const showDrawer = ref(false);
-  const showDetail = ref(false);
   const isNoFile = computed(() => !engine.current.value);
-  const currentChat = ref();
+
+  const showCodeProps = computed<any>(() => {
+    return isHideCode.value
+      ? {
+          icon: Hide,
+          title: '显示代码块',
+          type: 'warning'
+        }
+      : {
+          icon: View,
+          title: '隐藏代码块',
+          type: 'default'
+        };
+  });
 
   const bodyOverflow = computed(() => {
     return !logined.value || isNoFile.value ? 'hidden' : 'auto';
@@ -165,8 +229,6 @@
 
   onMounted(async () => {
     logined.value = await isLogined();
-
-    // console.log(panelRef.value.scrollToBotttom());
   });
 
   const showChatRecored = () => {
@@ -188,6 +250,7 @@
   };
 
   const onNewChat = () => {
+    if (isPending.value) return;
     isNewChat.value = true;
     showDrawer.value = false;
   };
@@ -197,12 +260,6 @@
     isNewChat.value = false;
     currentTopic.value = item;
     loadChats(item.id);
-  };
-
-  const onView = (chat: AIChat) => {
-    chat.vue = getVueCode(chat.content);
-    currentChat.value = chat;
-    showDetail.value = true;
   };
 
   defineOptions({

@@ -1,5 +1,9 @@
 <template>
-  <XDialog title="生成内容" maximizable submit="应用到页面">
+  <XDialog
+    title="AI生成内容"
+    maximizable
+    submit="应用到页面"
+    @submit="onSubmit">
     <XContainer fit>
       <Editor
         height="100%"
@@ -27,7 +31,14 @@
   }
 
   const props = defineProps<Props>();
+  const emit = defineEmits<{
+    apply: [chat: AIChat];
+  }>();
 
   const dsl = computed(() => JSON.stringify(props.chat.dsl || {}, null, 2));
+
+  const onSubmit = () => {
+    emit('apply', props.chat);
+  };
 </script>
 <style lang="scss" scoped></style>

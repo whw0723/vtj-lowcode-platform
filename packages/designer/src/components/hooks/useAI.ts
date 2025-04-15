@@ -1,4 +1,4 @@
-import { ref, watch, type Ref, reactive } from 'vue';
+import { ref, watch, type Ref, reactive, computed } from 'vue';
 import { useOpenApi, type TopicDto, type ChatDto } from './useOpenApi';
 import type {
   ProjectSchema,
@@ -7,6 +7,7 @@ import type {
   BlockModel
 } from '@vtj/core';
 import { useElementSize } from '@vueuse/core';
+import { delay, storage } from '@vtj/utils';
 
 export type UseAIOptions = ReturnType<typeof useOpenApi>;
 
@@ -52,6 +53,7 @@ export interface AIChat {
   userName: string;
   thinking: number;
   vue: string;
+  collapsed?: boolean;
 }
 
 export interface CompletionsParams {
@@ -97,8 +99,10 @@ async function createTopicDto(
   return dto;
 }
 
-export function useAI(options: Partial<UseAIOptions>) {
+export function useAI() {
   const {
+    isLogined,
+    engine,
     getDictOptions,
     postTopic,
     getTopics,
@@ -107,27 +111,28 @@ export function useAI(options: Partial<UseAIOptions>) {
     removeTopic,
     chatCompletions,
     saveChat,
-    engine
-  } = options as UseAIOptions;
-
+    getHotTopics
+  } = useOpenApi();
+  const hideCodeCacheKey = 'CHAT_HIDE_CODE';
   const region = engine.skeleton?.getRegion('Apps').regionRef;
   const isReady = ref(false);
   const loading = ref(false);
   const isNewChat = ref(true);
+  const showDetail = ref(false);
   const models = useDict('LLM', getDictOptions);
   const topicTypes = useDict('TopicType', getDictOptions);
   const topics = ref<AITopic[]>([]);
   const chats = ref<AIChat[]>([]);
-  const currentTopic = ref<AITopic | null>();
+  const currentTopic = ref<AITopic | null>(null);
+  const currentChat = ref<AIChat | null>(null);
   const listRef = ref();
   const panelRef = ref();
-  const { height } = useElementSize(listRef);
-
-  watch(height, () => {
-    if (panelRef.value) {
-      panelRef.value.scrollToBottom();
-    }
+  const isHideCode = ref(!!storage.get(hideCodeCacheKey, { type: 'local' }));
+  const isPending = computed(() => {
+    return chats.value.some((n) => n.status === 'Pending');
   });
+  const { height: panelHeight } = useElementSize(listRef);
+  const promptText = ref('');
 
   const loadChats = async (topicId: string) => {
     const res = await getChats(topicId);
@@ -138,8 +143,7 @@ export function useAI(options: Partial<UseAIOptions>) {
 
   const init = async (block: BlockModel | null) => {
     isReady.value = false;
-    if (!block) return;
-    if (block.id === currentTopic.value?.fileId) return;
+    if (!block || block.id === currentTopic.value?.fileId) return;
     topics.value = [];
     chats.value = [];
     isNewChat.value = true;
@@ -173,6 +177,10 @@ export function useAI(options: Partial<UseAIOptions>) {
           onApply(c);
         }
       });
+      await delay(0);
+      if (panelRef.value) {
+        panelRef.value.scrollToBottom();
+      }
     }
     return res;
   };
@@ -195,6 +203,10 @@ export function useAI(options: Partial<UseAIOptions>) {
           onApply(c);
         }
       });
+      await delay(0);
+      if (panelRef.value) {
+        panelRef.value.scrollToBottom();
+      }
     }
     return res;
   };
@@ -226,10 +238,12 @@ export function useAI(options: Partial<UseAIOptions>) {
   };
 
   const completions = (chat: AIChat, complete?: (chat: AIChat) => void) => {
+    promptText.value = '';
     chat.content = '';
     chat.reasoning = '';
     chat.status = 'Pending';
     chat.reasoning = '';
+    chat.message = '';
     let thinking: number = 0;
     const now = Date.now();
     return chatCompletions(
@@ -282,13 +296,70 @@ export function useAI(options: Partial<UseAIOptions>) {
     return matches?.[1] ?? '';
   };
 
+  const scrollToTop = () => {
+    if (panelRef.value && !isNewChat.value) {
+      panelRef.value.scrollToTop();
+    }
+  };
+
+  const scrollToBottom = () => {
+    if (panelRef.value && !isNewChat.value) {
+      panelRef.value.scrollToBottom();
+    }
+  };
+
+  const expandAll = () => {
+    if (isNewChat.value || isPending.value) return;
+    chats.value.map((n) => {
+      n.collapsed = false;
+    });
+  };
+
+  const collapseAll = () => {
+    if (isNewChat.value || isPending.value) return;
+    chats.value.map((n) => {
+      n.collapsed = true;
+    });
+  };
+
   const onRefresh = (chat: AIChat) => {
+    if (isPending.value) return;
     return completions(chat);
   };
 
   const onApply = (chat: AIChat) => {
     if (chat.dsl) {
       engine.applyAI(chat.dsl);
+    }
+    showDetail.value = false;
+    currentChat.value = null;
+  };
+
+  const onView = (chat: AIChat) => {
+    chat.vue = getVueCode(chat.content);
+    currentChat.value = chat;
+    showDetail.value = true;
+  };
+
+  const onFix = (chat: AIChat) => {
+    if (!currentTopic.value) return;
+    const prompt = chat.message
+      ? `页面存在以下问题：\n ${chat.message} \n请检查代码并修复`
+      : '请检查代码是否有错误，是否符合规则要求，并改正';
+    fillPromptInput(prompt);
+  };
+
+  const fillPromptInput = (content: string, isNew?: boolean) => {
+    promptText.value = content;
+    if (isNew) {
+      isNewChat.value = isNew;
+    }
+  };
+
+  const toggleHideCode = () => {
+    if (!isNewChat.value) {
+      isHideCode.value = !isHideCode.value;
+      storage.save(hideCodeCacheKey, isHideCode.value, { type: 'local' });
     }
   };
 
@@ -304,7 +375,19 @@ export function useAI(options: Partial<UseAIOptions>) {
     }
   );
 
+  watch(engine.current, () => {
+    currentTopic.value = null;
+  });
+
+  watch(panelHeight, () => {
+    if (panelRef.value && isPending.value) {
+      panelRef.value.autoScrollToBottom();
+    }
+  });
+
   return {
+    engine,
+    isLogined,
     isReady,
     init,
     loading,
@@ -322,7 +405,21 @@ export function useAI(options: Partial<UseAIOptions>) {
     vue2Dsl,
     onRefresh,
     onApply,
+    onView,
     listRef,
-    panelRef
+    panelRef,
+    currentChat,
+    showDetail,
+    scrollToTop,
+    scrollToBottom,
+    expandAll,
+    collapseAll,
+    isPending,
+    toggleHideCode,
+    isHideCode,
+    onFix,
+    fillPromptInput,
+    promptText,
+    getHotTopics
   };
 }

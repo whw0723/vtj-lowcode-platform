@@ -9,31 +9,30 @@
     <div class="v-ai-widget-bubble__main">
       <div class="v-ai-widget-bubble__content" :class="statusClass">
         <template v-if="isAi">
-          <div
-            v-if="!!props.data.reasoning"
-            class="v-ai-widget-bubble__reasoning">
-            <ElTag
-              v-if="!isPending"
-              class="v-ai-widget-bubble__toggle"
-              size="small"
-              type="info"
-              @click="onToggleCollaspe">
-              已经深度思考 (用时 {{ Math.ceil(props.data.thinking / 1000) }} 秒)
-              <XIcon :icon="collaspedIcon"></XIcon>
-            </ElTag>
-            <div v-show="!collasped">
+          <ElTag
+            v-if="!isPending"
+            class="v-ai-widget-bubble__toggle"
+            size="small"
+            type="info"
+            @click="onToggleCollaspe">
+            {{ collaspeText }}
+            <XIcon :icon="collaspedIcon"></XIcon>
+          </ElTag>
+          <div :class="{ 'is-collapsed': collasped }">
+            <div class="v-ai-widget-bubble__reasoning">
               <pre>{{ props.data.reasoning }}</pre>
             </div>
+            <div v-if="props.data.content" class="v-ai-widget-bubble__detail">
+              <StreamMarkdown
+                :content="props.data.content"
+                :code="isPending || props.code"></StreamMarkdown>
+            </div>
           </div>
-          <div v-if="props.data.content" class="v-ai-widget-bubble__detail">
-            <StreamMarkdown :content="props.data.content"></StreamMarkdown>
-          </div>
-          <div
-            v-if="props.data.message"
-            class="v-ai-widget-bubble__message"
-            :closable="false"
-            type="error">
-            {{ props.data.message }}
+          <div v-if="props.data.message" class="v-ai-widget-bubble__message">
+            <div>
+              {{ props.data.message }}
+            </div>
+            <ElButton size="small" round @click="onFix">纠正错误</ElButton>
           </div>
           <ElButton
             v-if="isPending"
@@ -47,8 +46,9 @@
           <pre>{{ props.data.prompt }}</pre>
         </div>
       </div>
-      <div v-if="isAi && isCompleted" class="v-ai-widget-bubble__tools">
+      <div v-if="isAi" class="v-ai-widget-bubble__tools">
         <XActionBar
+          v-if="!isPending"
           :items="actions"
           size="small"
           mode="icon"
@@ -59,7 +59,7 @@
   </div>
 </template>
 <script setup lang="ts">
-  import { computed, ref } from 'vue';
+  import { computed, ref, watch } from 'vue';
   import { ElAvatar, ElButton, ElTag } from 'element-plus';
   import Avatar from './avatar.vue';
   import {
@@ -76,19 +76,21 @@
   export interface Props {
     type: 'user' | 'ai';
     data: AIChat;
+    code?: boolean;
   }
 
   const props = withDefaults(defineProps<Props>(), {
-    type: 'user'
+    type: 'user',
+    code: true
   });
 
-  const emit = defineEmits(['refresh', 'view', 'download']);
+  const emit = defineEmits(['refresh', 'view', 'download', 'fix']);
   const isAi = computed(() => props.type === 'ai');
   const isCompleted = computed(() => props.data.status === 'Success');
   const isPending = computed(() => props.data.status === 'Pending');
-  const collasped = ref(false);
+  const collasped = ref(props.data.collapsed);
   const collaspedIcon = computed(() =>
-    collasped.value ? ArrowUpBold : ArrowDownBold
+    collasped.value ? ArrowDownBold : ArrowUpBold
   );
   const statusClass = computed(() => {
     return {
@@ -104,12 +106,14 @@
     {
       name: 'view',
       tooltip: '查看生成内容',
-      icon: View
+      icon: View,
+      disabled: !isCompleted.value
     },
     {
       name: 'apply',
       tooltip: '应用到页面',
-      icon: Download
+      icon: Download,
+      disabled: !isCompleted.value
     }
   ];
 
@@ -120,6 +124,14 @@
     };
   });
 
+  const collaspeText = computed(() => {
+    return !!props.data.reasoning
+      ? `已经深度思考 (用时 ${Math.ceil(props.data.thinking / 1000)} 秒)`
+      : collasped.value
+        ? '展开'
+        : '折叠';
+  });
+
   const onActionClick = (e: any) => {
     emit(e.name, e);
   };
@@ -127,4 +139,23 @@
   const onToggleCollaspe = () => {
     collasped.value = !collasped.value;
   };
+
+  const onFix = () => {
+    emit('fix', props.data);
+  };
+
+  watch(
+    () => props.data.collapsed,
+    (v) => {
+      collasped.value = !!v;
+    },
+    { immediate: true }
+  );
+
+  watch(
+    () => props.data.status,
+    () => {
+      collasped.value = false;
+    }
+  );
 </script>

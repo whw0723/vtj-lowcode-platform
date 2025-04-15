@@ -1,10 +1,10 @@
 <template>
   <div class="v-ai-widget__mask"></div>
   <div class="login-tip">
-    <ElAlert type="warning" :closable="false" title="使用AI助手需登录">
+    <ElAlert type="warning" :closable="false" title="您未登录">
       <div class="login-tip__content">
         <div>
-          您还没登录或登录已失效，请重新登录！
+          使用AI助手需登录 VTJ.PRO 客户端，您还没登录或登录已失效，请重新登录！
           <ElButton
             size="small"
             type="primary"

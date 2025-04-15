@@ -121,6 +121,10 @@
     border-radius: 4px;
     position: relative;
     min-height: 32px;
+    & > div.is-collapsed {
+      height: 40px;
+      overflow: hidden;
+    }
   }
 
   @include when(user) {
@@ -133,8 +137,25 @@
       background-color: var(--el-color-info-light-9);
       @include when(Failed) {
         background-color: var(--el-color-error-light-9);
-        color: var(--el-color-error);
       }
+    }
+    @include e(main) {
+      width: 100%;
+      word-break: break-all;
+    }
+  }
+
+  @include e(message) {
+    width: 100%;
+    margin-top: 10px;
+    background-color: var(--el-color-error-light-9);
+    border-radius: 4px;
+    padding: 10px;
+    color: var(--el-color-error);
+    text-align: right;
+    > div {
+      text-align: left;
+      margin-bottom: 5px;
     }
   }
 

@@ -1,5 +1,9 @@
 <template>
-  <div ref="container" class="markdown-container" v-html="htmlContent"></div>
+  <div
+    ref="container"
+    class="markdown-container"
+    :class="{ 'is-hide-code': !props.code }"
+    v-html="htmlContent"></div>
 </template>
 <script lang="ts" setup>
   import { ref, type Ref, watch, nextTick } from 'vue';
@@ -12,6 +16,7 @@
 
   const props = defineProps<{
     content?: string;
+    code?: boolean;
   }>();
 
   hljs.registerLanguage('vue', xml);
@@ -36,13 +41,44 @@
   };
 
   watch(() => props.content, updateContent, { immediate: true });
+
+  defineOptions({
+    name: 'StreamMarkdown'
+  });
 </script>
-<style lang="scss" scoped>
+<style lang="scss">
   .markdown-container {
     line-height: 1.5em;
     .language-vue {
       border-radius: 4px;
       margin: 5px 0;
+    }
+    &.is-hide-code {
+      .language-vue {
+        height: 0;
+        overflow: hidden;
+        padding: 7px;
+        position: relative;
+        &::before {
+          content: 'Vue Code';
+          position: absolute;
+          background-color: var(--el-text-color-regular);
+          color: var(--el-fill-color-light);
+          left: 0;
+          top: 0;
+          z-index: 1;
+          inset: 0;
+          border-radius: 4px;
+          text-align: center;
+          font-size: 12px;
+          zoom: 0.9;
+        }
+      }
+    }
+
+    ol,
+    ul {
+      padding-inline-start: 2em;
     }
   }
 

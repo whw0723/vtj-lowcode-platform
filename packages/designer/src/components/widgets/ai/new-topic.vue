@@ -4,46 +4,46 @@
       <h3>嗨！我是您的智能助手</h3>
       <div>我可以帮你开发低代码页面，请把你的任务交给我吧~</div>
     </div>
-
-    <div class="v-ai-widget-new-chat__options">
-      <ElSegmented
-        :disabled="loading || disabledType"
-        v-model="currentOption"
-        :options="props.types"
-        size="small"
-        :block="false"></ElSegmented>
-    </div>
     <ChatInput
       :min-rows="5"
       :models="props.models"
       :loading="props.loading"
+      :model-value="props.modelValue"
       @send="onSend"></ChatInput>
-
-    <ElDivider content-position="left">热门需求</ElDivider>
-    <div>
-      <Item
-        v-for="(item, index) in 5"
-        :index="index + 1"
-        title="制作一个用户登录页面，表单字段包含用户名和密码，需要对输入进行校验。"
-        :model-value="item"
-        :nowrap="false"
-        background
-        @click="onTopicClick">
-      </Item>
-    </div>
+    <template v-if="hotTopics.length">
+      <ElDivider content-position="left">热门需求</ElDivider>
+      <div>
+        <Item
+          v-for="(item, index) in hotTopics"
+          :index="index + 1"
+          :title="item.title"
+          :model-value="item"
+          :nowrap="false"
+          background
+          @click="onTopicClick(item)">
+        </Item>
+      </div>
+    </template>
   </div>
 </template>
 <script lang="ts" setup>
-  import { ref, computed, watch } from 'vue';
-  import { ElSegmented, ElDivider } from 'element-plus';
+  import { ref, onMounted } from 'vue';
+  import { ElDivider } from 'element-plus';
   import ChatInput from './chat-input.vue';
   import { Item } from '../../shared';
-  import { useOpenApi, type Dict, type AISendData } from '../../hooks';
+  import {
+    useOpenApi,
+    type Dict,
+    type AISendData,
+    type AITopic
+  } from '../../hooks';
 
   export interface Props {
     models?: Dict[];
     types?: Dict[];
     loading?: boolean;
+    modelValue?: string;
+    fillPromptInput: any;
   }
 
   const props = withDefaults(defineProps<Props>(), {
@@ -55,28 +55,24 @@
     send: [data: AISendData];
   }>();
 
-  const { engine } = useOpenApi();
+  const { getHotTopics } = useOpenApi();
 
-  const disabledType = computed(() => {
-    return !engine.current.value?.nodes.length;
-  });
+  const hotTopics = ref<AITopic[]>([]);
 
   const currentOption = ref('New');
 
-  // 如果是空白页面，只能是新增，不能为迭代选项
-  watch(
-    disabledType,
-    (v) => {
-      currentOption.value = v ? 'New' : 'Edit';
-    },
-    { immediate: true }
-  );
-
-  const onTopicClick = () => {
-    console.log('click topic');
+  const onTopicClick = (topic: AITopic) => {
+    props.fillPromptInput(topic.prompt);
   };
 
   const onSend = (data: AISendData) => {
     emit('send', { type: currentOption.value, ...data } as AISendData);
   };
+
+  onMounted(async () => {
+    const res = await getHotTopics();
+    if (res?.success) {
+      hotTopics.value = res.data as AITopic[];
+    }
+  });
 </script>
