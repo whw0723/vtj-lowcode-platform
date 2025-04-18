@@ -8,6 +8,7 @@
       :min-rows="5"
       :models="props.models"
       :loading="props.loading"
+      :disabled="props.disabled"
       :model-value="props.modelValue"
       @send="onSend"></ChatInput>
     <template v-if="hotTopics.length">
@@ -44,6 +45,7 @@
     loading?: boolean;
     modelValue?: string;
     fillPromptInput: any;
+    disabled?: boolean;
   }
 
   const props = withDefaults(defineProps<Props>(), {

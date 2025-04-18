@@ -196,8 +196,14 @@ export class BaseService implements Service {
     return await this.api('genVueContent', { project, dsl }).catch(() => '');
   }
 
-  async parseVue(options: ParseVueOptions): Promise<BlockSchema> {
-    return await this.api('parseVue', options).catch(() => null);
+  async parseVue(
+    project: ProjectSchema,
+    options: ParseVueOptions
+  ): Promise<BlockSchema> {
+    return await this.api('parseVue', {
+      project,
+      ...options
+    }).catch(() => null);
   }
 
   async createRawPage(file: PageFile): Promise<boolean> {

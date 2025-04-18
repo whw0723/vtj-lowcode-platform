@@ -68,6 +68,7 @@
         :types="topicTypes"
         :loading="loading"
         :model-value="promptText"
+        :disabled="inputDisabled"
         :fillPromptInput="fillPromptInput"
         @send="onPostTopic"></NewTopic>
 
@@ -100,9 +101,10 @@
           <ChatInput
             v-if="currentTopic"
             :models="models"
-            :loading="loading"
+            :loading="loading || isPending"
             :model="currentTopic?.model"
             :model-value="promptText"
+            :disabled="inputDisabled"
             lock-model
             @send="onPostChat"></ChatInput>
           <div class="footer">内容由 AI 生成，请仔细甄别</div>
@@ -144,6 +146,17 @@
           @remove="onRemoveTopic"></ChatRecords>
       </Panel>
     </ElDrawer>
+    <InviteTip
+      v-if="settings"
+      :settings="settings"
+      :remote="engine.remote"></InviteTip>
+    <PayTip
+      v-if="settings"
+      :settings="settings"
+      :remote="engine.remote"
+      :create-order="createOrder"
+      :cancel-order="cancelOrder"
+      :get-order="getOrder"></PayTip>
   </XContainer>
 </template>
 <script setup lang="ts">
@@ -171,6 +184,8 @@
   import NewTopic from './new-topic.vue';
   import NoFileTip from './no-file-tip.vue';
   import Detial from './detail.vue';
+  import InviteTip from './invite-tip.vue';
+  import PayTip from './pay-tip.vue';
 
   const {
     engine,
@@ -202,7 +217,12 @@
     isHideCode,
     onFix,
     promptText,
-    fillPromptInput
+    fillPromptInput,
+    settings,
+    inputDisabled,
+    createOrder,
+    cancelOrder,
+    getOrder
   } = useAI();
 
   const logined = ref(true);

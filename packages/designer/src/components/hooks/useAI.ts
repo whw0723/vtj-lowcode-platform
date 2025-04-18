@@ -1,11 +1,6 @@
 import { ref, watch, type Ref, reactive, computed } from 'vue';
 import { useOpenApi, type TopicDto, type ChatDto } from './useOpenApi';
-import type {
-  ProjectSchema,
-  PlatformType,
-  BlockSchema,
-  BlockModel
-} from '@vtj/core';
+import type { ProjectSchema, BlockSchema, BlockModel } from '@vtj/core';
 import { useElementSize } from '@vueuse/core';
 import { delay, storage } from '@vtj/utils';
 
@@ -20,7 +15,6 @@ export interface AISendData {
   model: string;
   auto: boolean;
   prompt: string;
-  type?: string;
 }
 
 export interface AITopic {
@@ -62,6 +56,18 @@ export interface CompletionsParams {
   error?: (e: any, cancel?: boolean) => void;
 }
 
+export interface Settings {
+  limit: number;
+  max: number;
+  mode: number;
+  price: number;
+  payQr: string;
+  contactQr: string;
+  invited: boolean;
+  paid: boolean;
+  free: boolean;
+}
+
 function useDict(code: string, getDictOptions: (code: string) => Promise<any>) {
   const result: Ref<Dict[]> = ref([]);
   if (getDictOptions) {
@@ -77,24 +83,17 @@ async function createTopicDto(
   data: AISendData,
   engine: UseAIOptions['engine']
 ) {
-  const { model, type, prompt } = data;
+  const { model, prompt } = data;
   const projectDsl = engine.project.value?.toDsl() as ProjectSchema;
-  const { dependencies = [], __UID__, id, platform } = projectDsl;
-  const deps = dependencies.map((n) => n.package);
   const dsl = engine.current.value?.toDsl() as BlockSchema;
-  const vue = await engine.service.genVueContent(projectDsl, dsl);
+  const source = await engine.service.genVueContent(projectDsl, dsl);
 
   const dto: TopicDto = {
     model,
-    type: type as string,
     prompt,
-    projectId: __UID__ as string,
-    appId: id as string,
-    fileId: dsl?.id as string,
     dsl: JSON.stringify(dsl),
-    platform: platform as PlatformType,
-    dependencies: deps,
-    vue
+    project: JSON.stringify(projectDsl),
+    source
   };
   return dto;
 }
@@ -111,7 +110,11 @@ export function useAI() {
     removeTopic,
     chatCompletions,
     saveChat,
-    getHotTopics
+    getHotTopics,
+    getSettins,
+    createOrder,
+    cancelOrder,
+    getOrder
   } = useOpenApi();
   const hideCodeCacheKey = 'CHAT_HIDE_CODE';
   const region = engine.skeleton?.getRegion('Apps').regionRef;
@@ -128,11 +131,16 @@ export function useAI() {
   const listRef = ref();
   const panelRef = ref();
   const isHideCode = ref(!!storage.get(hideCodeCacheKey, { type: 'local' }));
+  const promptText = ref('');
+  const settings = ref<Settings>();
   const isPending = computed(() => {
     return chats.value.some((n) => n.status === 'Pending');
   });
+  const inputDisabled = computed(() => {
+    if (!settings.value) return true;
+    return settings.value.mode === 2 && !settings.value.invited;
+  });
   const { height: panelHeight } = useElementSize(listRef);
-  const promptText = ref('');
 
   const loadChats = async (topicId: string) => {
     const res = await getChats(topicId);
@@ -143,6 +151,8 @@ export function useAI() {
 
   const init = async (block: BlockModel | null) => {
     isReady.value = false;
+    settings.value = await getSettins();
+    if (!settings.value) return;
     if (!block || block.id === currentTopic.value?.fileId) return;
     topics.value = [];
     chats.value = [];
@@ -181,6 +191,8 @@ export function useAI() {
       if (panelRef.value) {
         panelRef.value.scrollToBottom();
       }
+    } else {
+      await init(null);
     }
     return res;
   };
@@ -207,6 +219,8 @@ export function useAI() {
       if (panelRef.value) {
         panelRef.value.scrollToBottom();
       }
+    } else {
+      await init(null);
     }
     return res;
   };
@@ -226,14 +240,13 @@ export function useAI() {
   const vue2Dsl = async (chat: AIChat) => {
     if (!currentTopic.value) return;
     const id = currentTopic.value?.fileId as string;
-    const { dependencies = [] } = engine.project.value || {};
+    const project = engine.project.value?.toDsl() as ProjectSchema;
     const { name = '' } = engine.current.value || {};
     const source = getVueCode(chat.content);
-    return await engine.service.parseVue({
+    return await engine.service.parseVue(project, {
       id,
       name,
-      source,
-      dependencies
+      source
     });
   };
 
@@ -420,6 +433,11 @@ export function useAI() {
     onFix,
     fillPromptInput,
     promptText,
-    getHotTopics
+    getHotTopics,
+    settings,
+    inputDisabled,
+    createOrder,
+    cancelOrder,
+    getOrder
   };
 }

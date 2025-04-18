@@ -131,3 +131,9 @@ export interface VTJConfig {
  * 平台类型
  */
 export type PlatformType = 'web' | 'h5' | 'uniapp';
+
+export interface ParseVueOptions {
+  id: string;
+  name: string;
+  source: string;
+}

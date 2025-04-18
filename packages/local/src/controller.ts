@@ -84,12 +84,12 @@ const controller: Controller = {
     return service.genVueContent(project, dsl);
   },
   parseVue: async (req: ApiRequest) => {
-    const { id, name, source, dependencies = [] } = req.data || {};
+    const { id, name, source, project } = req.data || {};
     return service.parseVue({
       id,
       name,
       source,
-      dependencies
+      project
     });
   },
   createRawPage: async (req: ApiRequest) => {

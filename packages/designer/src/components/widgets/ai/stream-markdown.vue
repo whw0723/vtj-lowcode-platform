@@ -3,6 +3,7 @@
     ref="container"
     class="markdown-container"
     :class="{ 'is-hide-code': !props.code }"
+    @click="onClick"
     v-html="htmlContent"></div>
 </template>
 <script lang="ts" setup>
@@ -18,6 +19,7 @@
     content?: string;
     code?: boolean;
   }>();
+  const emit = defineEmits(['click']);
 
   hljs.registerLanguage('vue', xml);
   hljs.registerLanguage('javascript', javascript);
@@ -42,6 +44,14 @@
 
   watch(() => props.content, updateContent, { immediate: true });
 
+  const onClick = (e: MouseEvent) => {
+    if (props.code) return;
+    const target = e.target as HTMLElement;
+    if (target && target.classList.contains('language-vue')) {
+      emit('click');
+    }
+  };
+
   defineOptions({
     name: 'StreamMarkdown'
   });
@@ -59,6 +69,7 @@
         overflow: hidden;
         padding: 7px;
         position: relative;
+        cursor: pointer;
         &::before {
           content: 'Vue Code';
           position: absolute;
@@ -72,6 +83,9 @@
           text-align: center;
           font-size: 12px;
           zoom: 0.9;
+        }
+        &:hover {
+          opacity: 0.7;
         }
       }
     }

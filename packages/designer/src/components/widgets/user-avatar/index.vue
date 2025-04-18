@@ -25,7 +25,7 @@
 
   const avatarSrc = computed(() => {
     const avatar = access?.getData()?.avatar || '';
-    const remote = engine.adapter?.remote || '';
+    const remote = engine.remote || '';
     return avatar
       ? avatar.startsWith('https:')
         ? avatar

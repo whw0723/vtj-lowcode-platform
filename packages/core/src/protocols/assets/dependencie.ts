@@ -56,10 +56,3 @@ export interface Dependencie {
    */
   assetsLibrary?: string;
 }
-
-export interface ParseVueOptions {
-  id: string;
-  name: string;
-  source: string;
-  dependencies?: Dependencie[];
-}

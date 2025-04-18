@@ -27,6 +27,7 @@
       <ElButton
         :icon="Promotion"
         type="primary"
+        :disabled="props.disabled"
         round
         @click="onSend"
         :loading="props.loading"
@@ -58,6 +59,7 @@
     model?: string;
     lockModel?: boolean;
     loading?: boolean;
+    disabled?: boolean;
   }
 
   const props = withDefaults(defineProps<Props>(), {

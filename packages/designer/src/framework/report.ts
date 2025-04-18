@@ -134,10 +134,12 @@ export class Report {
     const content = base64(JSON.stringify(postData));
     const body = new URLSearchParams();
     body.append('data', content);
-    window.fetch(this.api, {
-      method: 'post',
-      body
-    });
+    window
+      .fetch(this.api, {
+        method: 'post',
+        body
+      })
+      .catch(() => null);
   }
 
   async init() {

@@ -25,6 +25,11 @@
       @click="openCodeSetting">
       <VtjIconSetting></VtjIconSetting>
     </ElButton>
+
+    <ElButton type="default" size="small" title="AI助手" @click="onActiveAI">
+      <VtjIconAi></VtjIconAi>
+    </ElButton>
+
     <ElDivider direction="vertical"></ElDivider>
 
     <ElButton
@@ -94,7 +99,8 @@
     VtjIconTemplate,
     VtjIconPublish,
     VtjIconProject,
-    Download
+    Download,
+    VtjIconAi
   } from '@vtj/icons';
   import { XAction, createDialog } from '@vtj/ui';
   import { delay } from '@vtj/utils';
@@ -237,6 +243,13 @@
         icon: Download,
         content: h(Coder, { link })
       });
+    }
+  };
+
+  const onActiveAI = async () => {
+    const region = engine.skeleton?.getRegion('Apps');
+    if (region) {
+      region.regionRef.setActive('AI');
     }
   };
 

@@ -3,6 +3,7 @@ import {
   type NodeSchema,
   type Dependencie,
   type ParseVueOptions,
+  type ProjectSchema,
   BlockModel
 } from '@vtj/core';
 import { tsFormatter } from '@vtj/coder';
@@ -12,10 +13,13 @@ import { parseScripts, type ImportStatement } from './scripts';
 import { parseStyle } from './style';
 import { patchCode, replacer } from './utils';
 
+export type IParseVueOptions = ParseVueOptions & { project: ProjectSchema };
+
 export { patchCode, replacer };
 
-export async function parseVue(options: ParseVueOptions) {
-  const { id, name, source, dependencies = [] } = options;
+export async function parseVue(options: IParseVueOptions) {
+  const { id, name, source, project } = options;
+  const { dependencies = [] } = project || {};
   const sfc = parseSFC(source);
   const { styles, css } = parseStyle(sfc.styles.join('\n'));
   const {

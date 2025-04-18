@@ -1,6 +1,7 @@
 import { jsonp } from '@vtj/utils';
 import type { BlockSchema, PlatformType } from '@vtj/core';
 import { useEngine } from '../../framework';
+import { alert } from '../../utils';
 
 export interface PublishTemplateDto {
   name: string;
@@ -31,15 +32,10 @@ export interface TemplateDto {
 
 export interface TopicDto {
   model: string;
-  projectId: string;
-  appId: string;
-  fileId: string;
-  type: string;
-  prompt: string;
+  project: string;
   dsl: string;
-  platform: PlatformType;
-  dependencies: string[];
-  vue: string;
+  source: string;
+  prompt: string;
 }
 
 export interface ChatDto {
@@ -114,7 +110,7 @@ export function useOpenApi() {
 
   const getDictOptions = async (code: string) => {
     const api = `${remote}/api/open/dict/${code}`;
-    const res = await jsonp(api);
+    const res = await jsonp(api).catch(() => null);
     return res?.data || [];
   };
 
@@ -140,14 +136,20 @@ export function useOpenApi() {
   const postTopic = async (dto: TopicDto) => {
     const token = access?.getData()?.token;
     const api = `${remote}/api/open/topic/post/${token}`;
-    const res = await window.fetch(api, {
-      method: 'post',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(dto)
-    });
-    return await res.json();
+    const res = await window
+      .fetch(api, {
+        method: 'post',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(dto)
+      })
+      .then((res) => res.json())
+      .catch(() => null);
+    if (!res?.success) {
+      await alert(res.message || '未知错误');
+    }
+    return res;
   };
 
   const getChats = async (topicId: string) => {
@@ -171,14 +173,20 @@ export function useOpenApi() {
   const postChat = async (dto: ChatDto) => {
     const token = access?.getData()?.token;
     const api = `${remote}/api/open/chat/post/${token}`;
-    const res = await window.fetch(api, {
-      method: 'post',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(dto)
-    });
-    return await res.json();
+    const res = await window
+      .fetch(api, {
+        method: 'post',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(dto)
+      })
+      .then((res) => res.json())
+      .catch(() => null);
+    if (!res?.success) {
+      await alert(res.message || '未知错误');
+    }
+    return res;
   };
 
   const saveChat = async (chat: any) => {
@@ -205,10 +213,12 @@ export function useOpenApi() {
 
   const getHotTopics = async () => {
     const api = `${remote}/api/open/topic/hot`;
-    const res = await window.fetch(api, {
-      method: 'get'
-    });
-    return await res.json();
+    return await window
+      .fetch(api, {
+        method: 'get'
+      })
+      .then((res) => res.json())
+      .catch(() => null);
   };
 
   const chatCompletions = async (
@@ -258,6 +268,55 @@ export function useOpenApi() {
     };
   };
 
+  const getSettins = async () => {
+    const token = access?.getData()?.token;
+    const api = `${remote}/api/open/settings/${token}`;
+    const res = await window
+      .fetch(api, {
+        method: 'get'
+      })
+      .then((res) => res.json())
+      .catch(() => null);
+    return res?.data;
+  };
+
+  const createOrder = async () => {
+    const token = access?.getData()?.token;
+    const api = `${remote}/api/open/order/${token}`;
+    const res = await window
+      .fetch(api, {
+        method: 'post'
+      })
+      .then((res) => res.json())
+      .catch(() => null);
+    if (!res?.success) {
+      await alert(res.message || '未知错误');
+    }
+    return res;
+  };
+
+  const cancelOrder = async (id: string) => {
+    const token = access?.getData()?.token;
+    const api = `${remote}/api/open/order/cancel/${token}?id=${id}`;
+    return await window
+      .fetch(api, {
+        method: 'get'
+      })
+      .then((res) => res.json())
+      .catch(() => null);
+  };
+
+  const getOrder = async (id: string) => {
+    const token = access?.getData()?.token;
+    const api = `${remote}/api/open/order/${token}?id=${id}`;
+    return await window
+      .fetch(api, {
+        method: 'get'
+      })
+      .then((res) => res.json())
+      .catch(() => null);
+  };
+
   return {
     engine,
     access,
@@ -278,6 +337,10 @@ export function useOpenApi() {
     removeTopic,
     chatCompletions,
     saveChat,
-    getHotTopics
+    getHotTopics,
+    getSettins,
+    createOrder,
+    cancelOrder,
+    getOrder
   };
 }

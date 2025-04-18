@@ -25,7 +25,8 @@
             <div v-if="props.data.content" class="v-ai-widget-bubble__detail">
               <StreamMarkdown
                 :content="props.data.content"
-                :code="isPending || props.code"></StreamMarkdown>
+                :code="isPending || props.code"
+                @click="onClickCode"></StreamMarkdown>
             </div>
           </div>
           <div v-if="props.data.message" class="v-ai-widget-bubble__message">
@@ -97,25 +98,28 @@
       [`is-${props.data.status}`]: props.type === 'ai'
     };
   });
-  const actions: ActionBarItems = [
-    {
-      name: 'refresh',
-      tooltip: '重新生成',
-      icon: Refresh
-    },
-    {
-      name: 'view',
-      tooltip: '查看生成内容',
-      icon: View,
-      disabled: !isCompleted.value
-    },
-    {
-      name: 'apply',
-      tooltip: '应用到页面',
-      icon: Download,
-      disabled: !isCompleted.value
-    }
-  ];
+
+  const actions = computed(() => {
+    return [
+      {
+        name: 'refresh',
+        tooltip: '重新生成',
+        icon: Refresh
+      },
+      {
+        name: 'view',
+        tooltip: '查看生成内容',
+        icon: View,
+        disabled: !isCompleted.value
+      },
+      {
+        name: 'apply',
+        tooltip: '应用到页面',
+        icon: Download,
+        disabled: !isCompleted.value
+      }
+    ] as ActionBarItems;
+  });
 
   const classes = computed(() => {
     return {
@@ -129,7 +133,7 @@
       ? `已经深度思考 (用时 ${Math.ceil(props.data.thinking / 1000)} 秒)`
       : collasped.value
         ? '展开'
-        : '折叠';
+        : '收起';
   });
 
   const onActionClick = (e: any) => {
@@ -142,6 +146,10 @@
 
   const onFix = () => {
     emit('fix', props.data);
+  };
+
+  const onClickCode = () => {
+    emit('view', props.data);
   };
 
   watch(
