@@ -115,6 +115,7 @@
         v-if="currentChat"
         v-model="showDetail"
         :chat="currentChat"
+        :update-chat-dsl="updateChatDsl"
         @apply="onApply"></Detial>
     </Panel>
     <ElDrawer
@@ -222,7 +223,8 @@
     inputDisabled,
     createOrder,
     cancelOrder,
-    getOrder
+    getOrder,
+    updateChatDsl
   } = useAI();
 
   const logined = ref(true);

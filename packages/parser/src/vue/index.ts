@@ -4,6 +4,8 @@ import {
   type Dependencie,
   type ParseVueOptions,
   type ProjectSchema,
+  type JSExpression,
+  type JSFunction,
   BlockModel
 } from '@vtj/core';
 import { tsFormatter } from '@vtj/coder';
@@ -38,6 +40,7 @@ export async function parseVue(options: IParseVueOptions) {
     handlers,
     styles
   });
+
   const dsl: BlockSchema = {
     id,
     name,
@@ -74,20 +77,27 @@ export async function parseVue(options: IParseVueOptions) {
     ...Object.keys(methods || {})
   ];
   const { libs } = parseDeps(imports, dependencies);
-  await walkDsl(dsl, async (node: NodeSchema) => {
-    await walkNode(node, async (content: any) => {
-      if (isJSCode(content)) {
-        const options = {
-          context,
-          computed: computedKeys,
-          libs,
-          members
-        };
-        const code = await tsFormatter(content.value);
-        content.value = patchCode(code, node.id as string, options);
-      }
-    });
-  });
+  const patchCodeOpt = {
+    context,
+    computed: computedKeys,
+    libs,
+    members
+  };
+  await walkDsl(
+    dsl,
+    async (node: NodeSchema) => {
+      await walkNode(node, async (content: any) => {
+        if (isJSCode(content)) {
+          const code = await tsFormatter(content.value);
+          content.value = patchCode(code, node.id as string, patchCodeOpt);
+        }
+      });
+    },
+    async (exp: JSExpression | JSFunction) => {
+      const code = await tsFormatter(exp.value);
+      exp.value = patchCode(code, '', patchCodeOpt);
+    }
+  );
 
   const model = new BlockModel(dsl);
   return model.toDsl();
@@ -95,14 +105,59 @@ export async function parseVue(options: IParseVueOptions) {
 
 async function walkDsl(
   dsl: BlockSchema,
-  callback: (n: NodeSchema, p?: NodeSchema) => Promise<void>
+  callback: (n: NodeSchema, p?: NodeSchema) => Promise<void>,
+  expCallback: (value: any) => Promise<void>
 ) {
   const walking = async (node: NodeSchema, parent?: NodeSchema) => {
     await callback(node, parent);
     if (Array.isArray(node.children)) {
-      node.children.forEach((n) => walking(n, node));
+      for (const n of node.children) {
+        await walking(n, node);
+      }
     }
   };
+
+  const walkingExp = async (item: unknown) => {
+    if (!item) return;
+    if (typeof item !== 'object') return;
+    if (Array.isArray(item)) {
+      for (let n of item) {
+        await walkingExp(n);
+      }
+      return;
+    }
+
+    const values = Object.values(item as Record<string, any>);
+    for (const value of values) {
+      if (isJSCode(value)) {
+        await expCallback(value);
+      } else {
+        await walkingExp(value);
+      }
+    }
+  };
+
+  const {
+    state,
+    watch,
+    computed,
+    props,
+    dataSources,
+    methods,
+    lifeCycles,
+    inject
+  } = dsl;
+
+  await walkingExp({
+    state,
+    watch,
+    computed,
+    props,
+    dataSources,
+    methods,
+    lifeCycles,
+    inject
+  });
 
   if (Array.isArray(dsl.nodes)) {
     for (const n of dsl.nodes) {
@@ -123,6 +178,10 @@ async function walkNode(node: NodeSchema, callback: (n: any) => Promise<void>) {
       return;
     }
 
+    if (isJSCode(item)) {
+      await callback(item);
+      return;
+    }
     const values = Object.values(item as Record<string, any>);
     for (const value of values) {
       await callback(value);

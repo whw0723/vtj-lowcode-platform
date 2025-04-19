@@ -9,11 +9,14 @@ export interface ExpressionOptions {
 
 export function replacer(content: string, key: string, to: string) {
   const r1 = new RegExp(`${key}`, 'g');
-  const r2 = /(\{|\.|\,|\w)$/;
+  // 关键字前的字符
+  const r2 = /(\@\_|\$|\.|\,|\w)$/;
+  // 关键字后的字符
   const r3 = /^\w/;
   return content.replace(r1, (str, index, source) => {
     const start = source.substring(0, index);
     const end = source.substring(index + key.length);
+    // 前后字符符合正则的不替换
     if (r2.test(start.trim()) || r3.test(end.trim())) {
       return str;
     }
@@ -33,6 +36,7 @@ export function patchCode(
     members = []
   } = options || {};
   const contextKeys = Array.from(context[id || ''] || new Set());
+
   if (contextKeys) {
     for (const key of contextKeys) {
       content = replacer(content, key, `this.context.${key}`);
@@ -55,9 +59,11 @@ export function patchCode(
 }
 
 export function getJSExpression(content: string) {
+  const regex = /^\{[\w\W]*\}$/;
+  const code = regex.test(content) ? `(${content})` : content;
   return {
     type: 'JSExpression',
-    value: content
+    value: code
   } as JSExpression;
 }
 

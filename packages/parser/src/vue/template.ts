@@ -116,12 +116,20 @@ function getProps(nodes: Array<AttributeNode | DirectiveNode>) {
 
     // 动态绑定的属性
     if (item.type === NodeTypes.DIRECTIVE) {
-      if (
-        item.name === 'bind' &&
-        item.exp?.type === NodeTypes.SIMPLE_EXPRESSION &&
-        item.arg?.type === NodeTypes.SIMPLE_EXPRESSION
-      ) {
-        props[item.arg.content] = getJSExpression(`(${item.exp.content})`);
+      if (item.name === 'bind') {
+        if (
+          item.exp?.type === NodeTypes.SIMPLE_EXPRESSION &&
+          item.arg?.type === NodeTypes.SIMPLE_EXPRESSION
+        ) {
+          props[item.arg.content] = getJSExpression(`(${item.exp.content})`);
+        }
+
+        if (
+          item.exp?.type === NodeTypes.COMPOUND_EXPRESSION &&
+          item.arg?.type === NodeTypes.SIMPLE_EXPRESSION
+        ) {
+          props[item.arg.content] = getJSExpression(`(${item.exp.loc.source})`);
+        }
       }
     }
   }
@@ -148,7 +156,12 @@ function getEvents(
           },
           {} as Record<string, boolean>
         );
-        const code = item.exp?.loc.source || '';
+
+        let code = item.exp?.loc.source || '';
+        const endRegex = /\)$/;
+        if (endRegex.test(code)) {
+          code = `($event) => ${code}`;
+        }
         const regex = new RegExp(`${item.arg.content}_\[\\w\]\{5\,\}`);
         const name = code.match(regex)?.[0] || '';
         const handler = handlers[name];
@@ -277,6 +290,7 @@ function pickContext(el: NodeSchema, parent?: NodeSchema) {
     const { item = 'item', index = 'index' } = vFor.iterator || {};
     nodeContext = new Set([item, index, ...Array.from(nodeContext)]);
   }
+
   // 插槽上下文
   const slot = el.slot;
   if (slot) {
@@ -298,6 +312,7 @@ function createNodeSchema(
     events: getEvents(node.props, __handlers),
     directives: getDirectives(scope || node)
   };
+
   dsl.id = getNodeId(dsl);
   // v-for 上下文
   pickContext(dsl, parent);
@@ -337,7 +352,12 @@ function transformNode(
 
   // 处理文本节点
   if (node.type === NodeTypes.TEXT_CALL) {
-    return node.content.type == NodeTypes.TEXT ? node.content.content : '';
+    if (node.content.type == NodeTypes.TEXT) {
+      return node.content.content;
+    } else if (node.content.type === NodeTypes.INTERPOLATION) {
+      return getJSExpression(node.content.content.loc.source);
+    }
+    return '';
   }
 
   // 文本节点
@@ -374,16 +394,28 @@ function transformChildren(
     // 处理 template 标签
     if (childNode.type === NodeTypes.ELEMENT && childNode.tag === 'template') {
       const slot = childNode.props.find((n) => n.name === 'slot');
+      // console.log('transformChildren slot ---', slot);
+      // createSlotTextNodeSchema(childNode);
       for (const child of childNode.children) {
-        const node = transformNode(child, el);
+        const node =
+          child.type === NodeTypes.TEXT || child.type === NodeTypes.TEXT_CALL
+            ? ({
+                name: 'span',
+                children: transformNode(child, el)
+              } as NodeSchema)
+            : transformNode(child, el);
+
         if (node) {
           // 补充插槽指令
           if (isNodeSchema(node) && slot?.type === NodeTypes.DIRECTIVE) {
+            node.id = getNodeId(node);
             node.slot = {
               name: (slot.arg as any)?.content || 'default',
-              params: slot.arg?.identifiers || []
+              params: slot.exp?.identifiers || []
             };
+            pickContext(node, el);
           }
+
           nodes.push(node);
         }
       }

@@ -126,8 +126,10 @@ function parseImports(script: string) {
   let match;
 
   while ((match = importRegex.exec(script)) !== null) {
+    const from =
+      match[2] === '@element-plus/icons-vue' ? '@vtj/icons' : match[2];
     imports.push({
-      from: match[2],
+      from,
       imports: match[1].split(',').map((s) => s.trim())
     });
   }

@@ -309,6 +309,32 @@ export function useAI() {
     return matches?.[1] ?? '';
   };
 
+  const updateChatDsl = async (source: string) => {
+    if (!currentTopic.value || !currentChat.value) return;
+    const id = currentTopic.value?.fileId as string;
+    const project = engine.project.value?.toDsl() as ProjectSchema;
+    const { name = '' } = engine.current.value || {};
+
+    let errors = null;
+    const dsl = await engine.service
+      .parseVue(project, {
+        id,
+        name,
+        source
+      })
+      .catch((e) => {
+        errors = e;
+        return null;
+      });
+    if (dsl) {
+      currentChat.value.dsl = dsl;
+      await saveChat(currentChat.value);
+      return dsl;
+    } else {
+      return Promise.reject(errors);
+    }
+  };
+
   const scrollToTop = () => {
     if (panelRef.value && !isNewChat.value) {
       panelRef.value.scrollToTop();
@@ -388,8 +414,10 @@ export function useAI() {
     }
   );
 
-  watch(engine.current, () => {
-    currentTopic.value = null;
+  watch(engine.current, (val, old) => {
+    if (val?.id !== old?.id) {
+      currentTopic.value = null;
+    }
   });
 
   watch(panelHeight, () => {
@@ -438,6 +466,7 @@ export function useAI() {
     inputDisabled,
     createOrder,
     cancelOrder,
-    getOrder
+    getOrder,
+    updateChatDsl
   };
 }
