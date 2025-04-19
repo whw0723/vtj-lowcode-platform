@@ -57,8 +57,11 @@
     const editor = editorRef.value.getEditor();
     const code = editor.getValue();
     const dsl = await props.updateChatDsl(code).catch((e: any) => {
-      notify(e?.message || '代码错误');
-      console.warn(e);
+      if (Array.isArray(e)) {
+        notify(e.join(','));
+      } else {
+        notify(e?.message || '代码错误');
+      }
       return null;
     });
 

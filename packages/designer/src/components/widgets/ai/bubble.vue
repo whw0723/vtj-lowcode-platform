@@ -30,9 +30,9 @@
             </div>
           </div>
           <div v-if="props.data.message" class="v-ai-widget-bubble__message">
-            <div>
+            <pre>
               {{ props.data.message }}
-            </div>
+            </pre>
             <ElButton size="small" round @click="onFix">纠正错误</ElButton>
           </div>
           <ElButton

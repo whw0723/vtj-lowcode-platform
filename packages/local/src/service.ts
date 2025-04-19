@@ -8,13 +8,12 @@ import {
   type PageFile,
   type BlockFile,
   type PlatformType,
-  type VTJConfig,
-  type ParseVueOptions
+  type VTJConfig
 } from '@vtj/core';
 import { resolve } from 'path';
 import { readJsonSync, upperFirstCamelCase, timestamp, uuid } from '@vtj/node';
 import { generator, createEmptyPage } from '@vtj/coder';
-import { parseVue as vue2Dsl } from '@vtj/parser';
+import { parseVue as vue2Dsl, type IParseVueOptions } from '@vtj/parser';
 import formidable from 'formidable';
 import { fail, success, type ApiRequest } from './shared';
 import {
@@ -306,9 +305,14 @@ export async function genVueContent(project: ProjectSchema, dsl: BlockSchema) {
   return success(content);
 }
 
-export async function parseVue(options: ParseVueOptions) {
-  const dsl = await vue2Dsl(options);
-  return success(dsl);
+export async function parseVue(options: IParseVueOptions) {
+  let errors: any = null;
+  const dsl = await vue2Dsl(options).catch((e: any) => {
+    errors = e;
+    return null;
+  });
+
+  return success(errors ? errors : dsl);
 }
 
 export async function createRawPage(file: PageFile) {

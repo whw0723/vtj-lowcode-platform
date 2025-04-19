@@ -10,7 +10,10 @@ test('test_1', async () => {
     id: '235w0t1w',
     name: 'Bbb',
     source: test_1
+  }).catch((errors) => {
+    console.error('error', errors);
   });
+
   console.log(JSON.stringify(result, null, 2));
 
   expect(true).toBeTruthy();

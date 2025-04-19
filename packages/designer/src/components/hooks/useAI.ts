@@ -284,11 +284,17 @@ export function useAI() {
           chat.thinking = Math.ceil(thinking / 1000);
           chat.vue = getVueCode(chat.content);
           const dsl = await vue2Dsl(chat).catch((e) => {
-            chat.message = e.message;
+            if (Array.isArray(e)) {
+              chat.message = e.join('\n');
+            } else {
+              chat.message = e?.message || '代码有错误。';
+            }
             chat.status = 'Error';
             return null;
           });
-          chat.dsl = dsl;
+          if (dsl) {
+            chat.dsl = dsl;
+          }
           await saveChat(chat);
           complete && complete(chat);
         }
@@ -315,23 +321,20 @@ export function useAI() {
     const project = engine.project.value?.toDsl() as ProjectSchema;
     const { name = '' } = engine.current.value || {};
 
-    let errors = null;
     const dsl = await engine.service
       .parseVue(project, {
         id,
         name,
         source
       })
-      .catch((e) => {
-        errors = e;
-        return null;
-      });
-    if (dsl) {
+      .catch((e) => e);
+    // 结果是错误信息
+    if (Array.isArray(dsl)) {
+      return Promise.reject(dsl);
+    } else {
       currentChat.value.dsl = dsl;
       await saveChat(currentChat.value);
       return dsl;
-    } else {
-      return Promise.reject(errors);
     }
   };
 

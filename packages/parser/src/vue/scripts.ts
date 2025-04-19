@@ -37,13 +37,15 @@ export interface ParseScriptsResult {
   emits?: BlockEmit[];
   inject?: BlockInject[];
   handlers?: Record<string, JSFunction>;
+  errors: string[];
 }
 
 export function parseScripts(content: string) {
   const imports = parseImports(content);
   const result: ParseScriptsResult = {
     imports,
-    emits: []
+    emits: [],
+    errors: []
   };
   const ast = toAST(content);
   traverseAST(ast, {
@@ -98,6 +100,7 @@ export function parseScripts(content: string) {
         switch (keyName) {
           case 'setup':
             result.state = getState(item.body);
+            // console.log('setup---', item.body);
             break;
         }
       }

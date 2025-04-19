@@ -13,17 +13,26 @@ import { parseSFC, isJSCode } from '../shared';
 import { parseTemplate } from './template';
 import { parseScripts, type ImportStatement } from './scripts';
 import { parseStyle } from './style';
-import { patchCode, replacer } from './utils';
+import { patchCode, replacer, isScss } from './utils';
 
 export type IParseVueOptions = ParseVueOptions & { project: ProjectSchema };
 
 export { patchCode, replacer };
 
 export async function parseVue(options: IParseVueOptions) {
+  const __errors: string[] = [];
   const { id, name, source, project } = options;
+  if (isScss(source)) {
+    __errors.push(`style的lang不能是scss, 请改为css`);
+    return Promise.reject(__errors);
+  }
   const { dependencies = [] } = project || {};
   const sfc = parseSFC(source);
-  const { styles, css } = parseStyle(sfc.styles.join('\n'));
+  const {
+    styles,
+    css,
+    errors: styleErrors
+  } = parseStyle(sfc.styles.join('\n'));
   const {
     state,
     watch,
@@ -98,6 +107,11 @@ export async function parseVue(options: IParseVueOptions) {
       exp.value = patchCode(code, '', patchCodeOpt);
     }
   );
+
+  __errors.push(...styleErrors);
+  if (__errors.length) {
+    return Promise.reject(__errors);
+  }
 
   const model = new BlockModel(dsl);
   return model.toDsl();

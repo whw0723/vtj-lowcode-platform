@@ -55,6 +55,9 @@ export function patchCode(
     content = replacer(content, key, `this.${key}`);
   }
 
+  // 兜底
+  content = content.replace(/_ctx\./g, 'this.');
+
   return content;
 }
 
@@ -102,4 +105,9 @@ export function formatTagName(tag: string) {
     return tag;
   }
   return upperFirstCamelCase(tag);
+}
+
+export function isScss(source: string) {
+  const regex = /style lang=\"scss\"/;
+  return regex.test(source);
 }
