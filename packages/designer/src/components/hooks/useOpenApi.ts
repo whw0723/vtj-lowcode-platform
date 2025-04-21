@@ -1,55 +1,30 @@
 import { jsonp } from '@vtj/utils';
 import type { BlockSchema, PlatformType } from '@vtj/core';
-import { useEngine } from '../../framework';
+import {
+  useEngine,
+  type PublishTemplateDto,
+  type TemplateDto,
+  type TopicDto,
+  type ChatDto
+} from '../../framework';
 import { alert } from '../../utils';
 
-export interface PublishTemplateDto {
-  name: string;
-  label: string;
-  category: string;
-  cover: Blob;
-  share: boolean;
-  version: string;
-  platform: string;
-  latest?: string;
-  dsl: string;
-  id?: string;
-}
-
-export interface TemplateDto {
-  id: string;
-  name: string;
-  label: string;
-  vip: boolean;
-  share: boolean;
-  cover: string;
-  author: string;
-  userId: string;
-  category: string;
-  latest: string;
-  platform: string;
-}
-
-export interface TopicDto {
-  model: string;
-  project: string;
-  dsl: string;
-  source: string;
-  prompt: string;
-}
-
-export interface ChatDto {
-  topicId: string;
-  prompt: string;
-}
+export type { TemplateDto, PublishTemplateDto, TopicDto, ChatDto };
 
 export function useOpenApi() {
   const engine = useEngine();
-  const { access, remote } = engine || {};
+  const { access, remote, openApi } = engine || {};
 
   const loginBySign = async () => {
     const { auth } = engine.options;
-    if (!remote || !auth || !access) return;
+    if (!access) return;
+
+    if (openApi?.loginBySign) {
+      const data = await openApi.loginBySign();
+      access?.login(data);
+      return;
+    }
+    if (!remote || !auth) return;
     if (typeof auth === 'string') {
       const api = `${remote}/api/open/auth/${auth}`;
       const res = await jsonp(api).catch(() => null);
@@ -80,6 +55,9 @@ export function useOpenApi() {
   };
 
   const isLogined = async () => {
+    if (openApi?.isLogined) {
+      return await openApi?.isLogined();
+    }
     const token = access?.getData()?.token;
     if (token) {
       const api = `${remote}/api/open/user/${token}`;
@@ -93,6 +71,9 @@ export function useOpenApi() {
   };
 
   const getTemplates = async (platform: PlatformType = 'web') => {
+    if (openApi?.getTemplates) {
+      return await openApi?.getTemplates(platform);
+    }
     const api = `${remote}/api/open/templates`;
     const token = access?.getData()?.token;
     const res = await jsonp(api, {
@@ -102,6 +83,9 @@ export function useOpenApi() {
   };
 
   const getTemplateById = async (id: string) => {
+    if (openApi?.getTemplateById) {
+      return await openApi?.getTemplateById(id);
+    }
     const token = access?.getData()?.token;
     const api = `${remote}/api/open/template/${token}`;
     const res = await jsonp(api, { query: { id } });
@@ -109,6 +93,9 @@ export function useOpenApi() {
   };
 
   const removeTemplate = async (id: string) => {
+    if (openApi?.removeTemplate) {
+      return await openApi?.removeTemplate(id);
+    }
     const token = access?.getData()?.token;
     const api = `${remote}/api/open/template/remove/${token}`;
     const res = await jsonp(api, { query: { id } });
@@ -116,6 +103,9 @@ export function useOpenApi() {
   };
 
   const getTemplateDsl = async (id: string) => {
+    if (openApi?.getTemplateDsl) {
+      return await openApi?.getTemplateDsl(id);
+    }
     const token = access?.getData()?.token;
     const api = `${remote}/api/open/dsl/${token}`;
     const res = await jsonp(api, { query: { id } });
@@ -126,6 +116,9 @@ export function useOpenApi() {
   };
 
   const getDictOptions = async (code: string) => {
+    if (openApi?.getDictOptions) {
+      return await openApi?.getDictOptions(code);
+    }
     const api = `${remote}/api/open/dict/${code}`;
     const res = await jsonp(api).catch(() => null);
     return res?.data || [];
@@ -134,6 +127,9 @@ export function useOpenApi() {
   const getTemplateCategories = () => getDictOptions('TemplateCategory');
 
   const publishTemplate = async (dto: PublishTemplateDto) => {
+    if (openApi?.publishTemplate) {
+      return await openApi?.publishTemplate(dto);
+    }
     const token = access?.getData()?.token;
     const api = `${remote}/api/open/template/publish/${token}`;
     const data = new FormData();
@@ -151,6 +147,9 @@ export function useOpenApi() {
   };
 
   const postTopic = async (dto: TopicDto) => {
+    if (openApi?.postTopic) {
+      return await openApi?.postTopic(dto);
+    }
     const token = access?.getData()?.token;
     const api = `${remote}/api/open/topic/post/${token}`;
     const res = await window
@@ -170,6 +169,9 @@ export function useOpenApi() {
   };
 
   const getChats = async (topicId: string) => {
+    if (openApi?.getChats) {
+      return await openApi?.getChats(topicId);
+    }
     const token = access?.getData()?.token;
     const api = `${remote}/api/open/chat/list/${token}?id=${topicId}`;
     const res = await window.fetch(api, {
@@ -179,6 +181,9 @@ export function useOpenApi() {
   };
 
   const getTopics = async (fileId: string) => {
+    if (openApi?.getTopics) {
+      return await openApi?.getTopics(fileId);
+    }
     const token = access?.getData()?.token;
     const api = `${remote}/api/open/topic/list/${token}?id=${fileId}`;
     const res = await window.fetch(api, {
@@ -188,6 +193,9 @@ export function useOpenApi() {
   };
 
   const postChat = async (dto: ChatDto) => {
+    if (openApi?.postChat) {
+      return await openApi?.postChat(dto);
+    }
     const token = access?.getData()?.token;
     const api = `${remote}/api/open/chat/post/${token}`;
     const res = await window
@@ -207,6 +215,9 @@ export function useOpenApi() {
   };
 
   const saveChat = async (chat: any) => {
+    if (openApi?.saveChat) {
+      return await openApi?.saveChat(chat);
+    }
     const token = access?.getData()?.token;
     const api = `${remote}/api/open/chat/save/${token}`;
     const res = await window.fetch(api, {
@@ -220,6 +231,9 @@ export function useOpenApi() {
   };
 
   const removeTopic = async (topicId: string) => {
+    if (openApi?.removeTopic) {
+      return await openApi?.removeTopic(topicId);
+    }
     const token = access?.getData()?.token;
     const api = `${remote}/api/open/topic/remove/${token}?id=${topicId}`;
     const res = await window.fetch(api, {
@@ -229,6 +243,9 @@ export function useOpenApi() {
   };
 
   const getHotTopics = async () => {
+    if (openApi?.getHotTopics) {
+      return await openApi?.getHotTopics();
+    }
     const api = `${remote}/api/open/topic/hot`;
     return await window
       .fetch(api, {

@@ -1,53 +1,24 @@
 import { ref, watch, type Ref, reactive, computed } from 'vue';
-import { useOpenApi, type TopicDto, type ChatDto } from './useOpenApi';
+import { useOpenApi } from './useOpenApi';
+import {
+  type TopicDto,
+  type ChatDto,
+  type AITopic,
+  type AIChat,
+  type DictOption
+} from '../../framework';
 import type { ProjectSchema, BlockSchema, BlockModel } from '@vtj/core';
 import { useElementSize } from '@vueuse/core';
 import { delay, storage } from '@vtj/utils';
 
+export type { AITopic, AIChat };
+export type Dict = DictOption;
 export type UseAIOptions = ReturnType<typeof useOpenApi>;
-
-export interface Dict {
-  label: string;
-  value: any;
-}
 
 export interface AISendData {
   model: string;
   auto: boolean;
   prompt: string;
-}
-
-export interface AITopic {
-  id: string;
-  appId: string;
-  createAt: string;
-  fileId: string;
-  isHot: boolean;
-  model: string;
-  platform: string;
-  projectId: string;
-  title: string;
-  prompt: string;
-  dependencies: string;
-  dsl: any;
-}
-
-export interface AIChat {
-  id: string;
-  content: string;
-  createdAt: string;
-  dsl: any;
-  message: string;
-  prompt: string;
-  reasoning: string;
-  status: string;
-  tokens: number;
-  topicId: string;
-  userId: string;
-  userName: string;
-  thinking: number;
-  vue: string;
-  collapsed?: boolean;
 }
 
 export interface CompletionsParams {
@@ -69,7 +40,7 @@ export interface Settings {
 }
 
 function useDict(code: string, getDictOptions: (code: string) => Promise<any>) {
-  const result: Ref<Dict[]> = ref([]);
+  const result: Ref<DictOption[]> = ref([]);
   if (getDictOptions) {
     getDictOptions(code).then((res: any) => {
       result.value = res || [];

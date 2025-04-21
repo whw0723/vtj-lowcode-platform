@@ -55,6 +55,7 @@ import { depsManager, widgetManager } from '../managers';
 import { Simulator } from './simulator';
 import { Assets } from './assets';
 import { Report } from './report';
+import { OpenApi } from './openapi';
 import { message, alert } from '../utils';
 import { ACCESS, REMOTE } from '../constants';
 
@@ -126,6 +127,11 @@ export interface EngineOptions {
    * 开启版本检查
    */
   checkVersion?: boolean;
+
+  /**
+   * 适配远程接口
+   */
+  openApi?: OpenApi;
 }
 
 export const SAVE_BLOCK_FILE_FINISH = 'SAVE_BLOCK_FILE_FINISH';
@@ -153,6 +159,7 @@ export class Engine extends Base {
   public remote;
   public report: Report;
   public checkVersion: boolean = true;
+  public openApi?: OpenApi;
   constructor(public options: EngineOptions) {
     super();
     const {
@@ -168,10 +175,12 @@ export class Engine extends Base {
       install,
       access,
       remote = REMOTE,
-      checkVersion = true
+      checkVersion = true,
+      openApi
     } = this.options;
     this.container = container;
     this.service = service;
+    this.openApi = openApi;
     this.adapter = adapter;
     this.provider = new Provider({
       mode: ContextMode.Design,
