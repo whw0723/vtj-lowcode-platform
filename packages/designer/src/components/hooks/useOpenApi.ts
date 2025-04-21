@@ -47,6 +47,23 @@ export function useOpenApi() {
   const engine = useEngine();
   const { access, remote } = engine || {};
 
+  const loginBySign = async () => {
+    const { auth } = engine.options;
+    if (!remote || !auth || !access) return;
+    if (typeof auth === 'string') {
+      const api = `${remote}/api/open/auth/${auth}`;
+      const res = await jsonp(api).catch(() => null);
+      if (res && res.data) {
+        access.login(res.data);
+      }
+    } else if (typeof auth === 'function') {
+      const res = await auth().catch(() => null);
+      if (res && res.data) {
+        access.login(res.data);
+      }
+    }
+  };
+
   const toRemoteAuth = () => {
     if (remote && access) {
       const redirect = encodeURIComponent(location.href);
@@ -321,6 +338,7 @@ export function useOpenApi() {
     engine,
     access,
     remote,
+    loginBySign,
     toRemoteAuth,
     isLogined,
     getTemplates,

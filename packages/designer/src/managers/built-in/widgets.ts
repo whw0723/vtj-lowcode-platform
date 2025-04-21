@@ -80,7 +80,8 @@ export const builtInWidgets: Array<AppWidget | TabWidget | Widget> = [
     type: 'app',
     openType: 'panel',
     icon: VtjIconTemplate,
-    label: '模板'
+    label: '模板',
+    remote: true
   },
   {
     name: 'Outline',
@@ -144,7 +145,8 @@ export const builtInWidgets: Array<AppWidget | TabWidget | Widget> = [
     type: 'app',
     openType: 'panel',
     icon: VtjIconAi,
-    label: 'AI助手'
+    label: 'AI助手',
+    remote: true
   },
   {
     name: 'About',

@@ -12,8 +12,8 @@
         <span>{{ version }}</span>
       </div>
     </div>
-    <ElDivider direction="vertical"></ElDivider>
-    <div class="v-about-widget__item">
+    <ElDivider v-if="showUserAvatar" direction="vertical"></ElDivider>
+    <div v-if="showUserAvatar" class="v-about-widget__item">
       <div class="v-about-widget__logo">
         <ElAvatar
           :size="80"
@@ -58,6 +58,11 @@
         ? avatar
         : `${remote}/api/oss/file/${avatar}`
       : null;
+  });
+
+  const showUserAvatar = computed(() => {
+    // 设置了auth，不显示头像
+    return !!engine.remote && !engine.options.auth;
   });
 
   const username = computed(() => {

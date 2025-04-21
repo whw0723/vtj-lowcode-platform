@@ -112,6 +112,16 @@ export interface VTJConfig {
   remote?: string;
 
   /**
+   * 授权登录
+   */
+  auth?: string | (() => Promise<any>);
+
+  /**
+   * 检查版本更新
+   */
+  checkVersion?: boolean;
+
+  /**
    * 平台
    */
   platform?: PlatformType;

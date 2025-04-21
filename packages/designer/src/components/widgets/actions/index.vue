@@ -26,7 +26,12 @@
       <VtjIconSetting></VtjIconSetting>
     </ElButton>
 
-    <ElButton type="default" size="small" title="AI助手" @click="onActiveAI">
+    <ElButton
+      v-if="engine.remote"
+      type="default"
+      size="small"
+      title="AI助手"
+      @click="onActiveAI">
       <VtjIconAi></VtjIconAi>
     </ElButton>
 
@@ -65,7 +70,11 @@
           <ElDropdownItem command="project" :icon="VtjIconProject">
             整站发布
           </ElDropdownItem>
-          <ElDropdownItem command="template" :icon="VtjIconTemplate" divided>
+          <ElDropdownItem
+            v-if="engine.remote"
+            command="template"
+            :icon="VtjIconTemplate"
+            divided>
             发布模板
           </ElDropdownItem>
         </ElDropdownMenu>
