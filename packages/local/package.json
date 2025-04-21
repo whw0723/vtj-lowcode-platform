@@ -37,7 +37,7 @@
     "@types/formidable": "~3.4.5",
     "@vtj/cli": "workspace:~",
     "unbuild": "~2.0.0",
-    "vite": "~6.2.0"
+    "vite": "~6.3.0"
   },
   "exports": {
     ".": {
