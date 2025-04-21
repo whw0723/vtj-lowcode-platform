@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.12.0-alpha.0](https://gitee.com/newgateway/vtj/compare/@vtj/renderer@0.11.16...@vtj/renderer@0.12.0-alpha.0) (2025-04-21)
+
+
+### Features
+
+* ✨ AI Widget ([e758a1b](https://gitee.com/newgateway/vtj/commits/e758a1b1e00496a20444d42c427288984a5766a5))
+* ✨ AI助手 ([702d912](https://gitee.com/newgateway/vtj/commits/702d91255d2860ee899f06f598d8043e6db9620d))
+
+
+
+
+
 ## [0.11.16](https://gitee.com/newgateway/vtj/compare/@vtj/renderer@0.11.15...@vtj/renderer@0.11.16) (2025-04-10)
 
 **Note:** Version bump only for package @vtj/renderer

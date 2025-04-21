@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.12.0-alpha.0](https://gitee.com/newgateway/vtj/compare/@vtj/coder@0.11.16...@vtj/coder@0.12.0-alpha.0) (2025-04-21)
+
+
+### Bug Fixes
+
+* 🐛 处理出码表达式双引号导致的报错 ([4a95d83](https://gitee.com/newgateway/vtj/commits/4a95d8328d40337c382f00275f5bf1fbb608ae5c))
+
+
+### Features
+
+* ✨ 节点/事件解析 ([27670e2](https://gitee.com/newgateway/vtj/commits/27670e2e7d52c1d76a2f278819b0d4beefa8e735))
+* ✨ parser ([a8f8cad](https://gitee.com/newgateway/vtj/commits/a8f8cad6c156a670417537154ee3b5ad8745b349))
+
+
+
+
+
 ## [0.11.16](https://gitee.com/newgateway/vtj/compare/@vtj/coder@0.11.15...@vtj/coder@0.11.16) (2025-04-10)
 
 **Note:** Version bump only for package @vtj/coder

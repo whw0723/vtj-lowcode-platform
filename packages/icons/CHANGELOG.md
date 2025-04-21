@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.12.0-alpha.0](https://gitee.com/newgateway/vtj/compare/@vtj/icons@0.11.16...@vtj/icons@0.12.0-alpha.0) (2025-04-21)
+
+
+### Features
+
+* ✨ AI 对话ui ([53b8461](https://gitee.com/newgateway/vtj/commits/53b8461d0511e85a2d37bc85128163113f2d22d9))
+
+
+
+
+
 ## [0.11.16](https://gitee.com/newgateway/vtj/compare/@vtj/icons@0.11.15...@vtj/icons@0.11.16) (2025-04-10)
 
 **Note:** Version bump only for package @vtj/icons

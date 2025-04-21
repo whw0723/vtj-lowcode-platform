@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.12.0-alpha.0](https://gitee.com/newgateway/vtj/compare/@vtj/pro@0.11.16...@vtj/pro@0.12.0-alpha.0) (2025-04-21)
+
+
+### Features
+
+* ✨ 支持用签名自动授权登录 ([cd273e4](https://gitee.com/newgateway/vtj/commits/cd273e415eb4a5dadf741e8cd1d25505ab5fedfa))
+* ✨ AI助手 ([702d912](https://gitee.com/newgateway/vtj/commits/702d91255d2860ee899f06f598d8043e6db9620d))
+
+
+
+
+
 ## [0.11.16](https://gitee.com/newgateway/vtj/compare/@vtj/pro@0.11.15...@vtj/pro@0.11.16) (2025-04-10)
 
 **Note:** Version bump only for package @vtj/pro
