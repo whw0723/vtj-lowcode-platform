@@ -5,13 +5,14 @@ import {
   type ChatDto,
   type AITopic,
   type AIChat,
-  type DictOption
+  type DictOption,
+  type Settings
 } from '../../framework';
 import type { ProjectSchema, BlockSchema, BlockModel } from '@vtj/core';
 import { useElementSize } from '@vueuse/core';
 import { delay, storage } from '@vtj/utils';
 
-export type { AITopic, AIChat };
+export type { AITopic, AIChat, Settings };
 export type Dict = DictOption;
 export type UseAIOptions = ReturnType<typeof useOpenApi>;
 
@@ -19,24 +20,6 @@ export interface AISendData {
   model: string;
   auto: boolean;
   prompt: string;
-}
-
-export interface CompletionsParams {
-  chat: AIChat;
-  callback?: (data: any, done?: boolean) => void;
-  error?: (e: any, cancel?: boolean) => void;
-}
-
-export interface Settings {
-  limit: number;
-  max: number;
-  mode: number;
-  price: number;
-  payQr: string;
-  contactQr: string;
-  invited: boolean;
-  paid: boolean;
-  free: boolean;
 }
 
 function useDict(code: string, getDictOptions: (code: string) => Promise<any>) {
@@ -94,7 +77,6 @@ export function useAI() {
   const isNewChat = ref(true);
   const showDetail = ref(false);
   const models = useDict('LLM', getDictOptions);
-  const topicTypes = useDict('TopicType', getDictOptions);
   const topics = ref<AITopic[]>([]);
   const chats = ref<AIChat[]>([]);
   const currentTopic = ref<AITopic | null>(null);
@@ -408,7 +390,6 @@ export function useAI() {
     loading,
     isNewChat,
     models,
-    topicTypes,
     onPostTopic,
     topics,
     chats,

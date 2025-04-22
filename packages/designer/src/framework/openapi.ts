@@ -1,6 +1,4 @@
-import type { Access } from '@vtj/renderer';
 import type { PlatformType, BlockSchema } from '@vtj/core';
-
 export interface TemplateDto {
   id: string;
   name: string;
@@ -86,33 +84,57 @@ export interface ResponseWrapper<T = any> {
   data: T;
 }
 
+export interface Settings {
+  limit: number;
+  max: number;
+  mode: number;
+  price: number;
+  payQr: string;
+  contactQr: string;
+  invited: boolean;
+  paid: boolean;
+  free: boolean;
+}
+
 export abstract class OpenApi {
-  public abstract access: Access;
-  public abstract loginBySign: () => Promise<string[]>;
-  public abstract isLogined: () => Promise<boolean>;
-  public abstract getTemplates: (
+  public abstract loginBySign?: () => Promise<string[]>;
+  public abstract isLogined?: () => Promise<boolean>;
+  public abstract getTemplates?: (
     platform: PlatformType
   ) => Promise<TemplateDto[]>;
-  public abstract getTemplateById: (id: string) => Promise<TemplateDto>;
-  public abstract removeTemplate: (id: string) => Promise<boolean>;
-  public abstract getTemplateDsl: (id: string) => Promise<BlockSchema>;
-  public abstract getDictOptions: (code: string) => Promise<DictOption[]>;
-  public abstract publishTemplate: (
+  public abstract getTemplateById?: (id: string) => Promise<TemplateDto>;
+  public abstract removeTemplate?: (id: string) => Promise<boolean>;
+  public abstract getTemplateDsl?: (id: string) => Promise<BlockSchema>;
+  public abstract getDictOptions?: (code: string) => Promise<DictOption[]>;
+  public abstract publishTemplate?: (
     dto: PublishTemplateDto
   ) => Promise<boolean>;
-  public abstract postTopic: (
+  public abstract postTopic?: (
     dto: TopicDto
   ) => Promise<ResponseWrapper<{ topic: AITopic; chat: AIChat }>>;
-  public abstract getChats: (
+  public abstract getChats?: (
     topicId: string
   ) => Promise<ResponseWrapper<AIChat[]>>;
-  public abstract getTopics: (
+  public abstract getTopics?: (
     fileId: string
   ) => Promise<ResponseWrapper<AITopic[]>>;
-  public abstract postChat: (dto: ChatDto) => Promise<ResponseWrapper<AIChat>>;
-  public abstract saveChat: (chat: AIChat) => Promise<ResponseWrapper<boolean>>;
-  public abstract removeTopic: (
+  public abstract postChat?: (dto: ChatDto) => Promise<ResponseWrapper<AIChat>>;
+  public abstract saveChat?: (
+    chat: AIChat
+  ) => Promise<ResponseWrapper<boolean>>;
+  public abstract removeTopic?: (
     topicId: string
   ) => Promise<ResponseWrapper<boolean>>;
-  public abstract getHotTopics: () => Promise<ResponseWrapper<AITopic[]>>;
+  public abstract getHotTopics?: () => Promise<ResponseWrapper<AITopic[]>>;
+  public abstract chatCompletions?: (
+    topicId: string,
+    chatId: string,
+    callback?: (data: any, done?: boolean) => void,
+    error?: (err: any, cancel?: boolean) => void
+  ) => Promise<() => void>;
+
+  public abstract getSettins?: () => Promise<Settings>;
+  public abstract createOrder?: () => Promise<ResponseWrapper<any>>;
+  public abstract cancelOrder?: (id: string) => Promise<ResponseWrapper<any>>;
+  public abstract getOrder?: (id: string) => Promise<ResponseWrapper<any>>;
 }

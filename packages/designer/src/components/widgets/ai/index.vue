@@ -65,7 +65,6 @@
       <NewTopic
         v-if="isNoFile || isNewChat"
         :models="models"
-        :types="topicTypes"
         :loading="loading"
         :model-value="promptText"
         :disabled="inputDisabled"
@@ -194,7 +193,6 @@
     isNewChat,
     loading,
     models,
-    topicTypes,
     onPostTopic,
     chats,
     currentTopic,

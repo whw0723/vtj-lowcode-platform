@@ -35,7 +35,7 @@ export function parseValue(
   computedKeys: string[] = []
 ) {
   let value = isJSCode(val)
-    ? val.value.replace(/\"/g, "'")
+    ? val.value.trim().replace(/\"/g, "'").replace(/;$/, '')
     : stringify
       ? JSON.stringify(val)
       : val;
@@ -57,7 +57,7 @@ export function replaceComputedValue(content: string, keys: string[] = []) {
 }
 
 export function replaceFunctionTag(content: string) {
-  let handler: string = content.trim();
+  let handler: string = content.trim().replace(/;$/, '');
   // 匹配格式： ( async function() {} ) 或  ( function() {} ) 或 (()=>{})
   const bracketRegex = /^\((\(|async|function)/;
   const isBracket = bracketRegex.test(handler);

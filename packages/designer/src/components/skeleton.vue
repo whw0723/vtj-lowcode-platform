@@ -78,7 +78,7 @@
     rightWidth: '350px',
     footerHeight: '20px'
   });
-  const { engine, loginBySign } = useOpenApi();
+  const { engine, loginBySign, isLogined } = useOpenApi();
 
   const isPreview = ref(false);
   const leftWidth = ref(parseInt(props.leftWidth));
@@ -130,10 +130,15 @@
   const collapsed = ref(false);
   const settable = ref(false);
 
-  onMounted(() => {
+  const init = async () => {
+    const logined = await isLogined();
+    if (!logined) {
+      await loginBySign();
+    }
     checkVersion();
-    loginBySign();
-  });
+  };
+
+  onMounted(init);
 
   defineOptions({
     name: 'Skeletion'

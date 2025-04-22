@@ -5,7 +5,8 @@ import {
   type PublishTemplateDto,
   type TemplateDto,
   type TopicDto,
-  type ChatDto
+  type ChatDto,
+  type Settings
 } from '../../framework';
 import { alert } from '../../utils';
 
@@ -63,6 +64,7 @@ export function useOpenApi() {
       const api = `${remote}/api/open/user/${token}`;
       const res = await jsonp(api).catch(() => null);
       if (res && res.data) {
+        access?.login(res.data);
         return true;
       }
       return false;
@@ -261,6 +263,9 @@ export function useOpenApi() {
     callback?: (data: any, done?: boolean) => void,
     error?: (err: any, cancel?: boolean) => void
   ) => {
+    if (openApi?.chatCompletions) {
+      return await openApi?.chatCompletions(topicId, chatId, callback, error);
+    }
     const token = access?.getData()?.token;
     const api = `${remote}/api/open/completions/${token}?tid=${topicId}&id=${chatId}`;
     const controller = new AbortController();
@@ -303,6 +308,9 @@ export function useOpenApi() {
   };
 
   const getSettins = async () => {
+    if (openApi?.getSettins) {
+      return await openApi?.getSettins();
+    }
     const token = access?.getData()?.token;
     const api = `${remote}/api/open/settings/${token}`;
     const res = await window
@@ -311,10 +319,13 @@ export function useOpenApi() {
       })
       .then((res) => res.json())
       .catch(() => null);
-    return res?.data;
+    return res?.data as Settings;
   };
 
   const createOrder = async () => {
+    if (openApi?.createOrder) {
+      return await openApi?.createOrder();
+    }
     const token = access?.getData()?.token;
     const api = `${remote}/api/open/order/${token}`;
     const res = await window
@@ -330,6 +341,9 @@ export function useOpenApi() {
   };
 
   const cancelOrder = async (id: string) => {
+    if (openApi?.cancelOrder) {
+      return await openApi?.cancelOrder(id);
+    }
     const token = access?.getData()?.token;
     const api = `${remote}/api/open/order/cancel/${token}?id=${id}`;
     return await window
@@ -341,6 +355,9 @@ export function useOpenApi() {
   };
 
   const getOrder = async (id: string) => {
+    if (openApi?.getOrder) {
+      return await openApi?.getOrder(id);
+    }
     const token = access?.getData()?.token;
     const api = `${remote}/api/open/order/${token}?id=${id}`;
     return await window

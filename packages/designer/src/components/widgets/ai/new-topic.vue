@@ -41,7 +41,6 @@
 
   export interface Props {
     models?: Dict[];
-    types?: Dict[];
     loading?: boolean;
     modelValue?: string;
     fillPromptInput: any;
@@ -49,8 +48,7 @@
   }
 
   const props = withDefaults(defineProps<Props>(), {
-    models: () => [],
-    types: () => []
+    models: () => []
   });
 
   const emit = defineEmits<{
