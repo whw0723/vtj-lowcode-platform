@@ -203,7 +203,7 @@ export class BaseService implements Service {
     return await this.api('parseVue', {
       project,
       ...options
-    }).catch(() => null);
+    });
   }
 
   async createRawPage(file: PageFile): Promise<boolean> {

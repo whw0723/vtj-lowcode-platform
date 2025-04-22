@@ -98,5 +98,6 @@
 
   .markdown-container pre {
     overflow-x: auto;
+    margin: 0;
   }
 </style>

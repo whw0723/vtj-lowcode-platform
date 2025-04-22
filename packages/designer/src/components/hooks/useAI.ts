@@ -240,7 +240,10 @@ export function useAI() {
             if (Array.isArray(e)) {
               chat.message = e.join('\n');
             } else {
-              chat.message = e?.message || '代码有错误。';
+              const messages = e?.data || e?.message;
+              chat.message = Array.isArray(messages)
+                ? messages.join('\n')
+                : '代码有错误。';
             }
             chat.status = 'Error';
             return null;
