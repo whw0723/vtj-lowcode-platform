@@ -17,8 +17,8 @@
     height: 100%;
   }
   @include e(drawer) {
-    box-shadow: none;
-    --el-drawer-padding-primary: 0;
+    box-shadow: none !important;
+    --el-drawer-padding-primary: 0 !important;
   }
 
   @include e(bubble-list) {
@@ -164,7 +164,7 @@
   }
 
   @include e(avatar) {
-    background: var(--el-color-primary-light-5);
+    background: var(--el-color-primary-light-5) !important;
   }
 
   @include e(tools) {
