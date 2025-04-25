@@ -285,7 +285,7 @@ export function useAI() {
   };
 
   const updateChatDsl = async (source: string) => {
-    if (!currentTopic.value || !currentChat.value) return;
+    if (!currentTopic.value || !currentChat.value || !source) return;
     const id = currentTopic.value?.fileId as string;
     const project = engine.project.value?.toDsl() as ProjectSchema;
     const { name = '' } = engine.current.value || {};
