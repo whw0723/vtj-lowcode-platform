@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { parseVue } from '../src';
+import { parseVue, htmlToNodes } from '../src';
 
 import { project } from './sources/project';
 import { test_9 as source } from './sources/test_9';
