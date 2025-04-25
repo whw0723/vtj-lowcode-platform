@@ -301,7 +301,11 @@ export function useAI() {
     if (Array.isArray(dsl)) {
       return Promise.reject(dsl);
     } else {
-      currentChat.value.dsl = dsl;
+      try {
+        currentChat.value.dsl = typeof dsl === 'object' ? dsl : JSON.parse(dsl);
+      } catch (e) {
+        currentChat.value.dsl = null;
+      }
       await saveChat(currentChat.value);
       return dsl;
     }
