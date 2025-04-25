@@ -254,6 +254,7 @@ export function useAI() {
             try {
               chat.dsl = typeof dsl === 'object' ? dsl : JSON.parse(dsl);
             } catch (err: any) {
+              chat.dsl = null;
               chat.status = 'Error';
               chat.message = err?.message;
             }
