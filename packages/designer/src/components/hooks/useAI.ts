@@ -265,8 +265,13 @@ export function useAI() {
       },
       async (err: any) => {
         const message = err.message || err.name || '未知错误';
-        chat.message = message;
+        if (message === 'network error') {
+          chat.message = '网络异常，请稍后再试';
+        } else {
+          chat.message = '请求失败，请稍后再试';
+        }
         chat.status = 'Failed';
+        console.warn('completions error', err);
         await saveChat(chat);
         complete && complete(chat);
       }
