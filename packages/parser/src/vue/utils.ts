@@ -116,3 +116,14 @@ export function isScss(source: string) {
   const regex = /style lang=\"scss\"/;
   return regex.test(source);
 }
+
+export function styleToJson(style: string) {
+  const cleaned = style.replace(/\s+/g, ' ');
+  return cleaned.split(';').reduce((acc: Record<string, string>, current) => {
+    const [property, value] = current.split(':').map((item) => item.trim());
+    if (property && value) {
+      acc[property] = value;
+    }
+    return acc;
+  }, {});
+}

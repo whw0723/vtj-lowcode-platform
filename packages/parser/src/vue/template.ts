@@ -21,7 +21,12 @@ import {
 } from '@vue/compiler-core';
 import { uid } from '@vtj/base';
 import { isJSExpression, isNodeSchema } from '../shared';
-import { getJSExpression, getJSFunction, formatTagName } from './utils';
+import {
+  getJSExpression,
+  getJSFunction,
+  formatTagName,
+  styleToJson
+} from './utils';
 import type { CSSRules } from './style';
 import { htmlToNodes } from './html';
 
@@ -78,17 +83,6 @@ function pickSlot(node: NodeSchema) {
       params
     });
   }
-}
-
-function styleToJson(style: string) {
-  const cleaned = style.replace(/\s+/g, ' ');
-  return cleaned.split(';').reduce((acc: Record<string, string>, current) => {
-    const [property, value] = current.split(':').map((item) => item.trim());
-    if (property && value) {
-      acc[property] = value;
-    }
-    return acc;
-  }, {});
 }
 
 function getProps(nodes: Array<AttributeNode | DirectiveNode>) {
@@ -386,6 +380,11 @@ function transformNode(
     return transformCompoundExpression(
       node.children as CompoundExpressionNode[]
     );
+  }
+
+  // 注释，忽略
+  if (node.type === NodeTypes.COMMENT) {
+    return null;
   }
 
   console.warn('未处理', node.type);
