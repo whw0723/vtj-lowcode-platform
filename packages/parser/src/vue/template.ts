@@ -5,7 +5,8 @@ import {
   type JSExpression,
   type NodeDirective,
   type BlockSlot,
-  type JSFunction
+  type JSFunction,
+  type PlatformType
 } from '@vtj/core';
 import { compileTemplate } from '@vue/compiler-sfc';
 import {
@@ -34,8 +35,10 @@ let __slots: BlockSlot[] = [];
 let __context: Record<string, Set<string>> = {};
 let __handlers: Record<string, JSFunction> = {};
 let __styles: CSSRules = {};
+let __platform: PlatformType = 'web';
 
 export interface ParseTemplateOptions {
+  platform: PlatformType;
   handlers?: Record<string, JSFunction>;
   styles?: CSSRules;
 }
@@ -50,7 +53,7 @@ export function parseTemplate(
   __context = {};
   __handlers = options?.handlers || {};
   __styles = options?.styles || {};
-
+  __platform = options?.platform || 'web';
   const result = compileTemplate({
     id,
     filename: name,
@@ -307,7 +310,7 @@ function createNodeSchema(
   scope?: IfNode | ForNode
 ) {
   const dsl: NodeSchema = {
-    name: formatTagName(node.tag),
+    name: formatTagName(node.tag, __platform),
     props: getProps(node.props),
     events: getEvents(node.props, __handlers),
     directives: getDirectives(scope || node)
