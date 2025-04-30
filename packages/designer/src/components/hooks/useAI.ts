@@ -28,6 +28,8 @@ export interface AISendImageData {
   file: File;
 }
 
+let __currentCompletions: any = null;
+
 function useDict(code: string, getDictOptions: (code: string) => Promise<any>) {
   const result: Ref<DictOption[]> = ref([]);
   if (getDictOptions) {
@@ -101,7 +103,8 @@ export function useAI() {
     cancelOrder,
     getOrder,
     getImage,
-    postImageTopic
+    postImageTopic,
+    cancelChat
   } = useOpenApi();
   const hideCodeCacheKey = 'CHAT_HIDE_CODE';
   const region = engine.skeleton?.getRegion('Apps').regionRef;
@@ -272,7 +275,10 @@ export function useAI() {
     });
   };
 
-  const completions = (chat: AIChat, complete?: (chat: AIChat) => void) => {
+  const completions = async (
+    chat: AIChat,
+    complete?: (chat: AIChat) => void
+  ) => {
     promptText.value = '';
     chat.content = '';
     chat.reasoning = '';
@@ -281,7 +287,7 @@ export function useAI() {
     chat.message = '';
     let thinking: number = 0;
     const now = Date.now();
-    return chatCompletions(
+    __currentCompletions = await chatCompletions(
       chat.topicId,
       chat.id,
       async (data, done) => {
@@ -343,6 +349,8 @@ export function useAI() {
         complete && complete(chat);
       }
     );
+
+    return __currentCompletions;
   };
 
   const getVueCode = (content: string) => {
@@ -429,6 +437,17 @@ export function useAI() {
       ? `页面存在以下问题：\n ${chat.message} \n请检查代码并修复`
       : '请检查代码是否有错误，是否符合规则要求，并改正';
     fillPromptInput(prompt);
+  };
+
+  const onCancelChat = async (chat: AIChat) => {
+    if (!currentTopic.value) return;
+    if (__currentCompletions && typeof __currentCompletions === 'function') {
+      __currentCompletions();
+    }
+    const res = await cancelChat(chat);
+    if (res && res.data) {
+      Object.assign(chat, res.data);
+    }
   };
 
   const fillPromptInput = (content: string, isNew?: boolean) => {
@@ -524,6 +543,7 @@ export function useAI() {
     getOrder,
     updateChatDsl,
     getImage,
-    onPostImageTopic
+    onPostImageTopic,
+    onCancelChat
   };
 }
