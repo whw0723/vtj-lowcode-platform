@@ -444,6 +444,7 @@ export function useAI() {
     if (__currentCompletions && typeof __currentCompletions === 'function') {
       __currentCompletions();
     }
+    chat.status = 'Canceled';
     const res = await cancelChat(chat);
     if (res && res.data) {
       Object.assign(chat, res.data);
@@ -463,19 +464,6 @@ export function useAI() {
       storage.save(hideCodeCacheKey, isHideCode.value, { type: 'local' });
     }
   };
-
-  // const uploadImage = async (file: File) => {
-  //   const res = await uploader(file);
-  //   return res?.data;
-  // };
-
-  // const postImageTopic = async (data: AISendImageData) => {
-  //   const { file } = data;
-  //   loading.value = true;
-  //   const url = await uploadImage(file);
-
-  //   console.log(url);
-  // };
 
   watch(
     () => region?.active,
