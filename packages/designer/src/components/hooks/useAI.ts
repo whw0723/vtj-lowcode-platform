@@ -317,8 +317,8 @@ export function useAI() {
             } else {
               const messages = e?.data || e?.message;
               chat.message = Array.isArray(messages)
-                ? messages.join('\n')
-                : '代码有错误。';
+                ? messages.join('，')
+                : '代码有错误';
             }
             chat.status = 'Error';
             return null;

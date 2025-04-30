@@ -14,16 +14,19 @@ import { parseTemplate } from './template';
 import { parseScripts, type ImportStatement } from './scripts';
 import { parseStyle } from './style';
 import { htmlToNodes } from './html';
-import { patchCode, replacer } from './utils';
+import { patchCode, replacer, validate } from './utils';
 
 export type IParseVueOptions = ParseVueOptions & { project: ProjectSchema };
 
 export { patchCode, replacer, htmlToNodes };
 
 export async function parseVue(options: IParseVueOptions) {
-  const __errors: string[] = [];
   const { id, name, source, project } = options;
   const { dependencies = [], platform = 'web' } = project || {};
+  const __errors = validate(source);
+  if (__errors.length) {
+    return Promise.reject(__errors);
+  }
   const sfc = parseSFC(source);
   const {
     styles,
