@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.10](https://gitee.com/newgateway/vtj/compare/@vtj/parser@0.12.9...@vtj/parser@0.12.10) (2025-04-30)
+
+
+### Bug Fixes
+
+* 🐛 检查AI是否有省略代码 ([3852e4b](https://gitee.com/newgateway/vtj/commits/3852e4b3725593423a99179804fb84573f1bbe69))
+* 🐛 parser class merge ([4bd398c](https://gitee.com/newgateway/vtj/commits/4bd398c62c2c70cb72fe408b8e3eff29e8f4f180))
+
+
+
+
+
 ## [0.12.9](https://gitee.com/newgateway/vtj/compare/@vtj/parser@0.12.8...@vtj/parser@0.12.9) (2025-04-29)
 
 

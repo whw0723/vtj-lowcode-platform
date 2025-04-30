@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.10](https://gitee.com/newgateway/vtj/compare/dev-web@0.12.9...dev-web@0.12.10) (2025-04-30)
+
+
+### Features
+
+* ✨ 发布模版支持更换截图 ([f570adc](https://gitee.com/newgateway/vtj/commits/f570adcd1c04bee9bd33ff743b835dbf698bd162))
+
+
+
+
+
 ## [0.12.9](https://gitee.com/newgateway/vtj/compare/dev-web@0.12.8...dev-web@0.12.9) (2025-04-29)
 
 **Note:** Version bump only for package dev-web

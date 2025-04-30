@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.10](https://gitee.com/newgateway/vtj/compare/@vtj/pro@0.12.9...@vtj/pro@0.12.10) (2025-04-30)
+
+
+### Features
+
+* ✨ 支持取消AI对话 ([87addc7](https://gitee.com/newgateway/vtj/commits/87addc7512c33a1738a5808a12f9d9367fb2e260))
+
+
+
+
+
 ## [0.12.9](https://gitee.com/newgateway/vtj/compare/@vtj/pro@0.12.8...@vtj/pro@0.12.9) (2025-04-29)
 
 
