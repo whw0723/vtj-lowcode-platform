@@ -161,3 +161,27 @@ export function validate(content: string) {
 
   return errors;
 }
+
+export function mergeClass(
+  staticClass: string,
+  expSource: string,
+  type: 'ObjectExpression' | 'ArrayExpression'
+) {
+  if (type === 'ObjectExpression') {
+    const staticStr = staticClass
+      .split(' ')
+      .map((item) => {
+        return `'${item}': true`;
+      })
+      .join(',');
+    return `(Object.assign({${staticStr}}, ${expSource}))`;
+  } else if (type === 'ArrayExpression') {
+    const staticStr = staticClass
+      .split(' ')
+      .map((item) => {
+        return `'${item}'`;
+      })
+      .join(',');
+    return `([${staticStr}].concat(${expSource}))`;
+  }
+}

@@ -26,7 +26,8 @@ import {
   getJSExpression,
   getJSFunction,
   formatTagName,
-  styleToJson
+  styleToJson,
+  mergeClass
 } from './utils';
 import type { CSSRules } from './style';
 import { htmlToNodes } from './html';
@@ -129,7 +130,21 @@ function getProps(nodes: Array<AttributeNode | DirectiveNode>) {
           item.exp?.type === NodeTypes.COMPOUND_EXPRESSION &&
           item.arg?.type === NodeTypes.SIMPLE_EXPRESSION
         ) {
-          props[item.arg.content] = getJSExpression(`(${item.exp.loc.source})`);
+          if (item.arg.content === 'class' && props.class) {
+            const astType = (item.exp.ast as any).type;
+            const mergeResult = mergeClass(
+              props.class as string,
+              item.exp.loc.source as string,
+              astType
+            );
+            if (mergeResult) {
+              props[item.arg.content] = getJSExpression(mergeResult);
+            }
+          } else {
+            props[item.arg.content] = getJSExpression(
+              `(${item.exp.loc.source})`
+            );
+          }
         }
       }
     }
@@ -161,7 +176,7 @@ function getEvents(
         let code = item.exp?.loc.source || '';
         const endRegex = /\)$/;
         if (endRegex.test(code)) {
-          code = `($event) => ${code}`;
+          code = `($event) => { ${code} } `;
         }
         const regex = new RegExp(`${item.arg.content}_\[\\w\]\{5\,\}`);
         const name = code.match(regex)?.[0] || '';
