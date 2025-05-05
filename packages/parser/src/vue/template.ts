@@ -17,7 +17,6 @@ import {
   type ElementNode,
   type IfNode,
   type ForNode,
-  type IfConditionalExpression,
   type CompoundExpressionNode
 } from '@vue/compiler-core';
 import { uid } from '@vtj/base';
@@ -204,15 +203,20 @@ function getEvents(
 
 function getDirectives(node: IfNode | ForNode | ElementNode) {
   const directives: NodeDirective[] = [];
+
   // v-if
   if (node.type === NodeTypes.IF) {
-    const test = (node.codegenNode as IfConditionalExpression)?.test;
-    if (test) {
+    const branches: any[] = node.branches || [];
+    // console.log(node.codegenNode.consequent);
+
+    branches.forEach((branch, index) => {
+      const name = index === 0 ? 'vIf' : branch.condition ? 'vElseIf' : 'vElse';
+      const value = branch.condition?.loc.source || '';
       directives.push({
-        name: 'vIf',
-        value: getJSExpression(test.loc.source)
-      });
-    }
+        name: name,
+        value: name === 'vElse' ? true : getJSExpression(value)
+      } as any);
+    });
   }
 
   // v-for
