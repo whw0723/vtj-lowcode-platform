@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.11](https://gitee.com/newgateway/vtj/compare/@vtj/parser@0.12.10...@vtj/parser@0.12.11) (2025-05-05)
+
+
+### Features
+
+* ✨ 源码视图支持编辑 ([8d794df](https://gitee.com/newgateway/vtj/commits/8d794df79f76e919a566d55310ff533c63a844b3))
+* ✨ 支持v-else-if 和 v-else 代码分支 ([6965137](https://gitee.com/newgateway/vtj/commits/69651374b83bffd4bb65f4e8d7de82eb4dc87e7d))
+
+
+
+
+
 ## [0.12.10](https://gitee.com/newgateway/vtj/compare/@vtj/parser@0.12.9...@vtj/parser@0.12.10) (2025-04-30)
 
 
