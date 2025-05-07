@@ -25,12 +25,9 @@ export function htmlToNodes(html: string): NodeSchema[] {
 
           currentText = '';
         }
-
         const props = Object.entries(attrs || {}).reduce(
           (pre, cur) => {
             let [key = '', value = ''] = cur;
-            key = key.replace(/\\\"/g, '');
-            value = value.replace(/\\\"/g, '');
             if (key) {
               pre[key] = value;
             }
@@ -98,7 +95,7 @@ export function htmlToNodes(html: string): NodeSchema[] {
     { decodeEntities: true }
   );
 
-  parser.write(html);
+  parser.write(html.replace(/\\"/g, '"'));
   parser.end();
 
   // 返回第一个有效子节点（跳过根容器）
