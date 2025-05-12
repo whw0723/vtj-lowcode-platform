@@ -79,7 +79,8 @@
 
 1. 在template中使用state，需要加上前缀`state.`
 2. 每轮对话给出的代码必须是完整的，不能省略掉不变的代码。
-3. 不能使用不存在的依赖
+3. 不能使用不存在的依赖, 使用依赖必须要按需导入
+4. 工具库的方法只能在有组件实例`this`上下文的地方调用。
 
 ### web平台可用的图标
 
@@ -150,6 +151,61 @@ echarts组件可以用`@vtj/charts`依赖中导出，用法如下：
   });
 </script>
 <style lang="css" scoped></style>
+```
+
+### @vtj/utils 工具库用法
+
+`@vtj/utils` 内置了以下工具类库，使用时必须要按需导入。
+
+- 以下 `lodash` 的方法可以从 `@vtj/utils` 导出使用
+  `isString, isFunction, isArray, isObject, isBoolean, isBuffer, isArrayBuffer, isDate, isUndefined,  isNaN, isNull, isNumber, isSymbol, isPlainObject, isEqual, noop, upperFirst, camelCase, get, set,  cloneDeep, merge, debounce, throttle, template, lowerFirst, kebabCase, snakeCase, groupBy`
+
+  用法：
+
+  ```ts
+  import { isString } from '@vtj/utils';
+  ```
+
+- `dayjs` 可以从 `@vtj/utils` 导出使用
+
+  用法：
+
+  ```ts
+  import { dayjs } from '@vtj/utils';
+  ```
+
+- `axios` 可以从 `@vtj/utils` 导出使用
+
+  用法：
+
+  ```ts
+  import { axios } from '@vtj/utils';
+  ```
+
+工具库的方法只能在有组件实例`this`上下文的地方调用。例如，你不能这样使用
+
+```ts
+import { defineComponent, reactive } from 'vue';
+import { debounce } from '@vtj/utils';
+export default defineComponent({
+  methods: {
+    func: debounce(function () {}, 300)
+  }
+});
+```
+
+应该这样用：
+
+```ts
+import { defineComponent, reactive } from 'vue';
+import { debounce } from '@vtj/utils';
+export default defineComponent({
+  computed: {
+    func() {
+      return debounce(() => {}, 300);
+    }
+  }
+});
 ```
 
 ### 用户提及的当前页面或当前组件是指以下的Vue3组件代码：
