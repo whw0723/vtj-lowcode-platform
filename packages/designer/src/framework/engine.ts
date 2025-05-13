@@ -226,6 +226,17 @@ export class Engine extends Base {
       this.report.init();
     }
   }
+  private checkLocked(slient?: boolean) {
+    const lockedBy = this.project.value?.locked;
+    const isLocked = !!lockedBy;
+    const info = this.access?.getData();
+    if (isLocked && info?.name !== lockedBy) {
+      if (!slient) {
+        alert(`项目已被[ ${lockedBy} ]锁定，无法更新`);
+      }
+      return true;
+    }
+  }
 
   private render() {
     const container = unref(this.container);
@@ -282,6 +293,7 @@ export class Engine extends Base {
   }
 
   private async changeFile(e: BlockModel) {
+    if (this.checkLocked()) return;
     await nextTick();
     const dsl = e.toDsl();
     this.service.saveFile(dsl, this.project.value?.toDsl());
@@ -313,6 +325,7 @@ export class Engine extends Base {
   }
 
   private async saveProject(e: ProjectModelEvent) {
+    if (this.checkLocked()) return;
     const project = e.model;
     const dsl = project.toDsl();
     await this.service.saveProject(dsl, e.type);
@@ -320,6 +333,7 @@ export class Engine extends Base {
   }
 
   private async saveBlockFile(e: ProjectModelEvent) {
+    if (this.checkLocked()) return;
     const type = e.type;
     const project = e.model;
     const projectDsl = project.toDsl();
@@ -393,6 +407,7 @@ export class Engine extends Base {
   }
 
   private saveCurrentFile() {
+    if (this.checkLocked()) return;
     const current = this.current.value;
     if (current) {
       this.updateCurrent(current);
@@ -414,6 +429,7 @@ export class Engine extends Base {
   }
 
   private async saveHistory(e: HistoryModelEvent) {
+    if (this.checkLocked(true)) return;
     const type = e.type;
     const history = e.model;
     const projectDsl = this.project.value?.toDsl();
@@ -463,6 +479,7 @@ export class Engine extends Base {
   }
 
   private async publish() {
+    if (this.checkLocked()) return;
     const project = this.project.value;
     if (project) {
       const dsl = {
@@ -477,6 +494,7 @@ export class Engine extends Base {
   }
 
   public async genSource() {
+    if (this.checkLocked()) return;
     const project = this.project.value;
     if (project) {
       const dsl = {
@@ -493,6 +511,7 @@ export class Engine extends Base {
   }
 
   private async publishCurrent() {
+    if (this.checkLocked()) return;
     const project = this.project.value;
     const current = project?.currentFile;
     if (project && current) {
