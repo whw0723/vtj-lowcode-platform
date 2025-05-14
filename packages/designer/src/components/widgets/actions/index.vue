@@ -271,14 +271,6 @@
     }
   };
 
-  //   toggleLock() {
-  //   const lockedBy = this.project.value?.locked;
-  //   const isLocked = !!lockedBy;
-  //   const info = this.access?.getData();
-  //   if (!info) {
-  //   }
-  // }
-
   const locked = computed(() => {
     return !!engine.project.value?.locked;
   });
@@ -291,12 +283,14 @@
       if (isLocked) {
         if (info?.name && info.name === lockedBy) {
           engine.project.value?.unlock(info.name);
+          message('项目已解除锁定');
         } else {
           alert(`项目已被[ ${lockedBy} ]锁定`);
         }
       } else {
         if (info?.name) {
           engine.project.value?.lock(info.name);
+          message('项目已锁定，只有你才能更改项目');
         }
       }
     } else {
