@@ -39,7 +39,8 @@ import {
   type PageFile,
   type HistoryItem,
   type HistoryModelEvent,
-  type BlockSchema
+  type BlockSchema,
+  type EnhanceConfig
 } from '@vtj/core';
 import {
   type Context,
@@ -48,7 +49,7 @@ import {
   Access,
   type ProvideAdapter
 } from '@vtj/renderer';
-import { logger } from '@vtj/utils';
+import { logger, isBoolean } from '@vtj/utils';
 
 import { SkeletonWrapper, type SkeletonWrapperInstance } from '../wrappers';
 import { depsManager, widgetManager } from '../managers';
@@ -132,6 +133,11 @@ export interface EngineOptions {
    * 适配远程接口
    */
   openApi?: OpenApi;
+
+  /**
+   * 开启应用整强
+   */
+  enhance?: boolean | EnhanceConfig;
 }
 
 export const SAVE_BLOCK_FILE_FINISH = 'SAVE_BLOCK_FILE_FINISH';
@@ -176,7 +182,8 @@ export class Engine extends Base {
       access,
       remote = REMOTE,
       checkVersion = true,
-      openApi
+      openApi,
+      enhance = false
     } = this.options;
     this.container = container;
     this.service = service;
@@ -197,7 +204,8 @@ export class Engine extends Base {
     this.assets = new Assets(this.service, this.provider);
     this.simulator = new Simulator({
       engine: this,
-      materialPath
+      materialPath,
+      enhance: this.getEnhanceConfig(enhance)
     });
     this.access = access || new Access({ alert, ...ACCESS });
     this.remote = remote;
@@ -224,6 +232,20 @@ export class Engine extends Base {
       this.saveMaterials();
       this.triggerReady();
       this.report.init();
+    }
+  }
+  private getEnhanceConfig(enhance: boolean | EnhanceConfig) {
+    if (enhance) {
+      const pathname = location.pathname;
+      return isBoolean(enhance)
+        ? {
+            name: 'VTJEnhance',
+            urls: [
+              `${pathname}enhance/enhance.css`,
+              `${pathname}enhance/enhance.umd.js`
+            ]
+          }
+        : enhance;
     }
   }
   private checkLocked(slient?: boolean) {
