@@ -211,7 +211,9 @@ function getFunction(item: ObjectMethod) {
     }
     const value = (item as any).value;
     if (value && value.type === 'CallExpression') {
-      code = `{ return (${generateCode(value)})}`;
+      let valueContent = generateCode(value) || '';
+      valueContent = valueContent.replace('function () {', '() => {');
+      code = `{ return (${valueContent})}`;
     }
     const asyncContent = async ? 'async ' : '';
     const content = `${asyncContent}(${paramsStr}) => ${code}`;
