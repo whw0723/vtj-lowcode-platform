@@ -20,7 +20,8 @@
     "@vtj/plugin-ckeditor": "~0.2.1",
     "@vtj/web": "workspace:~",
     "vue": "~3.5.5",
-    "vue-router": "~4.5.0"
+    "vue-router": "~4.5.0",
+    "pinia": "~3.0.2"
   },
   "devDependencies": {
     "@vtj/charts": "workspace:~",
