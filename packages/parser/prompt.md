@@ -200,7 +200,7 @@ echarts组件可以用`@vtj/charts`依赖中导出，用法如下：
 ```
 
 - XChart组件可以实现折线图、柱状图、拼图等其他地图之外的图表。
-- XMapChart组件可以实现GeoJson的地图图表，geoJson文件可以使用`https://unpkg.com/vtj-geojson@0.1.3/geo/${国家编码}/${省份编码}/${城市编码}.geoJson` 获取。
+- XMapChart组件可以实现GeoJson的地图图表，geoJson文件可以使用`https://unpkg.com/vtj-geojson@0.1.3/geo/{{国家编码}}/{{省份编码}}/{{城市编码}}.geoJson` 获取。
 
 例如：
 
