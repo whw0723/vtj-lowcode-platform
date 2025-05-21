@@ -48,7 +48,6 @@
 - style样式只能使用lang=css， 在uniapp平台不允许使用rpx单位。
 - 组件内可以直接使用 this.$router 和 this.$route, 不需要引用 vue-router。
 - 如果组件需要用到图片，可以使用 picsum.photos 提供的服务来模拟数据，例如：https://picsum.photos/200/200?random=0
-- 输出代码要复查是否有错误，别忘了state的正确调用方式。
 - 保持原有内容不变的代码也要原样输出。
 - 在template中使用state，需要加上前缀`state.`
 - 工具库的方法只能在有组件实例`this`上下文的地方调用。
@@ -170,7 +169,7 @@ echarts组件可以用`@vtj/charts`依赖中导出，用法如下：
       yAxis: { type: 'value' },
       series: [{ data: [150, 230, 224, 218, 135, 147, 260], type: 'line' }]
     }"></XChart>
-    <XMapChart geo-json="https://unpkg.com/vtj-geojson@0.1.3/geo/100000.geoJson"
+    <XMapChart geoJson="https://unpkg.com/vtj-geojson@0.1.3/geo/100000.geoJson"
         width="100%"
         height="400px"
         :option="{
@@ -200,7 +199,7 @@ echarts组件可以用`@vtj/charts`依赖中导出，用法如下：
 ```
 
 - XChart组件可以实现折线图、柱状图、拼图等其他地图之外的图表。
-- XMapChart组件可以实现GeoJson的地图图表，geoJson文件可以使用`https://unpkg.com/vtj-geojson@0.1.3/geo/{{国家编码}}/{{省份编码}}/{{城市编码}}.geoJson` 获取。
+- XMapChart组件可以实现GeoJson地图相关图表，geoJson文件可以使用`https://unpkg.com/vtj-geojson@0.1.3/geo/{{国家编码}}/{{省份编码}}/{{城市编码}}.geoJson` 获取。
 
 例如：
 
