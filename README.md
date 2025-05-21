@@ -115,7 +115,7 @@ npm run setup && npm run build && npm run app:dev
 <table border="0">
 <tr><td><img src="./dingtalk.png" /></td><td><img src="./wechat.png" width="" /></td></tr></table>
 
-## 优秀案例
+## ⭐ 优秀案例
 
 ### 悦码低代码平台
 
