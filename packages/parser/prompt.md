@@ -169,7 +169,7 @@ echarts组件可以用`@vtj/charts`依赖中导出，用法如下：
       yAxis: { type: 'value' },
       series: [{ data: [150, 230, 224, 218, 135, 147, 260], type: 'line' }]
     }"></XChart>
-    <XMapChart geoJson="https://unpkg.com/vtj-geojson@0.1.3/geo/100000.geoJson"
+    <XMapChart geo-json="https://unpkg.com/vtj-geojson@0.1.3/geo/100000.geoJson"
         width="100%"
         height="400px"
         :option="{
