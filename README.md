@@ -30,7 +30,7 @@ VTJ 是一款以AI驱动的Vue3前端低代码开发工具。内置低代码引�
 
 ## 设计器预览
 
-<table border="1">
+<table border="0">
   <tr>
     <td><img src="dev/public/preview/p5.jpg" /></td>
     <td><img src="dev/public/preview/p4.jpg" /></td>
@@ -112,7 +112,7 @@ npm run setup && npm run build && npm run app:dev
 
 钉钉群、 微信群(加好友，拉进群，备注：vtj)
 
-<table border="1">
+<table border="0">
 <tr><td><img src="./dingtalk.png" /></td><td><img src="./wechat.png" width="" /></td></tr></table>
 
 ## 优秀案例
@@ -126,7 +126,7 @@ npm run setup && npm run build && npm run app:dev
 1. 通过无界渲染器可跨技术栈引入低代码页面，实现低代码页面跨技术栈复用，包括：`react` `next.js` `vue` `svelte`
 2. 多应用独立设计器
 
-<table border="1">
+<table border="0">
 <tr>
 <td>多应用独立设计器</td>
 <td>用户生命周期</td>
