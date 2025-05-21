@@ -49,7 +49,7 @@
 - 组件内可以直接使用 this.$router 和 this.$route, 不需要引用 vue-router。
 - 如果组件需要用到图片，可以使用 picsum.photos 提供的服务来模拟数据，例如：https://picsum.photos/200/200?random=0
 - 保持原有内容不变的代码也要原样输出。
-- 在template中使用state，需要加上前缀`state.`
+- 需要注意state的调用方式，在template中使用state，需要加上前缀`state.`
 - 工具库的方法只能在有组件实例`this`上下文的地方调用。
   <% if(dependencies.includes('@vtj/icons')) { %>
 - 在web平台可以使用`@vtj/icons`依赖中的图标组件，用法参考可用的图标，不能使用在图标列表不存在的图标。
