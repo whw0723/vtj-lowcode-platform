@@ -151,7 +151,7 @@ npm run setup && npm run build && npm run app:dev
 <table>
 <tr>
 <td>
-<img src="https://fe-cdn.shiyue.com/common/image/logo/176_52_2_x3.png" height="50" />
+<img src="dev/public/shiyue/logo.png" height="50" />
 </td>
 <td>
 悦码是<strong>诗悦网络</strong>采用<code>VTJ</code>搭建低代码平台，已上线投产。
@@ -186,7 +186,7 @@ npm run setup && npm run build && npm run app:dev
 <table>
 <tr>
 <td>
-<img src="https://www.neucloud.cn/img/logo.png" height="50" />
+<img src="dev/public/neucloud/logo.png" height="50" />
 </td>
 <td>
 已接入VTJ作为云画面的交互画面设计器之一，实现与平台深度融合，快速响应业务需求，构建应用，已成功服务于多家世界500强工业企业。
