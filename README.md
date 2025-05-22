@@ -181,6 +181,34 @@ npm run setup && npm run build && npm run app:dev
   </tr>
 </table>
 
+### 寄云科技低代码开发平台
+
+<table>
+<tr>
+<td>
+<img src="https://www.neucloud.cn/img/logo.png" height="50" />
+</td>
+<td>
+已接入VTJ作为云画面的交互画面设计器之一，实现与平台深度融合，快速响应业务需求，构建应用，已成功服务于多家世界500强工业企业。
+
+产品主页地址：<a href="https://www.neucloud.cn/product/lcdp">https://www.neucloud.cn/product/lcdp</a>
+
+</td>
+</tr>
+</table>
+
+<table border="0">
+  <tr>
+    <td>
+    <img src="dev/public/neucloud/p1.jpg" />
+    </td>
+    <td>
+    <img src="dev/public/neucloud/p2.jpg" /></td>
+   <td>
+   <img src="dev/public/neucloud/p3.jpg" /></td>
+  </tr>
+</table>
+
 ## 媒体报道
 
 - [解锁低码高效新篇章：VTJ，让开发“飞”起来！](https://mp.weixin.qq.com/s/2bOX6p3mBG1ys_HivCMHhA)
