@@ -209,7 +209,8 @@
 </script>
 <style scoped>
   .v-templates-widgets__tab {
-    height: 100%;
+    height: 1px;
+    flex-grow: 1;
   }
   :deep(.x-container) {
     overflow-y: hidden;
