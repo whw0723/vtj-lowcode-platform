@@ -75,5 +75,5 @@ export function compileScopedCSS(cssContent: string, scopeId: string): string {
     );
   });
 
-  return finalCSS;
+  return finalCSS.replace(/}}/g, '}');
 }
