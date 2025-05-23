@@ -77,16 +77,41 @@
       }
     ],
     css: `
-    
-    .x-action {
-      background:red;
-      padding:20px;
-    }
+@keyframes counter-clockwise {
+  0% {
+    transform: rotate(0deg);
+    /* 逆时针旋转角度从0度开始 */
+  }
 
-    .x-action :deep(.el-button) {
-      background:blue;
-      padding:20px;
-    }
+  100% {
+    transform: rotate(-360deg);
+    /* 逆时针旋转角度到-360度结束 */
+  }
+}
+@media screen and (max-width: 767px) {
+  .container {
+    width: 100%;
+  }
+}
+.parent {
+   color:red;
+}
+
+.parent .child {
+   color:red;
+}
+  .parent:hover :deep(.child) {
+  color:red;
+  } 
+.gear.four .gear-inner {
+  animation: counter-clockwise 6s infinite linear;
+  /* 设置逆时针旋转动画 */
+}
+  .gear-inner .bar:nth-child(5) {
+  transform: rotate(30deg);
+  /* 旋转角度为30度 */
+}
+
     `
   });
 
