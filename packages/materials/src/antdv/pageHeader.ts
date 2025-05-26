@@ -65,7 +65,7 @@ const components: MaterialDescription[] = [
       }
     ],
     events: ['back'],
-    slots: ['backIcon', 'extra', 'footer', 'subTitle', 'title'],
+    slots: ['default', 'backIcon', 'extra', 'footer', 'subTitle', 'title'],
     snippet: {
       name: 'APageHeader',
       props: {

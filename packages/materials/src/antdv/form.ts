@@ -279,7 +279,7 @@ const components: MaterialDescription[] = [
         setters: 'ObjectSetter'
       }
     ],
-    slots: ['extra', 'help', 'label', 'tooltip'],
+    slots: ['default', 'extra', 'help', 'label', 'tooltip'],
     snippet: {
       props: {
         label: '表单项'

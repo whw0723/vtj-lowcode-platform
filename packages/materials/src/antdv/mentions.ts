@@ -96,6 +96,7 @@ const components: MaterialDescription[] = [
     ],
     events: ['blur', 'change', 'focus', 'search', 'select', 'update:value'],
     slots: [
+      { name: 'default' },
       { name: 'notFoundContent' },
       { name: 'option', params: ['object'] }
     ],

@@ -86,7 +86,7 @@ const components: MaterialDescription[] = [
         defaultValue: 'vertical'
       }
     ],
-    slots: ['customTitle'],
+    slots: ['default', 'customTitle'],
     snippet: {
       props: {
         direction: 'horizontal',

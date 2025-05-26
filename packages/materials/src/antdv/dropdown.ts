@@ -83,7 +83,7 @@ const components: MaterialDescription[] = [
       }
     ],
     events: ['openChange', 'update:open'],
-    slots: ['overlay'],
+    slots: ['default', 'overlay'],
     snippet: {
       name: 'ADropdownButton',
       children: [
@@ -192,7 +192,7 @@ const components: MaterialDescription[] = [
       }
     ],
     events: ['click', 'openChange', 'update:open'],
-    slots: ['icon', 'overlay'],
+    slots: ['default', 'icon', 'overlay'],
     snippet: {
       name: 'button',
       children: [

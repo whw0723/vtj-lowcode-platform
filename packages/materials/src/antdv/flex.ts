@@ -120,7 +120,7 @@ const components: MaterialDescription[] = [
         defaultValue: 'normal'
       }
     ],
-    slots: ['component'],
+    slots: ['default', 'component'],
     snippet: {
       props: {
         vertical: false,

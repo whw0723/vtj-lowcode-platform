@@ -109,7 +109,14 @@ const components: MaterialDescription[] = [
       }
     ],
     events: ['change', 'pressEnter', 'update:value'],
-    slots: ['addonAfter', 'addonBefore', 'clearIcon', 'prefix', 'suffix']
+    slots: [
+      'default',
+      'addonAfter',
+      'addonBefore',
+      'clearIcon',
+      'prefix',
+      'suffix'
+    ]
   },
   {
     name: 'ATextarea',

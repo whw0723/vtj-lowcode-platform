@@ -294,6 +294,7 @@ const components: MaterialDescription[] = [
     //   'tagRender'
     // ],
     slots: [
+      { name: 'default' },
       { name: 'clearIcon' },
       { name: 'maxTagPlaceholder' },
       { name: 'menuItemSelectedIcon' },
