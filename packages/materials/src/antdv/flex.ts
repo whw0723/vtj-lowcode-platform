@@ -118,6 +118,13 @@ const components: MaterialDescription[] = [
         setters: ['SelectSetter', 'NumberSetter', 'StringSetter'],
         options: ['small', 'middle', 'large'],
         defaultValue: 'normal'
+      },
+      {
+        name: 'component',
+        label: 'component',
+        title: '自定义元素类型',
+        setters: 'StringSetter',
+        defaultValue: 'div'
       }
     ],
     slots: ['default', 'component'],
