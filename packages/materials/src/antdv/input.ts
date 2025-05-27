@@ -53,6 +53,12 @@ const components: MaterialDescription[] = [
         setters: 'StringSetter'
       },
       {
+        name: 'placeholder',
+        label: 'placeholder',
+        title: '输入框的提示文字',
+        setters: 'StringSetter'
+      },
+      {
         name: 'maxlength',
         label: 'maxlength',
         title: '最大长度',
@@ -145,6 +151,12 @@ const components: MaterialDescription[] = [
         setters: 'StringSetter'
       },
       {
+        name: 'placeholder',
+        label: 'placeholder',
+        title: '输入框的提示文字',
+        setters: 'StringSetter'
+      },
+      {
         name: 'bordered',
         label: 'bordered',
         title: '是否有边框',
@@ -230,6 +242,12 @@ const components: MaterialDescription[] = [
         name: 'id',
         label: 'id',
         title: '输入框的 id',
+        setters: 'StringSetter'
+      },
+      {
+        name: 'placeholder',
+        label: 'placeholder',
+        title: '输入框的提示文字',
         setters: 'StringSetter'
       },
       {
@@ -346,6 +364,12 @@ const components: MaterialDescription[] = [
         title: '密码是否可见',
         setters: 'BooleanSetter',
         defaultValue: false
+      },
+      {
+        name: 'placeholder',
+        label: 'placeholder',
+        title: '输入框的提示文字',
+        setters: 'StringSetter'
       },
       {
         name: 'visibilityToggle',
