@@ -56,6 +56,12 @@ const components: MaterialDescription[] = [
         setters: 'ArraySetter'
       },
       {
+        name: 'overflowedIndicator',
+        label: 'overflowedIndicator',
+        title: '用于自定义 Menu 水平空间不足时的省略收缩的图标',
+        setters: 'IconSetter'
+      },
+      {
         name: 'selectable',
         label: 'selectable',
         title: '是否允许选中',
