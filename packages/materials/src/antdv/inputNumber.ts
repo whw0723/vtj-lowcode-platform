@@ -92,7 +92,7 @@ const components: MaterialDescription[] = [
         label: 'size',
         title: '输入框大小',
         setters: 'SelectSetter',
-        options: ['large', 'middle', 'small']
+        options: ['large', '', 'small']
       },
       {
         name: 'status',
