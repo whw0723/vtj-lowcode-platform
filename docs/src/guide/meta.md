@@ -17,6 +17,8 @@ VTJ的AI助手支持识别 Sketch 和 Figma 设计稿的元数据，当需要高
 
 ## Figma元数据导出插件
 
+### 安装Figma插件
+
 1. [下载 vtj-figma-plugin 插件](https://gitee.com/newgateway/vtj-figma-plugin/raw/master/vtj-figma-plugin.zip)
 1. 解压zip，打开Figma客户端，打开菜单：`Plugins > Development > import plugin from manifest` 选择解压后的 `manifest.json`文件完成安装
 
