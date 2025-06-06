@@ -27,6 +27,9 @@ export const test_26 = `
   } 
 }
 
+ .container::before {
+   content:"";
+ }
 
 </style>
 `;
