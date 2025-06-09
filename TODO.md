@@ -73,5 +73,4 @@
 ### bugs
 
 ~~- 页面另存为区块时，css样式没有带过去~~
-
-- 页面mounted拿不到$refs
+~~- 页面mounted拿不到$refs~~
