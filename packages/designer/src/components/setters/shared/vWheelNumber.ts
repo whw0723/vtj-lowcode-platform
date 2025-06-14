@@ -1,4 +1,3 @@
-// src/directives/wheelNumber.ts
 import type { Directive, DirectiveBinding } from 'vue';
 
 interface WheelOptions {
