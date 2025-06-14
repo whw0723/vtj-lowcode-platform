@@ -259,3 +259,7 @@ Engine、Provider 和 Service 构成了 VTJ 低代码平台的架构基础：
 - **Service**：定义具有各种实现的后端作接口
 
 这些组件共同实现了可视化设计和代码生成之间的双向工作流程，这是 VTJ 平台的核心。
+
+:::info 提示
+内容由AI翻译，可能会出现错漏或过时信息，请查阅原文：https://deepwiki.com/ChenXiaohui99/vtj/2.1-engine-provider-and-service-layer
+:::

@@ -27,7 +27,32 @@ export default [
         items: [
           { text: '设计器和渲染器', link: '/designer-and-renderer' },
           { text: 'UI 组件库', link: '/ui-component-library' },
-          { text: '图表和可视化', link: '/charts-and-visualization' }
+          { text: '图表和可视化', link: '/charts-and-visualization' },
+          { text: '平台实施', link: '/platform-implementations' }
+        ]
+      },
+      {
+        text: 'AI 集成',
+        base: '/wiki/ai',
+        link: '/'
+      },
+      {
+        text: '开发人员工具和可扩展性',
+        base: '/wiki/dev',
+        link: '/',
+        items: [
+          { text: 'CLI 和构建系统', link: '/cli-and-build-system' },
+          { text: '插件系统', link: '/plugin-system' },
+          { text: 'Uni-App 集成', link: '/uni-app-integration' }
+        ]
+      },
+      {
+        text: '开始',
+        base: '/wiki/started',
+        link: '/',
+        items: [
+          { text: '项目设置和基架', link: '/project-setup-and-scaffolding' },
+          { text: '集成指南', link: '/integration-guide' }
         ]
       }
     ]

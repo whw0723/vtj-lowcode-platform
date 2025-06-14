@@ -211,3 +211,7 @@ unlock(id: string) {
 ```
 
 该系统可防止在协作环境中进行并发修改，并与身份验证系统集成，以确保只有授权用户才能修改锁定的项目。
+
+:::info 提示
+内容由AI翻译，可能会出现错漏或过时信息，请查阅原文：https://deepwiki.com/ChenXiaohui99/vtj/2.2-project-and-block-models
+:::

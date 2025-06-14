@@ -125,3 +125,7 @@
 ![](../svg/5/8.png)
 
 这样就可以导入现有的 HTML 布局，并在可视化设计器中将它们转换为可编辑的组件。
+
+:::info 提示
+内容由AI翻译，可能会出现错漏或过时信息，请查阅原文：https://deepwiki.com/ChenXiaohui99/vtj/2.3-code-generation-and-parsing-pipeline
+:::

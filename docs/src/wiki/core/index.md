@@ -116,3 +116,7 @@ VTJ 通过复杂的解析和代码生成管道实现 Vue 单文件组件 （SFC�
 - **路由器配置**：具有不同历史模式的平台适当路由设置
 
 `Provider.install（）` 方法管理跨平台的插件安装和全局属性设置。
+
+:::info 提示
+内容由AI翻译，可能会出现错漏或过时信息，请查阅原文：https://deepwiki.com/ChenXiaohui99/vtj/2-core-architecture
+:::
