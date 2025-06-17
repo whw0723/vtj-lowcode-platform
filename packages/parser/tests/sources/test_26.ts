@@ -1,35 +1,38 @@
 export const test_26 = `
 <template>
-  <div class="container">
-    <div class="rectangle"></div>
-  </div>
+
+<div>
+ <template v-for="n in 10">
+  <span> {{ n }}</span>
+  <span> {{ n }}</span
+  </template>
+
+</div>
+
+
 </template>
+
 <script>
-  import { defineComponent, reactive } from 'vue';
-  import { useProvider } from '@vtj/renderer';
+import { defineComponent, reactive, computed } from 'vue';
+import { useProvider } from '@vtj/renderer';
 
-  export default defineComponent({
-    name: 'Test2',
-    setup(props) {
-      const provider = useProvider({ id: '167juw96', version: '1749178340659' });
-      const state = reactive({
-        // 在此处添加状态、变量或数据
-      });
-      return { state, props, provider };
-    }
-  });
+
+export default defineComponent({
+  name: 'AlarmCenter',
+  components: {
+
+  },
+  setup(props) {
+    const provider = useProvider({ id: '16md6lw5', version: '1750073937957' });
+    const state = reactive({
+     
+    });
+    return { state, props, provider };
+  }
+});
 </script>
+
 <style lang="scss" scoped>
-
-@media (min-width: 768px) {
-  .container {
-        margin-top: 20%;
-  } 
-}
-
- .container::before {
-   content:"";
- }
 
 </style>
 `;
