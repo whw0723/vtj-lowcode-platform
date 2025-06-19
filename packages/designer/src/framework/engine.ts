@@ -142,6 +142,11 @@ export interface EngineOptions {
    * 开启应用整强
    */
   enhance?: boolean | EnhanceConfig;
+
+  /**
+   * 关闭页面内嵌到母版功能
+   */
+  noMask?: boolean;
 }
 
 export const SAVE_BLOCK_FILE_FINISH = 'SAVE_BLOCK_FILE_FINISH';
@@ -242,6 +247,7 @@ export class Engine extends Base {
       }
       dsl.dependencies = depsManager.merge(dsl.dependencies || [], platform);
       this.project.value = new ProjectModel(dsl);
+      this.provider.project = this.project.value;
       this.saveMaterials();
       this.triggerReady();
       this.report.setProject(this.project.value);
