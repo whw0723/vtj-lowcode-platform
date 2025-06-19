@@ -47,10 +47,11 @@ import {
   ContextMode,
   Provider,
   Access,
+  REMOTE,
+  ACCESS,
   type ProvideAdapter
 } from '@vtj/renderer';
 import { logger, isBoolean } from '@vtj/utils';
-
 import { SkeletonWrapper, type SkeletonWrapperInstance } from '../wrappers';
 import { depsManager, widgetManager } from '../managers';
 import { Simulator } from './simulator';
@@ -59,7 +60,6 @@ import { Report } from './report';
 import { OpenApi } from './openapi';
 import { State } from './state';
 import { message, alert } from '../utils';
-import { ACCESS, REMOTE } from '../constants';
 
 export const engineKey: InjectionKey<ShallowReactive<Engine>> =
   Symbol('VtjEngine');
