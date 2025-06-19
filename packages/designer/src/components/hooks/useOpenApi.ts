@@ -35,8 +35,10 @@ export function useOpenApi() {
     if (!access) return;
 
     if (openApi?.loginBySign) {
-      const data = await openApi.loginBySign();
-      access?.login(data);
+      const data = await openApi.loginBySign(auth).catch(() => null);
+      if (data) {
+        access?.login(data);
+      }
       return;
     }
     if (!remote || !auth) return;
@@ -70,11 +72,12 @@ export function useOpenApi() {
   };
 
   const isLogined = async () => {
-    if (openApi?.isLogined) {
-      return await openApi?.isLogined();
-    }
     const token = access?.getData()?.token;
     if (token) {
+      if (openApi?.isLogined) {
+        const data = await openApi.isLogined().catch(() => null);
+        return !!data;
+      }
       const api = `${remote}/api/open/user/${token}`;
       const res = await jsonp(api).catch(() => null);
       if (res && res.data) {

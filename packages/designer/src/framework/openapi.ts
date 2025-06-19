@@ -114,7 +114,9 @@ export abstract class OpenApi {
   /**
    * 签名登录
    */
-  public abstract loginBySign?: () => Promise<string[]>;
+  public abstract loginBySign?: (
+    auth?: string | (() => Promise<any>)
+  ) => Promise<string[]>;
   /**
    * 判断用户是否登录
    */
