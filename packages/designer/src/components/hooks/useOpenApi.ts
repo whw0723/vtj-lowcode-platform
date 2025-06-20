@@ -6,7 +6,8 @@ import {
   type TemplateDto,
   type TopicDto,
   type ChatDto,
-  type Settings
+  type Settings,
+  type CompletionChunk
 } from '../../framework';
 import { alert } from '../../utils';
 
@@ -335,8 +336,8 @@ export function useOpenApi() {
   const chatCompletions = async (
     topicId: string,
     chatId: string,
-    callback?: (data: any, done?: boolean) => void,
-    error?: (err: any, cancel?: boolean) => void
+    callback?: (data: CompletionChunk | null, done?: boolean) => void,
+    error?: (err: Error, cancel?: boolean) => void
   ) => {
     if (openApi?.chatCompletions) {
       return await openApi?.chatCompletions(topicId, chatId, callback, error);
@@ -366,7 +367,7 @@ export function useOpenApi() {
               try {
                 const data = JSON.parse(line.slice(6));
                 callback && callback(data, done);
-              } catch (e) {
+              } catch (e: any) {
                 const msg = line.slice(6);
                 error && error(msg ? new Error(msg) : e);
                 controller.abort();
