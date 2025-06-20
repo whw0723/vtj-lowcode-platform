@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.44](https://gitee.com/newgateway/vtj/compare/@vtj/docs@0.12.43...@vtj/docs@0.12.44) (2025-06-20)
+
+
+### Bug Fixes
+
+* 🐛 迁移常量定义 ([d448277](https://gitee.com/newgateway/vtj/commits/d4482775f9626178c0878d42318a89dad0d32f48))
+
+
+
+
+
 ## [0.12.43](https://gitee.com/newgateway/vtj/compare/@vtj/docs@0.12.42...@vtj/docs@0.12.43) (2025-06-17)
 
 **Note:** Version bump only for package @vtj/docs
