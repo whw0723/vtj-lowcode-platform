@@ -25,7 +25,7 @@ export function notify(
   _type: 'primary' | 'warning' | 'danger' | 'success' = 'warning'
 ) {
   if (!window.uni?.showModal) return;
-  window.uni.showModal({
+  return window.uni.showModal({
     title,
     content: message,
     showCancel: false
@@ -33,5 +33,5 @@ export function notify(
 }
 
 export function alert(message: string) {
-  notify(message);
+  return notify(message);
 }
