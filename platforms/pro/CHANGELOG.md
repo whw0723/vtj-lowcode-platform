@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.45](https://gitee.com/newgateway/vtj/compare/@vtj/pro@0.12.44...@vtj/pro@0.12.45) (2025-06-23)
+
+
+### Bug Fixes
+
+* 🐛 auth add baseurl ([1f5d9a5](https://gitee.com/newgateway/vtj/commits/1f5d9a538fdd0f5244ba4de0c65a1d78734ab399))
+* 🐛 pro extension ([26b9c66](https://gitee.com/newgateway/vtj/commits/26b9c66eb32b8196413080a327be57a8b039b943))
+
+
+
+
+
 ## [0.12.44](https://gitee.com/newgateway/vtj/compare/@vtj/pro@0.12.43...@vtj/pro@0.12.44) (2025-06-20)
 
 **Note:** Version bump only for package @vtj/pro

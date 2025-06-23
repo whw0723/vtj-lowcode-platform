@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.45](https://gitee.com/newgateway/vtj/compare/@vtj/designer@0.12.44...@vtj/designer@0.12.45) (2025-06-23)
+
+
+### Bug Fixes
+
+* 🐛 下线 DevTools ([b05359c](https://gitee.com/newgateway/vtj/commits/b05359c7d2a2e3ad3ec26cca5058aaea06081163))
+* 🐛 chatCompletions type ([f4779b2](https://gitee.com/newgateway/vtj/commits/f4779b21fc4c853b730862cc6c83c4f19ed0155a))
+
+
+
+
+
 ## [0.12.44](https://gitee.com/newgateway/vtj/compare/@vtj/designer@0.12.43...@vtj/designer@0.12.44) (2025-06-20)
 
 
