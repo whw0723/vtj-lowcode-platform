@@ -380,7 +380,7 @@ export class Access {
       return await alert(content, {
         title: '提示',
         type: 'warning'
-      }).catch(() => false);
+      })?.catch(() => false);
     }
     return false;
   }
