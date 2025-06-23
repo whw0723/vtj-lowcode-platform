@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.46](https://gitee.com/newgateway/vtj/compare/@vtj/core@0.12.45...@vtj/core@0.12.46) (2025-06-23)
+
+
+### Bug Fixes
+
+* 🐛 uniapp预览跳转链接 ([1d54eaa](https://gitee.com/newgateway/vtj/commits/1d54eaa31274b6b0e192d2f862fea284b71242a6))
+
+
+
+
+
 ## [0.12.45](https://gitee.com/newgateway/vtj/compare/@vtj/core@0.12.44...@vtj/core@0.12.45) (2025-06-23)
 
 
