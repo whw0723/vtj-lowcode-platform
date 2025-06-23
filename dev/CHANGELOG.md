@@ -3,6 +3,106 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.40](https://gitee.com/newgateway/vtj/compare/dev-web@0.12.39...dev-web@0.12.40) (2025-06-12)
+
+
+### Features
+
+* ✨ 页面引入的区块支持快捷方式打开 ([4cc9288](https://gitee.com/newgateway/vtj/commits/4cc92889245c2e32993cf00d6ceb8c26dec6c7e7))
+
+
+
+
+
+## [0.12.39](https://gitee.com/newgateway/vtj/compare/dev-web@0.12.38...dev-web@0.12.39) (2025-06-11)
+
+**Note:** Version bump only for package dev-web
+
+
+
+
+
+## [0.12.38](https://gitee.com/newgateway/vtj/compare/dev-web@0.12.37...dev-web@0.12.38) (2025-06-11)
+
+
+### Features
+
+* ✨ 加载区块组件增加队列缓存 ([d681d57](https://gitee.com/newgateway/vtj/commits/d681d575706d4f3f819323d5490339776a1032d0))
+
+
+
+
+
+## [0.12.37](https://gitee.com/newgateway/vtj/compare/dev-web@0.12.36...dev-web@0.12.37) (2025-06-09)
+
+
+### Bug Fixes
+
+* 🐛 页面mounted拿不到$refs ([01da7c8](https://gitee.com/newgateway/vtj/commits/01da7c8d2b8ff16f138f2ed96e4f03aa0938d8bb))
+
+
+
+
+
+## [0.12.36](https://gitee.com/newgateway/vtj/compare/dev-web@0.12.35...dev-web@0.12.36) (2025-06-09)
+
+**Note:** Version bump only for package dev-web
+
+
+
+
+
+## [0.12.35](https://gitee.com/newgateway/vtj/compare/dev-web@0.12.34...dev-web@0.12.35) (2025-06-06)
+
+
+### Bug Fixes
+
+* 🐛 renderer default slots bug ([6b14e59](https://gitee.com/newgateway/vtj/commits/6b14e59ca133d034553493857b82f5ab269f29a2))
+
+
+
+
+
+## [0.12.34](https://gitee.com/newgateway/vtj/compare/dev-web@0.12.33...dev-web@0.12.34) (2025-06-06)
+
+**Note:** Version bump only for package dev-web
+
+
+
+
+
+## [0.12.33](https://gitee.com/newgateway/vtj/compare/dev-web@0.12.32...dev-web@0.12.33) (2025-06-04)
+
+**Note:** Version bump only for package dev-web
+
+
+
+
+
+## [0.12.32](https://gitee.com/newgateway/vtj/compare/dev-web@0.12.31...dev-web@0.12.32) (2025-06-03)
+
+**Note:** Version bump only for package dev-web
+
+
+
+
+
+## [0.12.31](https://gitee.com/newgateway/vtj/compare/dev-web@0.12.30...dev-web@0.12.31) (2025-05-29)
+
+**Note:** Version bump only for package dev-web
+
+
+
+
+
+## [0.12.30](https://gitee.com/newgateway/vtj/compare/dev-web@0.12.29...dev-web@0.12.30) (2025-05-27)
+
+**Note:** Version bump only for package dev-web
+
+
+
+
+
 ## [0.12.29](https://gitee.com/newgateway/vtj/compare/dev-web@0.12.28...dev-web@0.12.29) (2025-05-23)
 
 
