@@ -139,6 +139,14 @@ OpenAPI 提供低代码平台的远程服务能力，如页面模板和 AI 助�
 
 - 如果您不需要模版和AI功能，就不需要定义OpenAPI， 只需要把引擎的`remote`参数设置为`null`就可以关闭这两个功能。
 
+### 设计器交互
+
+![](./assets/5.png)
+
+![](./assets/4.png)
+
+![](./assets/6.png)
+
 ## 在线体验
 
 访问 Demo: [https://vtj.pro/demo/](https://vtj.pro/demo/)
