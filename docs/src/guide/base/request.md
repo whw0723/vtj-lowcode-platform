@@ -107,6 +107,10 @@ request({
 | `showLoading`    | showLoading: () => void;        | undefined | 显示loading方法     |
 | `hideLoading`    | () => void;                     | undefined | 关闭 loading方法    |
 
+在设计器API管理中的请求配置是对应上述请求配置
+
+![](../../assets/api.png)
+
 ### 创建自定义实例
 
 ```typescript
