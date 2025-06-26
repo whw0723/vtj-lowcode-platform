@@ -40,7 +40,8 @@ export default [
         ]
       },
       { text: '设计器接入指南', link: '/base/access' },
-      { text: '应用增强', link: '/base/enhance' }
+      { text: '应用增强', link: '/base/enhance' },
+      { text: '网络请求', link: '/base/request' }
     ]
   },
   {
