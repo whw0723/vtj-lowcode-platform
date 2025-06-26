@@ -39,7 +39,7 @@ export default [
           { text: '预览、调试和发布', link: '/designer/13' }
         ]
       },
-      { text: '设计器接入指南', link: '/base/access' },
+      { text: '设计器接入指南', link: '/base/integrate' },
       { text: '应用增强', link: '/base/enhance' },
       { text: '网络请求', link: '/base/request' }
     ]
