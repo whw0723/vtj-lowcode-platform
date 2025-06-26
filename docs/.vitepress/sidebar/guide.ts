@@ -47,7 +47,7 @@ export default [
     text: '进阶',
     // base: '/guide/extras',
     items: [
-      { text: '打造专属在线开发平台', link: '/service' }
+      { text: '🔥 打造专属在线开发平台', link: '/service' }
       // { text: '低代码物料制作', link: '/material' },
       // { text: '依赖管理', link: '/deps' },
       // { text: '自定义服务', link: '/service' },
