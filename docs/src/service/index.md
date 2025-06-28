@@ -6,7 +6,7 @@
 
 **VTJ.PRO** 作者倾力打造在线低代码平台样例项目源码，无需编码即可拥有全功能、同时支持Web、H5、UniApp的专属低代码开发平台。
 
-- [源码简介](./intro.md)
+- [源码详情](./intro.md)
 - [效果体验](https://vtj.pro/demo/)
 
 :::warning 特别说明
