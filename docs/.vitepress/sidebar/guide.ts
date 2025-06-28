@@ -50,9 +50,15 @@ export default [
     items: [
       { text: '设计器引擎', link: '/guide/extras/engine' },
       { text: '核心提供者', link: '/guide/extras/provider' },
-      { text: 'DSL渲染器', link: '/guide/extras/renderer' },
-      { text: '代码生成器', link: '/guide/extras/generator' },
-      { text: '代码解析器', link: '/guide/extras/parser' },
+      {
+        text: '核心三件套',
+        collapsed: true,
+        items: [
+          { text: 'DSL渲染器', link: '/guide/extras/renderer' },
+          { text: '代码生成器', link: '/guide/extras/generator' },
+          { text: '代码解析器', link: '/guide/extras/parser' }
+        ]
+      },
       {
         text: '设计器扩展',
         link: '/guide/extension',
