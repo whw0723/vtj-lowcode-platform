@@ -14,6 +14,7 @@ export default [
           {
             text: '平台概述',
             link: '/wiki/',
+            collapsed: true,
             items: [
               {
                 text: '项目结构',
