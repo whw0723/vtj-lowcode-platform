@@ -6,7 +6,10 @@
     :fit="props.fit"
     :width="props.width"
     :height="props.height">
-    <XContainer v-if="headerProps" :flex="false" class="x-panel__header">
+    <XContainer
+      v-if="hasHeader || $slots.header"
+      :flex="false"
+      class="x-panel__header">
       <slot name="header">
         <XHeader v-bind="headerProps">
           <template #default>
@@ -36,7 +39,9 @@
       v-bind="props.footer">
       <slot name="footer"></slot>
     </XContainer>
-    <div v-if='props.badge' class="x-panel__badge" :class="badgeClasses">{{props.badge.text}}</div>
+    <div v-if="props.badge" class="x-panel__badge" :class="badgeClasses">
+      {{ props.badge.text }}
+    </div>
   </XContainer>
 </template>
 <script lang="ts" setup>
@@ -78,6 +83,10 @@
           ...props.header,
           size: props.size
         };
+  });
+
+  const hasHeader = computed(() => {
+    return !!headerProps.value;
   });
 
   const bodyOverflow = computed(() => {
