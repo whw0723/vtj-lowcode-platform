@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.50](https://gitee.com/newgateway/vtj/compare/@vtj/designer@0.12.49...@vtj/designer@0.12.50) (2025-07-04)
+
+
+### Bug Fixes
+
+* 🐛 AI偶发请求错误, 重新生成时自动应用失效问题 ([baa4b4e](https://gitee.com/newgateway/vtj/commits/baa4b4ea463e6d0b08bf54e8129206797118d91f))
+* 🐛 mastergo icon ([4b31960](https://gitee.com/newgateway/vtj/commits/4b31960aa015f73febc46d0c460198a5a3741fde))
+
+
+
+
+
 ## [0.12.49](https://gitee.com/newgateway/vtj/compare/@vtj/designer@0.12.48...@vtj/designer@0.12.49) (2025-07-02)
 
 
