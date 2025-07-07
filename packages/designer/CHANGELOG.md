@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.51](https://gitee.com/newgateway/vtj/compare/@vtj/designer@0.12.50...@vtj/designer@0.12.51) (2025-07-07)
+
+
+### Bug Fixes
+
+* 🐛 增加AI输出超过最大限制提示错误信息 ([ea5ad47](https://gitee.com/newgateway/vtj/commits/ea5ad47efae1115c7c740f1f8c404cb368cbef6c))
+
+
+
+
+
 ## [0.12.50](https://gitee.com/newgateway/vtj/compare/@vtj/designer@0.12.49...@vtj/designer@0.12.50) (2025-07-04)
 
 

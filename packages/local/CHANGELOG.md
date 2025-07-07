@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.51](https://gitee.com/newgateway/vtj/compare/@vtj/local@0.12.50...@vtj/local@0.12.51) (2025-07-07)
+
+**Note:** Version bump only for package @vtj/local
+
+
+
+
+
 ## [0.12.50](https://gitee.com/newgateway/vtj/compare/@vtj/local@0.12.49...@vtj/local@0.12.50) (2025-07-04)
 
 **Note:** Version bump only for package @vtj/local

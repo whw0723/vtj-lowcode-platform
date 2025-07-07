@@ -1,7 +1,7 @@
 {
   "name": "vtj-material",
   "private": true,
-  "version": "0.12.50",
+  "version": "0.12.51",
   "type": "module",
   "scripts": {
     "setup": "pnpm install --unsafe-perm --registry=https://registry.npmmirror.com",
