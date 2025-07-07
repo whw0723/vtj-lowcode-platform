@@ -359,7 +359,7 @@ export function useOpenApi() {
         const data = JSON.parse(content);
         callback?.(data, false);
       } catch (e) {
-        error?.(new Error(`JSON解析失败: ${content}`));
+        error?.(new Error(content));
         controller.abort();
       }
     };
@@ -368,8 +368,10 @@ export function useOpenApi() {
     const handleError = (err: unknown) => {
       const isAbort = err instanceof Error && err.name === 'AbortError';
       const errorObj = err instanceof Error ? err : new Error(String(err));
-      error?.(errorObj, isAbort);
-      controller.abort();
+      if (!isAbort) {
+        error?.(errorObj, isAbort);
+        controller.abort();
+      }
     };
 
     // 新增：行缓冲区
