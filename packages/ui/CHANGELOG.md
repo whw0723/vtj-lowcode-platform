@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.52](https://gitee.com/newgateway/vtj/compare/@vtj/ui@0.12.51...@vtj/ui@0.12.52) (2025-07-07)
+
+
+### Bug Fixes
+
+* 🐛 0.12.51 ([e4d8797](https://gitee.com/newgateway/vtj/commits/e4d8797a041f6df63b7f9bba3a984f6992db1064))
+
+
+
+
+
 ## [0.12.51](https://gitee.com/newgateway/vtj/compare/@vtj/ui@0.12.50...@vtj/ui@0.12.51) (2025-07-07)
 
 **Note:** Version bump only for package @vtj/ui
