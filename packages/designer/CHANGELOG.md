@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.55](https://gitee.com/newgateway/vtj/compare/@vtj/designer@0.12.54...@vtj/designer@0.12.55) (2025-07-09)
+
+
+### Features
+
+* ✨ AI免费额度 ([4260ac9](https://gitee.com/newgateway/vtj/commits/4260ac9a319cc0da727bd36a5e8514d629e9b442))
+
+
+
+
+
 ## [0.12.54](https://gitee.com/newgateway/vtj/compare/@vtj/designer@0.12.53...@vtj/designer@0.12.54) (2025-07-08)
 
 
