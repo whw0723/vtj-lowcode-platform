@@ -20,8 +20,7 @@ if (buildType === 'gitee') {
   // outDir = './dist/vtj';
 } else if (buildType === 'github') {
   // GitHub Pages: 仓库名作为base路径
-  // 用户需要将 YOUR_REPOSITORY_NAME 替换为实际的仓库名
-  base = '/YOUR_REPOSITORY_NAME/';
+  base = '/lowcode-engine/';
 }
 
 // https://vitepress.dev/reference/site-config
