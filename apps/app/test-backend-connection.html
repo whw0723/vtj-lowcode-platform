@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>后端连接测试</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-item { margin: 10px 0; padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .pending { background-color: #fff3cd; border-color: #ffeaa7; }
+        button { padding: 8px 16px; margin: 5px; cursor: pointer; }
+        pre { background-color: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>后端连接测试</h1>
+    
+    <button onclick="testAllConnections()">开始测试</button>
+    <button onclick="clearResults()">清除结果</button>
+    
+    <div id="results"></div>
+
+    <script>
+        async function testConnection(name, url, method = 'GET', data = null) {
+            const resultDiv = document.getElementById('results');
+            const testDiv = document.createElement('div');
+            testDiv.className = 'test-item pending';
+            testDiv.innerHTML = `<h3>${name}</h3><p>测试中...</p>`;
+            resultDiv.appendChild(testDiv);
+
+            try {
+                const options = {
+                    method: method,
+                    headers: {
+                        'Accept': 'application/json, text/javascript, */*; q=0.01',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                };
+
+                if (data && method === 'POST') {
+                    options.headers['Content-Type'] = 'application/x-www-form-urlencoded; charset=UTF-8';
+                    options.body = data;
+                }
+
+                const response = await fetch(url, options);
+                const responseText = await response.text();
+                
+                testDiv.className = response.ok ? 'test-item success' : 'test-item error';
+                testDiv.innerHTML = `
+                    <h3>${name}</h3>
+                    <p><strong>状态:</strong> ${response.status} ${response.statusText}</p>
+                    <p><strong>URL:</strong> ${url}</p>
+                    <p><strong>响应头:</strong></p>
+                    <pre>${JSON.stringify(Object.fromEntries(response.headers.entries()), null, 2)}</pre>
+                    <p><strong>响应内容:</strong></p>
+                    <pre>${responseText.length > 500 ? responseText.substring(0, 500) + '...' : responseText}</pre>
+                `;
+            } catch (error) {
+                testDiv.className = 'test-item error';
+                testDiv.innerHTML = `
+                    <h3>${name}</h3>
+                    <p><strong>错误:</strong> ${error.message}</p>
+                    <p><strong>URL:</strong> ${url}</p>
+                `;
+            }
+        }
+
+        async function testAllConnections() {
+            clearResults();
+            
+            // 测试1: 直接访问后端服务
+            await testConnection(
+                '直接访问 8000端口 - GetReportMenus', 
+                'http://192.168.80.79:8000/Manage/Menus/GetReportMenus'
+            );
+            
+            await testConnection(
+                '直接访问 8015端口 - GetReportList', 
+                'http://192.168.80.79:8015/Reports/GetReportList',
+                'POST',
+                'page=1&limit=10'
+            );
+            
+            // 测试2: 通过代理访问
+            await testConnection(
+                '代理访问 - ManageMenus/Menus/GetReportMenus', 
+                '/ManageMenus/Menus/GetReportMenus'
+            );
+            
+            await testConnection(
+                '代理访问 - Manage/Reports/GetReportList', 
+                '/Manage/Reports/GetReportList',
+                'POST',
+                'page=1&limit=10'
+            );
+            
+            // 测试3: 尝试其他可能的路径
+            await testConnection(
+                '尝试路径 - Manage/Menus/GetReportMenus', 
+                '/Manage/Menus/GetReportMenus'
+            );
+            
+            await testConnection(
+                '尝试路径 - ManageMenus/Reports/GetReportList', 
+                '/ManageMenus/Reports/GetReportList',
+                'POST',
+                'page=1&limit=10'
+            );
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+
+        // 页面加载时显示当前配置信息
+        window.onload = function() {
+            const configDiv = document.createElement('div');
+            configDiv.className = 'test-item';
+            configDiv.innerHTML = `
+                <h3>当前配置信息</h3>
+                <p><strong>当前页面:</strong> ${window.location.href}</p>
+                <p><strong>预期代理配置:</strong></p>
+                <pre>/ManageMenus → http://192.168.80.79:8000
+/Manage → http://192.168.80.79:8015</pre>
+            `;
+            document.body.insertBefore(configDiv, document.getElementById('results'));
+        };
+    </script>
+</body>
+</html> 

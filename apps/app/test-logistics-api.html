@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>物流API测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        button {
+            background: #409eff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            background: #337ecc;
+        }
+        .result {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 15px;
+            margin-top: 10px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .error {
+            background: #fef0f0;
+            border-color: #fbc4c4;
+            color: #f56565;
+        }
+        .success {
+            background: #f0fff4;
+            border-color: #9ae6b4;
+            color: #38a169;
+        }
+        .loading {
+            color: #3182ce;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>物流API连接测试</h1>
+        <p>测试VTJ物流管理系统的API连接状态</p>
+        
+        <div>
+            <button onclick="testLogisticsAPI()">测试物流数据API</button>
+            <button onclick="testExpressTypeAPI()">测试快递类型API</button>
+            <button onclick="testHospitalAPI()">测试医院数据API</button>
+            <button onclick="testAllAPIs()">测试所有API</button>
+        </div>
+        
+        <div id="result" class="result"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://192.168.80.79:8000';
+        
+        function log(message, type = 'info') {
+            const result = document.getElementById('result');
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type === 'error' ? 'error' : type === 'success' ? 'success' : type === 'loading' ? 'loading' : '';
+            
+            result.innerHTML += `[${timestamp}] ${message}\n`;
+            result.className = `result ${className}`;
+            result.scrollTop = result.scrollHeight;
+        }
+
+        async function makeRequest(url, data = {}) {
+            try {
+                log(`🔄 请求: ${url}`, 'loading');
+                log(`📤 参数: ${JSON.stringify(data, null, 2)}`);
+                
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams(data)
+                });
+                
+                log(`📊 状态: ${response.status} ${response.statusText}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const result = await response.json();
+                log(`✅ 响应: ${JSON.stringify(result, null, 2)}`, 'success');
+                
+                return result;
+            } catch (error) {
+                log(`❌ 错误: ${error.message}`, 'error');
+                throw error;
+            }
+        }
+
+        async function testLogisticsAPI() {
+            log('=== 测试物流数据API ===');
+            try {
+                const data = {
+                    page: 1,
+                    limit: 5,
+                    hospital: 0,
+                    logisticsselect: '',
+                    searchcontent: '',
+                    logisticsptype: '',
+                    quertime: '',
+                    logistictime: '',
+                    decmothed: -1
+                };
+                
+                const result = await makeRequest(`${API_BASE}/Manage/Logistics/GetLogisticsToday`, data);
+                
+                if (result.code === '0') {
+                    log(`✅ 物流API测试成功！获取到 ${result.data.length} 条记录，总计 ${result.count} 条`, 'success');
+                } else {
+                    log(`⚠️ 物流API返回错误: ${result.msg}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ 物流API测试失败: ${error.message}`, 'error');
+            }
+            log('');
+        }
+
+        async function testExpressTypeAPI() {
+            log('=== 测试快递类型API ===');
+            try {
+                const result = await makeRequest(`${API_BASE}/Manage/PreScription/GetExpressTypeDataByCache`);
+                
+                if (result.code === '0') {
+                    log(`✅ 快递类型API测试成功！获取到 ${result.data.length} 种快递类型`, 'success');
+                } else {
+                    log(`⚠️ 快递类型API返回错误: ${result.msg}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ 快递类型API测试失败: ${error.message}`, 'error');
+            }
+            log('');
+        }
+
+        async function testHospitalAPI() {
+            log('=== 测试医院数据API ===');
+            try {
+                const result = await makeRequest(`${API_BASE}/Manage/Hospital/GetCacheHospitalData`);
+                
+                if (result.code === '0') {
+                    log(`✅ 医院数据API测试成功！获取到 ${result.data.itemlist.length} 个医院`, 'success');
+                } else {
+                    log(`⚠️ 医院数据API返回错误: ${result.msg}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ 医院数据API测试失败: ${error.message}`, 'error');
+            }
+            log('');
+        }
+
+        async function testAllAPIs() {
+            document.getElementById('result').innerHTML = '';
+            log('🚀 开始测试所有API...');
+            log('');
+            
+            await testLogisticsAPI();
+            await testExpressTypeAPI();
+            await testHospitalAPI();
+            
+            log('🎉 所有API测试完成！');
+        }
+
+        // 页面加载时显示说明
+        window.onload = function() {
+            log('📋 物流API测试工具已就绪');
+            log('💡 点击上方按钮开始测试API连接');
+            log('🔗 API服务器: ' + API_BASE);
+            log('');
+        };
+    </script>
+</body>
+</html>

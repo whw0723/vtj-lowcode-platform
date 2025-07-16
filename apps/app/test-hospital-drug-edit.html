@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>医院药品编辑功能测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+        }
+        .test-button {
+            background: #409eff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        .test-button:hover {
+            background: #337ab7;
+        }
+        .log-area {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: monospace;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            margin-top: 10px;
+        }
+        .success { color: #28a745; }
+        .error { color: #dc3545; }
+        .info { color: #17a2b8; }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+        .form-row .form-group {
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>医院药品编辑功能测试</h1>
+        
+        <div class="test-section">
+            <h3>1. 测试获取医院药品详情接口</h3>
+            <p>测试接口：<code>/Manage/HospitalDrug/Detail?hdrugid=47</code></p>
+            <button class="test-button" onclick="testGetHospitalDrugDetail()">测试获取详情</button>
+            <div id="detailLog" class="log-area"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>2. 测试医院药品编辑接口</h3>
+            <p>测试接口：<code>/Manage/HospitalDrug/Edit</code></p>
+            
+            <!-- 编辑表单 -->
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 4px; margin: 15px 0;">
+                <h4>编辑表单数据</h4>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>药品ID (hdrugid)</label>
+                        <input type="number" id="hdrugid" value="47" />
+                    </div>
+                    <div class="form-group">
+                        <label>医院 (hospitaldrug)</label>
+                        <input type="number" id="hospitaldrug" value="12" />
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>药品名称 (hdrugname)</label>
+                        <input type="text" id="hdrugname" value="ces1(测试修改)" />
+                    </div>
+                    <div class="form-group">
+                        <label>药品编号 (hdrugcode)</label>
+                        <input type="text" id="hdrugcode" value="11" />
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>药品单位 (purunit)</label>
+                        <input type="number" id="purunit" value="10" />
+                    </div>
+                    <div class="form-group">
+                        <label>药品类型 (drugtype)</label>
+                        <select id="drugtype">
+                            <option value="1" selected>中药饮片</option>
+                            <option value="2">西药</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>药品规格 (drugspecificat)</label>
+                        <input type="text" id="drugspecificat" value="11" />
+                    </div>
+                    <div class="form-group">
+                        <label>助记码 (mnemonic)</label>
+                        <input type="text" id="mnemonic" value="ces11" />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>备注 (remark)</label>
+                    <textarea id="remark" rows="3">测试编辑功能</textarea>
+                </div>
+            </div>
+
+            <button class="test-button" onclick="testEditHospitalDrug()">测试编辑医院药品</button>
+            <button class="test-button" onclick="fillSampleData()">填充示例数据</button>
+            <div id="editLog" class="log-area"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>3. 接口数据格式验证</h3>
+            <p>验证接口返回的数据格式是否符合预期</p>
+            <button class="test-button" onclick="validateDataFormat()">验证数据格式</button>
+            <div id="validateLog" class="log-area"></div>
+        </div>
+    </div>
+
+    <script>
+        // 日志记录函数
+        function log(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type === 'success' ? 'success' : type === 'error' ? 'error' : 'info';
+            element.innerHTML += `<span class="${className}">[${timestamp}] ${message}</span>\n`;
+            element.scrollTop = element.scrollHeight;
+        }
+
+        // 清空日志
+        function clearLog(elementId) {
+            document.getElementById(elementId).innerHTML = '';
+        }
+
+        // 填充示例数据
+        function fillSampleData() {
+            document.getElementById('hdrugid').value = '47';
+            document.getElementById('hospitaldrug').value = '12';
+            document.getElementById('hdrugname').value = 'ces1(测试修改)';
+            document.getElementById('hdrugcode').value = '11';
+            document.getElementById('purunit').value = '10';
+            document.getElementById('drugtype').value = '1';
+            document.getElementById('drugspecificat').value = '11';
+            document.getElementById('mnemonic').value = 'ces11';
+            document.getElementById('remark').value = '测试编辑功能 - ' + new Date().toLocaleString();
+            
+            log('editLog', '✅ 示例数据已填充', 'success');
+        }
+
+        // 1. 测试获取医院药品详情
+        async function testGetHospitalDrugDetail() {
+            clearLog('detailLog');
+            log('detailLog', '🔄 开始测试获取医院药品详情...', 'info');
+            
+            const hdrugid = document.getElementById('hdrugid').value || '47';
+            
+            try {
+                const params = new URLSearchParams();
+                params.append('hdrugid', hdrugid);
+
+                const response = await fetch(`/Manage/HospitalDrug/Detail?hdrugid=${hdrugid}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                        'Accept': 'application/json, text/javascript, */*; q=0.01',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    credentials: 'include',
+                    body: params
+                });
+
+                log('detailLog', `📡 响应状态: ${response.status} ${response.statusText}`, 'info');
+
+                if (response.ok) {
+                    const data = await response.json();
+                    log('detailLog', '✅ 接口调用成功', 'success');
+                    log('detailLog', `📋 响应数据: ${JSON.stringify(data, null, 2)}`, 'info');
+                    
+                    // 验证数据结构
+                    if (data.code === '0' && data.data && data.data.length > 0) {
+                        const drugDetail = data.data[0];
+                        log('detailLog', '✅ 数据格式验证通过', 'success');
+                        log('detailLog', `药品名称: ${drugDetail.hdrugname}`, 'info');
+                        log('detailLog', `药品编码: ${drugDetail.hdrugcode}`, 'info');
+                        log('detailLog', `医院选项数量: ${drugDetail.allhospital ? drugDetail.allhospital.length : 0}`, 'info');
+                        log('detailLog', `单位选项数量: ${drugDetail.allunit ? drugDetail.allunit.length : 0}`, 'info');
+                        
+                        // 自动填充表单数据
+                        if (drugDetail.hdrugid) document.getElementById('hdrugid').value = drugDetail.hdrugid;
+                        if (drugDetail.hospitaldrug) document.getElementById('hospitaldrug').value = drugDetail.hospitaldrug;
+                        if (drugDetail.hdrugname) document.getElementById('hdrugname').value = drugDetail.hdrugname;
+                        if (drugDetail.hdrugcode) document.getElementById('hdrugcode').value = drugDetail.hdrugcode;
+                        if (drugDetail.purunit) document.getElementById('purunit').value = drugDetail.purunit;
+                        if (drugDetail.drugtype) document.getElementById('drugtype').value = drugDetail.drugtype;
+                        if (drugDetail.drugspecificat) document.getElementById('drugspecificat').value = drugDetail.drugspecificat;
+                        if (drugDetail.mnemonic) document.getElementById('mnemonic').value = drugDetail.mnemonic;
+                        if (drugDetail.remark) document.getElementById('remark').value = drugDetail.remark;
+                        
+                        log('detailLog', '✅ 表单数据已自动填充', 'success');
+                    } else {
+                        log('detailLog', '❌ 数据格式异常', 'error');
+                    }
+                } else {
+                    log('detailLog', `❌ 请求失败: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                log('detailLog', `❌ 请求异常: ${error.message}`, 'error');
+            }
+        }
+
+        // 2. 测试编辑医院药品
+        async function testEditHospitalDrug() {
+            clearLog('editLog');
+            log('editLog', '🔄 开始测试医院药品编辑...', 'info');
+            
+            // 获取表单数据
+            const formData = {
+                hdrugid: parseInt(document.getElementById('hdrugid').value),
+                hospitaldrug: parseInt(document.getElementById('hospitaldrug').value),
+                hdrugname: document.getElementById('hdrugname').value,
+                hdrugcode: document.getElementById('hdrugcode').value,
+                purunit: parseInt(document.getElementById('purunit').value),
+                drugtype: parseInt(document.getElementById('drugtype').value),
+                drugspecificat: document.getElementById('drugspecificat').value,
+                mnemonic: document.getElementById('mnemonic').value,
+                remark: document.getElementById('remark').value
+            };
+
+            try {
+                // 根据截图格式，构建JSON数据并以hdrug参数提交
+                const hospitaldrugJson = JSON.stringify(formData);
+                log('editLog', `📤 提交的JSON数据: ${hospitaldrugJson}`, 'info');
+
+                const submitData = new FormData();
+                submitData.append('hdrug', hospitaldrugJson);
+
+                const response = await fetch('/Manage/HospitalDrug/Edit', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json, text/javascript, */*; q=0.01',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    credentials: 'include',
+                    body: submitData
+                });
+
+                log('editLog', `📡 响应状态: ${response.status} ${response.statusText}`, 'info');
+
+                if (response.ok) {
+                    const data = await response.json();
+                    log('editLog', '✅ 接口调用成功', 'success');
+                    log('editLog', `📋 响应数据: ${JSON.stringify(data, null, 2)}`, 'info');
+                    
+                    // 根据截图显示的响应格式判断结果
+                    if (data.code === '0' && data.data > 0) {
+                        log('editLog', `✅ ${data.msg || '医院药品编辑成功'}`, 'success');
+                    } else if (data.data === 0) {
+                        log('editLog', '⚠️ 多次提交修改', 'error');
+                    } else {
+                        log('editLog', `❌ 编辑失败: ${data.msg}`, 'error');
+                    }
+                } else {
+                    log('editLog', `❌ 请求失败: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                log('editLog', `❌ 请求异常: ${error.message}`, 'error');
+            }
+        }
+
+        // 3. 验证数据格式
+        function validateDataFormat() {
+            clearLog('validateLog');
+            log('validateLog', '🔍 开始验证数据格式...', 'info');
+            
+            const expectedDetailStructure = {
+                code: "0",
+                msg: "成功",
+                data: [{
+                    hdrugid: 47,
+                    hospitaldrug: 12,
+                    hdrugname: "ces1",
+                    hdrugcode: "11",
+                    purunit: 10,
+                    drugtype: 1,
+                    drugspecificat: "11",
+                    mnemonic: "ces11",
+                    remark: "",
+                    allhospital: "医院选项数组",
+                    allunit: "单位选项数组"
+                }]
+            };
+
+            const expectedEditRequest = {
+                hdrug: JSON.stringify({
+                    hdrugid: 47,
+                    hospitaldrug: 12,
+                    hdrugname: "ces1",
+                    hdrugcode: "11",
+                    purunit: 10,
+                    drugtype: 1,
+                    drugspecificat: "11",
+                    mnemonic: "ces11",
+                    remark: ""
+                })
+            };
+
+            const expectedEditResponse = {
+                code: "0",
+                msg: "修改成功",
+                data: 1
+            };
+
+            log('validateLog', '✅ 预期的详情接口数据结构:', 'success');
+            log('validateLog', JSON.stringify(expectedDetailStructure, null, 2), 'info');
+            
+            log('validateLog', '✅ 预期的编辑请求格式:', 'success');
+            log('validateLog', JSON.stringify(expectedEditRequest, null, 2), 'info');
+            
+            log('validateLog', '✅ 预期的编辑响应格式:', 'success');
+            log('validateLog', JSON.stringify(expectedEditResponse, null, 2), 'info');
+            
+            log('validateLog', '📋 关键字段说明:', 'info');
+            log('validateLog', '- hdrugid: 医院药品ID (数字)', 'info');
+            log('validateLog', '- hospitaldrug: 医院ID (数字)', 'info');
+            log('validateLog', '- drugtype: 药品类型 (1=中药饮片, 2=西药)', 'info');
+            log('validateLog', '- purunit: 药品单位ID (数字)', 'info');
+            log('validateLog', '- 请求参数名: hdrug (包含JSON字符串)', 'info');
+            log('validateLog', '- 成功响应: code="0", data>0', 'info');
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            log('detailLog', '📱 测试页面已加载，可以开始测试', 'success');
+            log('editLog', '📱 测试页面已加载，可以开始测试', 'success');
+            log('validateLog', '📱 测试页面已加载，可以开始测试', 'success');
+            
+            // 自动填充示例数据
+            fillSampleData();
+        });
+    </script>
+</body>
+</html> 

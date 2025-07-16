@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>订单API测试</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .test-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .test-button:hover {
+            background: #0056b3;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 3px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .success {
+            border-left: 4px solid #28a745;
+        }
+        .error {
+            border-left: 4px solid #dc3545;
+        }
+        .warning {
+            border-left: 4px solid #ffc107;
+        }
+    </style>
+</head>
+<body>
+    <h1>订单API接口测试</h1>
+    <p>测试GetAllOrderTodayList接口对接情况</p>
+
+    <div class="test-section">
+        <h3>1. 测试GetAllOrderTodayList接口</h3>
+        <button class="test-button" onclick="testGetAllOrderTodayList()">测试全部订单接口</button>
+        <div id="result1" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>2. 测试GetOrderTodayNoMyList接口</h3>
+        <button class="test-button" onclick="testGetOrderTodayNoMyList()">测试未处理订单接口</button>
+        <div id="result2" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>3. 测试GetOrderTodayYesMyList接口</h3>
+        <button class="test-button" onclick="testGetOrderTodayYesMyList()">测试已处理订单接口</button>
+        <div id="result3" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>4. 测试GetOrderTodayErrMyList接口</h3>
+        <button class="test-button" onclick="testGetOrderTodayErrMyList()">测试处理错误订单接口</button>
+        <div id="result4" class="result"></div>
+    </div>
+
+    <script>
+        // 配置axios默认设置
+        axios.defaults.withCredentials = true;
+        
+        // 添加拦截器来查看实际请求的URL
+        axios.interceptors.request.use(request => {
+            console.log('🚀 发送请求:', request.method.toUpperCase(), request.url);
+            console.log('📋 请求头:', request.headers);
+            if (request.data) {
+                console.log('📝 请求数据:', request.data);
+            }
+            return request;
+        });
+
+        axios.interceptors.response.use(
+            response => {
+                console.log('✅ 响应成功:', response.status, response.statusText);
+                console.log('📊 响应数据:', response.data);
+                return response;
+            },
+            error => {
+                console.log('❌ 响应错误:', error.response?.status, error.message);
+                if (error.response) {
+                    console.log('📊 错误响应:', error.response.data);
+                }
+                return Promise.reject(error);
+            }
+        );
+
+        // 通用的API测试函数
+        async function testOrderApi(apiUrl, resultElementId, apiName) {
+            const resultElement = document.getElementById(resultElementId);
+            resultElement.textContent = '正在测试...';
+            resultElement.className = 'result';
+
+            try {
+                console.log(`🔄 开始测试${apiName}...`);
+
+                // 构建请求参数，使用URLSearchParams格式
+                const params = new URLSearchParams();
+                params.append('page', '1');
+                params.append('limit', '20');
+                params.append('hospitalsel', '0');
+                params.append('hospitalnum', '0');
+                params.append('pspnum', '');
+                params.append('patientname', '');
+                params.append('ptype', '');
+                params.append('isdaijian', '');
+                params.append('orderlaydate', '');
+
+                console.log('📋 请求参数:', {
+                    page: '1',
+                    limit: '20',
+                    hospitalsel: '0',
+                    hospitalnum: '0',
+                    pspnum: '',
+                    patientname: '',
+                    ptype: '',
+                    isdaijian: '',
+                    orderlaydate: ''
+                });
+
+                const response = await axios.post(apiUrl, params, {
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                        'Accept': 'application/json, text/javascript, */*; q=0.01',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                console.log(`✅ ${apiName}调用成功:`, response.data);
+
+                // 处理需要登录的情况
+                if (response.data && response.data.code === "1001") {
+                    resultElement.textContent = `❌ ${apiName}测试失败: 需要重新登录\n\n响应数据:\n${JSON.stringify(response.data, null, 2)}`;
+                    resultElement.className = 'result warning';
+                    return;
+                }
+
+                // 检查响应格式是否符合预期
+                const isSuccess = response.data && response.data.code === '0';
+
+                if (isSuccess) {
+                    const data = response.data.data || [];
+                    const count = response.data.count || '0';
+                    
+                    resultElement.textContent = `✅ ${apiName}测试成功!\n\n` +
+                        `响应状态: ${response.data.code}\n` +
+                        `响应消息: ${response.data.msg}\n` +
+                        `数据条数: ${data.length}\n` +
+                        `总数: ${count}\n\n` +
+                        `示例数据:\n${JSON.stringify(data.slice(0, 2), null, 2)}`;
+                    resultElement.className = 'result success';
+                } else {
+                    resultElement.textContent = `❌ ${apiName}测试失败\n\n` +
+                        `错误信息: ${response.data?.msg || '未知错误'}\n\n` +
+                        `完整响应:\n${JSON.stringify(response.data, null, 2)}`;
+                    resultElement.className = 'result error';
+                }
+            } catch (error) {
+                console.error(`❌ ${apiName}调用失败:`, error);
+                
+                resultElement.textContent = `❌ ${apiName}测试失败\n\n` +
+                    `错误类型: ${error.name}\n` +
+                    `错误信息: ${error.message}\n` +
+                    `状态码: ${error.response?.status || 'N/A'}\n\n` +
+                    `错误详情:\n${error.response?.data ? JSON.stringify(error.response.data, null, 2) : '无详细信息'}`;
+                resultElement.className = 'result error';
+            }
+        }
+
+        // 测试各个接口
+        function testGetAllOrderTodayList() {
+            testOrderApi('/Manage/PatientOrder/GetAllOrderTodayList', 'result1', 'GetAllOrderTodayList');
+        }
+
+        function testGetOrderTodayNoMyList() {
+            testOrderApi('/Manage/PatientOrder/GetOrderTodayNoMyList', 'result2', 'GetOrderTodayNoMyList');
+        }
+
+        function testGetOrderTodayYesMyList() {
+            testOrderApi('/Manage/PatientOrder/GetOrderTodayYesMyList', 'result3', 'GetOrderTodayYesMyList');
+        }
+
+        function testGetOrderTodayErrMyList() {
+            testOrderApi('/Manage/PatientOrder/GetOrderTodayErrMyList', 'result4', 'GetOrderTodayErrMyList');
+        }
+
+        // 页面加载完成后自动测试第一个接口
+        window.addEventListener('load', () => {
+            console.log('页面加载完成，开始自动测试GetAllOrderTodayList接口...');
+            setTimeout(() => {
+                testGetAllOrderTodayList();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

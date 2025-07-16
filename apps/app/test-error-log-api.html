@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试 GetErrorLog 接口</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .error { color: red; }
+        .success { color: green; }
+        pre { background: #f5f5f5; padding: 10px; border-radius: 4px; overflow-x: auto; }
+        .log-item { border: 1px solid #ddd; margin: 10px 0; padding: 10px; border-radius: 4px; }
+        .log-header { font-weight: bold; margin-bottom: 5px; }
+        .log-details { font-size: 12px; color: #666; }
+    </style>
+</head>
+<body>
+    <h1>测试 GetErrorLog 接口</h1>
+    <button onclick="testAPI()">测试接口</button>
+    <div id="result"></div>
+
+    <script>
+        async function testAPI() {
+            try {
+                console.log('开始测试错误日志接口...');
+                
+                // 构建请求参数
+                const params = new URLSearchParams();
+                params.append('page', '1');
+                params.append('limit', '15');
+                
+                console.log('请求参数:', params.toString());
+                
+                // 调用接口 - 注意：这个测试文件需要在VTJ开发环境中运行才能使用代理
+                const response = await axios.post('/Manage/Log/GetErrorLog', params, {
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                        'Accept': 'application/json, text/javascript, */*; q=0.01',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                
+                console.log('接口调用成功:', response.data);
+                
+                // 格式化显示结果
+                let html = '<div class="success">接口调用成功！</div>';
+                html += '<h3>响应数据:</h3>';
+                html += `<p>状态码: ${response.data.code}</p>`;
+                html += `<p>总数量: ${response.data.count}</p>`;
+                html += `<p>消息: ${response.data.msg}</p>`;
+                
+                if (response.data.data && response.data.data.length > 0) {
+                    html += '<h3>错误日志列表:</h3>';
+                    response.data.data.forEach((item, index) => {
+                        html += `<div class="log-item">`;
+                        html += `<div class="log-header">错误 #${item.id} - ${item.type}</div>`;
+                        html += `<div class="log-details">`;
+                        html += `<p><strong>平台:</strong> ${item.platform}</p>`;
+                        html += `<p><strong>错误消息:</strong> ${item.msg}</p>`;
+                        html += `<p><strong>错误等级:</strong> ${item.leve1}</p>`;
+                        html += `<p><strong>发生时间:</strong> ${item.update}</p>`;
+                        html += `<p><strong>URL:</strong> ${item.url}</p>`;
+                        if (item.stacktrace) {
+                            html += `<p><strong>堆栈跟踪:</strong></p>`;
+                            html += `<pre>${item.stacktrace}</pre>`;
+                        }
+                        html += `</div>`;
+                        html += `</div>`;
+                    });
+                }
+                
+                html += '<h3>完整响应数据:</h3>';
+                html += '<pre>' + JSON.stringify(response.data, null, 2) + '</pre>';
+                
+                document.getElementById('result').innerHTML = html;
+                
+            } catch (error) {
+                console.error('接口调用失败:', error);
+                document.getElementById('result').innerHTML = '<div class="error">接口调用失败: ' + error.message + '</div>';
+            }
+        }
+    </script>
+</body>
+</html>

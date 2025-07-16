@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API调试测试</title>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .test-section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        button {
+            background-color: #409eff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #66b1ff;
+        }
+        .result {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            border-left: 4px solid #409eff;
+        }
+        .error {
+            border-left-color: #f56c6c;
+            background-color: #fef0f0;
+        }
+        .success {
+            border-left-color: #67c23a;
+            background-color: #f0f9ff;
+        }
+        pre {
+            background-color: #2d3748;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .status {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .status.success { background-color: #67c23a; color: white; }
+        .status.error { background-color: #f56c6c; color: white; }
+        .status.warning { background-color: #e6a23c; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>API调试测试页面</h1>
+        <p>用于测试物流相关API的实际返回数据结构</p>
+
+        <!-- 医院数据测试 -->
+        <div class="test-section">
+            <h3>🏥 医院数据API测试</h3>
+            <p><strong>接口:</strong> POST /Manage/Hospital/GetCacheHospitalData</p>
+            <button onclick="testHospitalApi()">测试医院API</button>
+            <div id="hospital-result" class="result" style="display: none;">
+                <div id="hospital-status"></div>
+                <pre id="hospital-response"></pre>
+            </div>
+        </div>
+
+        <!-- 快递类型数据测试 -->
+        <div class="test-section">
+            <h3>🚚 快递类型API测试</h3>
+            <p><strong>接口:</strong> POST /Manage/PreScription/GetExpressTypeDataByCache</p>
+            <button onclick="testExpressTypeApi()">测试快递类型API</button>
+            <div id="express-result" class="result" style="display: none;">
+                <div id="express-status"></div>
+                <pre id="express-response"></pre>
+            </div>
+        </div>
+
+        <!-- 物流数据测试 -->
+        <div class="test-section">
+            <h3>📦 物流数据API测试</h3>
+            <p><strong>接口:</strong> POST /Manage/Logistics/GetLogisticsToday</p>
+            <button onclick="testLogisticsApi()">测试物流API</button>
+            <div id="logistics-result" class="result" style="display: none;">
+                <div id="logistics-status"></div>
+                <pre id="logistics-response"></pre>
+            </div>
+        </div>
+
+        <!-- 网络连接测试 -->
+        <div class="test-section">
+            <h3>🌐 网络连接测试</h3>
+            <p>测试到后端服务器的连接</p>
+            <button onclick="testConnection()">测试连接</button>
+            <div id="connection-result" class="result" style="display: none;">
+                <div id="connection-status"></div>
+                <pre id="connection-response"></pre>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 配置axios
+        axios.defaults.withCredentials = true;
+        axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
+
+        // 显示结果的通用函数
+        function showResult(prefix, success, data, error = null) {
+            const resultDiv = document.getElementById(`${prefix}-result`);
+            const statusDiv = document.getElementById(`${prefix}-status`);
+            const responseDiv = document.getElementById(`${prefix}-response`);
+            
+            resultDiv.style.display = 'block';
+            
+            if (success) {
+                resultDiv.className = 'result success';
+                statusDiv.innerHTML = '<span class="status success">SUCCESS</span> API调用成功';
+                responseDiv.textContent = JSON.stringify(data, null, 2);
+            } else {
+                resultDiv.className = 'result error';
+                statusDiv.innerHTML = '<span class="status error">ERROR</span> API调用失败';
+                responseDiv.textContent = error ? JSON.stringify(error, null, 2) : '未知错误';
+            }
+        }
+
+        // 测试医院API
+        async function testHospitalApi() {
+            console.log('🏥 测试医院API...');
+            try {
+                const response = await axios.post('/Manage/Hospital/GetCacheHospitalData', {});
+                console.log('医院API响应:', response);
+                
+                // 显示完整响应信息
+                const responseInfo = {
+                    status: response.status,
+                    statusText: response.statusText,
+                    headers: response.headers,
+                    data: response.data
+                };
+                
+                showResult('hospital', true, responseInfo);
+                
+                // 分析数据结构
+                if (response.data && typeof response.data === 'object') {
+                    console.log('✅ 数据类型:', typeof response.data);
+                    console.log('✅ 数据键:', Object.keys(response.data));
+                    if (response.data.code) {
+                        console.log('✅ 响应码:', response.data.code);
+                    }
+                    if (response.data.data) {
+                        console.log('✅ 数据结构:', typeof response.data.data);
+                        if (response.data.data.itemlist) {
+                            console.log('✅ 医院列表长度:', response.data.data.itemlist.length);
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('❌ 医院API测试失败:', error);
+                showResult('hospital', false, null, {
+                    message: error.message,
+                    status: error.response?.status,
+                    statusText: error.response?.statusText,
+                    data: error.response?.data
+                });
+            }
+        }
+
+        // 测试快递类型API
+        async function testExpressTypeApi() {
+            console.log('🚚 测试快递类型API...');
+            try {
+                const response = await axios.post('/Manage/PreScription/GetExpressTypeDataByCache', {});
+                console.log('快递类型API响应:', response);
+                
+                // 显示完整响应信息
+                const responseInfo = {
+                    status: response.status,
+                    statusText: response.statusText,
+                    headers: response.headers,
+                    data: response.data
+                };
+                
+                showResult('express', true, responseInfo);
+                
+                // 分析数据结构
+                if (response.data && typeof response.data === 'object') {
+                    console.log('✅ 数据类型:', typeof response.data);
+                    console.log('✅ 数据键:', Object.keys(response.data));
+                    if (response.data.code) {
+                        console.log('✅ 响应码:', response.data.code);
+                    }
+                    if (response.data.data) {
+                        console.log('✅ 数据结构:', typeof response.data.data);
+                        if (Array.isArray(response.data.data)) {
+                            console.log('✅ 快递类型数量:', response.data.data.length);
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('❌ 快递类型API测试失败:', error);
+                showResult('express', false, null, {
+                    message: error.message,
+                    status: error.response?.status,
+                    statusText: error.response?.statusText,
+                    data: error.response?.data
+                });
+            }
+        }
+
+        // 测试物流API
+        async function testLogisticsApi() {
+            console.log('📦 测试物流API...');
+            try {
+                const params = new URLSearchParams({
+                    page: '1',
+                    limit: '20',
+                    hospital: '0',
+                    logisticsselect: '',
+                    searchcontent: '',
+                    logisticsptype: '',
+                    quertime: '',
+                    logistictime: '',
+                    decmothed: '-1'
+                });
+
+                const response = await axios.post('/Manage/Logistics/GetLogisticsToday', params);
+                console.log('物流API响应:', response);
+                
+                // 显示完整响应信息
+                const responseInfo = {
+                    status: response.status,
+                    statusText: response.statusText,
+                    headers: response.headers,
+                    data: response.data
+                };
+                
+                showResult('logistics', true, responseInfo);
+                
+                // 分析数据结构
+                if (response.data && typeof response.data === 'object') {
+                    console.log('✅ 数据类型:', typeof response.data);
+                    console.log('✅ 数据键:', Object.keys(response.data));
+                    if (response.data.code) {
+                        console.log('✅ 响应码:', response.data.code);
+                    }
+                    if (response.data.data) {
+                        console.log('✅ 数据结构:', typeof response.data.data);
+                        if (Array.isArray(response.data.data)) {
+                            console.log('✅ 物流数据数量:', response.data.data.length);
+                        }
+                    }
+                    if (response.data.count) {
+                        console.log('✅ 总数量:', response.data.count);
+                    }
+                }
+            } catch (error) {
+                console.error('❌ 物流API测试失败:', error);
+                showResult('logistics', false, null, {
+                    message: error.message,
+                    status: error.response?.status,
+                    statusText: error.response?.statusText,
+                    data: error.response?.data
+                });
+            }
+        }
+
+        // 测试网络连接
+        async function testConnection() {
+            console.log('🌐 测试网络连接...');
+            try {
+                // 测试代理是否工作
+                const response = await axios.get('/Manage/test', {
+                    timeout: 5000,
+                    validateStatus: function (status) {
+                        return status < 500; // 只有5xx错误才算失败
+                    }
+                });
+                
+                console.log('连接测试响应:', response);
+                
+                const connectionInfo = {
+                    status: response.status,
+                    statusText: response.statusText,
+                    proxyWorking: response.status !== 404 || response.data.includes('服务器错误'),
+                    message: response.status === 404 ? '代理工作正常，但接口不存在' : '连接成功'
+                };
+                
+                showResult('connection', true, connectionInfo);
+                
+            } catch (error) {
+                console.error('❌ 连接测试失败:', error);
+                showResult('connection', false, null, {
+                    message: error.message,
+                    code: error.code,
+                    status: error.response?.status,
+                    statusText: error.response?.statusText
+                });
+            }
+        }
+
+        // 页面加载时自动测试连接
+        window.onload = function() {
+            console.log('📱 页面加载完成，开始自动测试...');
+            testConnection();
+        };
+    </script>
+</body>
+</html> 

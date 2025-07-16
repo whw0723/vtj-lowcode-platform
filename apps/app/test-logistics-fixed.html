@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>物流接口测试 - 修复后</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .test-section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .result {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+            margin-top: 10px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .success { color: #28a745; }
+        .error { color: #dc3545; }
+        .info { color: #17a2b8; }
+        .warning { color: #ffc107; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>物流接口测试 - 修复后版本</h1>
+        <p>测试修复后的物流接口对接是否正常工作</p>
+
+        <div class="test-section">
+            <h3>🚀 物流数据接口测试</h3>
+            <button onclick="testLogisticsAPI()">测试物流数据接口</button>
+            <button onclick="testWithParams()">测试带参数查询</button>
+            <div id="logistics-result" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🏥 医院数据接口测试</h3>
+            <button onclick="testHospitalAPI()">测试医院数据接口</button>
+            <div id="hospital-result" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🚚 快递类型接口测试</h3>
+            <button onclick="testExpressTypeAPI()">测试快递类型接口</button>
+            <div id="express-result" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🔄 批量测试</h3>
+            <button onclick="testAllAPIs()">测试所有接口</button>
+            <div id="all-result" class="result"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        // 配置axios
+        axios.defaults.withCredentials = true;
+        axios.defaults.timeout = 10000;
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type;
+            console.log(`[${timestamp}] ${message}`);
+            return `<span class="${className}">[${timestamp}] ${message}</span>\n`;
+        }
+
+        // 测试物流数据接口
+        async function testLogisticsAPI() {
+            const resultDiv = document.getElementById('logistics-result');
+            resultDiv.innerHTML = log('🔄 开始测试物流数据接口...');
+
+            try {
+                const formData = new FormData();
+                formData.append('page', '1');
+                formData.append('limit', '5');
+                formData.append('hospital', '0');
+                formData.append('logisticsselect', '');
+                formData.append('searchcontent', '');
+                formData.append('logisticsptype', '');
+                formData.append('quertime', '');
+                formData.append('logistictime', '');
+                formData.append('decmothed', '-1');
+
+                const response = await axios.post('/Manage/Logistics/GetLogisticsToday', formData, {
+                    headers: {
+                        'Accept': 'application/json, text/javascript, */*; q=0.01',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                resultDiv.innerHTML += log('✅ 接口调用成功!', 'success');
+                resultDiv.innerHTML += log(`📊 返回状态: ${response.data.code}`, 'info');
+                resultDiv.innerHTML += log(`📋 数据总数: ${response.data.count}`, 'info');
+                resultDiv.innerHTML += log(`📦 当前页数据: ${response.data.data.length} 条`, 'info');
+                
+                if (response.data.data.length > 0) {
+                    resultDiv.innerHTML += log('🔍 第一条数据示例:', 'info');
+                    resultDiv.innerHTML += log(JSON.stringify(response.data.data[0], null, 2), 'info');
+                }
+
+            } catch (error) {
+                resultDiv.innerHTML += log(`❌ 接口调用失败: ${error.message}`, 'error');
+                if (error.response) {
+                    resultDiv.innerHTML += log(`📄 响应状态: ${error.response.status}`, 'error');
+                    resultDiv.innerHTML += log(`📄 响应数据: ${JSON.stringify(error.response.data, null, 2)}`, 'error');
+                }
+            }
+        }
+
+        // 测试带参数的查询
+        async function testWithParams() {
+            const resultDiv = document.getElementById('logistics-result');
+            resultDiv.innerHTML += log('\n🔍 测试带参数查询...');
+
+            try {
+                const formData = new FormData();
+                formData.append('page', '1');
+                formData.append('limit', '10');
+                formData.append('hospital', '12'); // 测试医院
+                formData.append('logisticsselect', '');
+                formData.append('searchcontent', '申通');
+                formData.append('logisticsptype', '');
+                formData.append('quertime', '');
+                formData.append('logistictime', '');
+                formData.append('decmothed', '-1');
+
+                const response = await axios.post('/Manage/Logistics/GetLogisticsToday', formData, {
+                    headers: {
+                        'Accept': 'application/json, text/javascript, */*; q=0.01',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                resultDiv.innerHTML += log('✅ 参数查询成功!', 'success');
+                resultDiv.innerHTML += log(`📋 筛选后数据: ${response.data.data.length} 条`, 'info');
+
+            } catch (error) {
+                resultDiv.innerHTML += log(`❌ 参数查询失败: ${error.message}`, 'error');
+            }
+        }
+
+        // 测试医院数据接口
+        async function testHospitalAPI() {
+            const resultDiv = document.getElementById('hospital-result');
+            resultDiv.innerHTML = log('🔄 开始测试医院数据接口...');
+
+            try {
+                const response = await axios.post('/Manage/Hospital/GetCacheHospitalData', new FormData(), {
+                    headers: {
+                        'Accept': 'application/json, text/javascript, */*; q=0.01',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                resultDiv.innerHTML += log('✅ 医院接口调用成功!', 'success');
+                resultDiv.innerHTML += log(`📊 返回状态: ${response.data.code}`, 'info');
+                
+                if (response.data.data && response.data.data.itemlist) {
+                    resultDiv.innerHTML += log(`🏥 医院数量: ${response.data.data.itemlist.length} 个`, 'info');
+                    resultDiv.innerHTML += log('🔍 医院列表示例:', 'info');
+                    resultDiv.innerHTML += log(JSON.stringify(response.data.data.itemlist.slice(0, 3), null, 2), 'info');
+                }
+
+            } catch (error) {
+                resultDiv.innerHTML += log(`❌ 医院接口调用失败: ${error.message}`, 'error');
+            }
+        }
+
+        // 测试快递类型接口
+        async function testExpressTypeAPI() {
+            const resultDiv = document.getElementById('express-result');
+            resultDiv.innerHTML = log('🔄 开始测试快递类型接口...');
+
+            try {
+                const response = await axios.post('/Manage/PreScription/GetExpressTypeDataByCache', new FormData(), {
+                    headers: {
+                        'Accept': 'application/json, text/javascript, */*; q=0.01',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                resultDiv.innerHTML += log('✅ 快递类型接口调用成功!', 'success');
+                resultDiv.innerHTML += log(`📊 返回状态: ${response.data.code}`, 'info');
+                
+                if (response.data.data) {
+                    resultDiv.innerHTML += log(`🚚 快递类型数量: ${response.data.data.length} 种`, 'info');
+                    resultDiv.innerHTML += log('🔍 快递类型示例:', 'info');
+                    resultDiv.innerHTML += log(JSON.stringify(response.data.data.slice(0, 3), null, 2), 'info');
+                }
+
+            } catch (error) {
+                resultDiv.innerHTML += log(`❌ 快递类型接口调用失败: ${error.message}`, 'error');
+            }
+        }
+
+        // 测试所有接口
+        async function testAllAPIs() {
+            const resultDiv = document.getElementById('all-result');
+            resultDiv.innerHTML = log('🚀 开始批量测试所有接口...');
+
+            resultDiv.innerHTML += log('\n=== 测试物流数据接口 ===');
+            await testLogisticsAPI();
+
+            resultDiv.innerHTML += log('\n=== 测试医院数据接口 ===');
+            await testHospitalAPI();
+
+            resultDiv.innerHTML += log('\n=== 测试快递类型接口 ===');
+            await testExpressTypeAPI();
+
+            resultDiv.innerHTML += log('\n🎉 所有接口测试完成!', 'success');
+        }
+
+        // 页面加载时显示说明
+        window.onload = function() {
+            console.log('📋 物流接口测试工具已就绪');
+            console.log('💡 点击按钮开始测试修复后的接口');
+        };
+    </script>
+</body>
+</html>

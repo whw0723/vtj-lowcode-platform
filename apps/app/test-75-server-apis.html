@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试192.168.80.75:8000服务器接口</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .result { margin: 10px 0; padding: 10px; border-radius: 3px; white-space: pre-wrap; }
+        .success { background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .error { background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+        .warning { background-color: #fff3cd; border: 1px solid #ffeaa7; color: #856404; }
+        .info { background-color: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; }
+        button { margin: 5px; padding: 8px 16px; cursor: pointer; }
+        .api-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 10px; }
+    </style>
+</head>
+<body>
+    <h1>🔍 192.168.80.75:8000 服务器接口探测</h1>
+    <p>测试新服务器上的可用接口，特别是登录和订单相关接口</p>
+
+    <div class="test-section">
+        <h3>🔐 登录接口测试</h3>
+        <div class="api-list">
+            <button onclick="testLoginApi('/Manage/UserLogin/ProcessLogin', 'POST')">POST /Manage/UserLogin/ProcessLogin</button>
+            <button onclick="testLoginApi('/Manage/UserLogin/ProcessLogin', 'GET')">GET /Manage/UserLogin/ProcessLogin</button>
+            <button onclick="testLoginApi('/Manage/User/Login', 'POST')">POST /Manage/User/Login</button>
+            <button onclick="testLoginApi('/Manage/Login', 'POST')">POST /Manage/Login</button>
+            <button onclick="testLoginApi('/Manage/Auth/Login', 'POST')">POST /Manage/Auth/Login</button>
+        </div>
+        <div id="login-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>📋 订单接口测试</h3>
+        <div class="api-list">
+            <button onclick="testOrderApi('/Manage/PatientOrder/GetAllOrderTodayList')">GetAllOrderTodayList</button>
+            <button onclick="testOrderApi('/Manage/PatientOrder/GetOrderTodayNoMyList')">GetOrderTodayNoMyList</button>
+            <button onclick="testOrderApi('/Manage/PatientOrder/GetOrderTodayYesMyList')">GetOrderTodayYesMyList</button>
+            <button onclick="testOrderApi('/Manage/PatientOrder/GetOrderTodayErrMyList')">GetOrderTodayErrMyList</button>
+            <button onclick="testOrderApi('/Manage/Order/GetTodayList')">GetTodayList (简化路径)</button>
+        </div>
+        <div id="order-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>🏥 其他已知接口测试</h3>
+        <div class="api-list">
+            <button onclick="testOtherApi('/Manage/Menus/GetReportMenus')">GetReportMenus</button>
+            <button onclick="testOtherApi('/Manage/Log/GetSignData')">GetSignData</button>
+            <button onclick="testOtherApi('/Manage/Log/GetOperateData')">GetOperateData</button>
+            <button onclick="testOtherApi('/Manage/HospitalDrug/GetHospitalDrugList')">GetHospitalDrugList</button>
+        </div>
+        <div id="other-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>🔍 服务器探测</h3>
+        <button onclick="testServerRoot()">测试服务器根路径</button>
+        <button onclick="testManageRoot()">测试 /Manage 路径</button>
+        <div id="server-result" class="result"></div>
+    </div>
+
+    <script>
+        // 测试登录接口
+        async function testLoginApi(path, method = 'POST') {
+            const resultDiv = document.getElementById('login-result');
+            try {
+                console.log(`测试登录接口: ${method} ${path}`);
+                
+                const params = new URLSearchParams();
+                params.append('username', 'admin');
+                params.append('password', '123456');
+
+                let response;
+                if (method === 'GET') {
+                    response = await axios.get(path, {
+                        params: { username: 'admin', password: '123456' }
+                    });
+                } else {
+                    response = await axios.post(path, params, {
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                            'Accept': 'application/json, text/javascript, */*; q=0.01',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+                }
+
+                resultDiv.innerHTML = `✅ ${method} ${path} 成功!\n状态码: ${response.status}\n响应: ${JSON.stringify(response.data, null, 2)}`;
+                resultDiv.className = 'result success';
+                
+            } catch (error) {
+                const status = error.response?.status || 'N/A';
+                const statusText = error.response?.statusText || 'N/A';
+                const errorData = error.response?.data || error.message;
+                
+                resultDiv.innerHTML = `❌ ${method} ${path} 失败\n状态码: ${status} ${statusText}\n错误: ${typeof errorData === 'string' ? errorData.substring(0, 200) : JSON.stringify(errorData, null, 2)}`;
+                resultDiv.className = status === 404 ? 'result warning' : 'result error';
+            }
+        }
+
+        // 测试订单接口
+        async function testOrderApi(path) {
+            const resultDiv = document.getElementById('order-result');
+            try {
+                console.log(`测试订单接口: ${path}`);
+                
+                const params = new URLSearchParams();
+                params.append('page', '1');
+                params.append('limit', '10');
+                params.append('hospitalsel', '0');
+                params.append('hospitalnum', '0');
+                params.append('pspnum', '');
+                params.append('patientname', '');
+                params.append('ptype', '');
+                params.append('isdaijian', '');
+                params.append('orderlaydate', '');
+
+                const response = await axios.post(path, params, {
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                        'Accept': 'application/json, text/javascript, */*; q=0.01',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                resultDiv.innerHTML = `✅ ${path} 成功!\n状态码: ${response.status}\n响应: ${JSON.stringify(response.data, null, 2)}`;
+                resultDiv.className = 'result success';
+                
+            } catch (error) {
+                const status = error.response?.status || 'N/A';
+                const statusText = error.response?.statusText || 'N/A';
+                const errorData = error.response?.data || error.message;
+                
+                resultDiv.innerHTML = `❌ ${path} 失败\n状态码: ${status} ${statusText}\n错误: ${typeof errorData === 'string' ? errorData.substring(0, 200) : JSON.stringify(errorData, null, 2)}`;
+                resultDiv.className = status === 404 ? 'result warning' : 'result error';
+            }
+        }
+
+        // 测试其他接口
+        async function testOtherApi(path) {
+            const resultDiv = document.getElementById('other-result');
+            try {
+                console.log(`测试其他接口: ${path}`);
+                
+                const params = new URLSearchParams();
+                params.append('page', '1');
+                params.append('limit', '10');
+
+                const response = await axios.post(path, params, {
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                        'Accept': 'application/json, text/javascript, */*; q=0.01',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                resultDiv.innerHTML = `✅ ${path} 成功!\n状态码: ${response.status}\n响应: ${JSON.stringify(response.data, null, 2)}`;
+                resultDiv.className = 'result success';
+                
+            } catch (error) {
+                const status = error.response?.status || 'N/A';
+                const statusText = error.response?.statusText || 'N/A';
+                const errorData = error.response?.data || error.message;
+                
+                resultDiv.innerHTML = `❌ ${path} 失败\n状态码: ${status} ${statusText}\n错误: ${typeof errorData === 'string' ? errorData.substring(0, 200) : JSON.stringify(errorData, null, 2)}`;
+                resultDiv.className = status === 404 ? 'result warning' : 'result error';
+            }
+        }
+
+        // 测试服务器根路径
+        async function testServerRoot() {
+            const resultDiv = document.getElementById('server-result');
+            try {
+                const response = await axios.get('/');
+                resultDiv.innerHTML = `✅ 服务器根路径访问成功!\n状态码: ${response.status}\n内容类型: ${response.headers['content-type']}\n内容长度: ${response.data.length} 字符`;
+                resultDiv.className = 'result success';
+            } catch (error) {
+                resultDiv.innerHTML = `❌ 服务器根路径访问失败\n错误: ${error.message}`;
+                resultDiv.className = 'result error';
+            }
+        }
+
+        // 测试 /Manage 路径
+        async function testManageRoot() {
+            const resultDiv = document.getElementById('server-result');
+            try {
+                const response = await axios.get('/Manage');
+                resultDiv.innerHTML = `✅ /Manage 路径访问成功!\n状态码: ${response.status}\n内容类型: ${response.headers['content-type']}\n内容长度: ${response.data.length} 字符`;
+                resultDiv.className = 'result success';
+            } catch (error) {
+                const status = error.response?.status || 'N/A';
+                resultDiv.innerHTML = `❌ /Manage 路径访问失败\n状态码: ${status}\n错误: ${error.message}`;
+                resultDiv.className = 'result error';
+            }
+        }
+
+        // 页面加载时显示说明
+        window.onload = function() {
+            console.log('🔍 192.168.80.75:8000 服务器接口探测工具已就绪');
+            console.log('📋 点击按钮测试不同的接口路径');
+        };
+    </script>
+</body>
+</html>

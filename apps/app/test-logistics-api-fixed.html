@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>物流API修复测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .result {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+            margin-top: 10px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .success { color: #28a745; }
+        .error { color: #dc3545; }
+        .info { color: #17a2b8; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>物流API修复测试</h1>
+        <p>测试使用createApi方式调用物流接口</p>
+
+        <button onclick="testLogisticsAPI()">测试物流数据API</button>
+        <button onclick="testHospitalAPI()">测试医院数据API</button>
+        <button onclick="testExpressTypeAPI()">测试快递类型API</button>
+        <button onclick="clearResult()">清空结果</button>
+
+        <div id="result" class="result">点击按钮开始测试...</div>
+        <div id="table-container"></div>
+    </div>
+
+    <script type="module">
+        // 模拟createApi函数
+        function createApi(config) {
+            return async function(params = {}) {
+                const { url, method = 'POST', settings = {} } = config;
+                
+                // 构建请求参数
+                const formData = new URLSearchParams();
+                Object.keys(params).forEach(key => {
+                    if (params[key] !== undefined && params[key] !== null) {
+                        formData.append(key, params[key].toString());
+                    }
+                });
+
+                const response = await fetch(url, {
+                    method: method.toUpperCase(),
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                        'Accept': 'application/json, text/javascript, */*; q=0.01',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    credentials: 'include',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                
+                // 如果设置了originResponse为true，返回原始响应
+                if (settings.originResponse) {
+                    return data;
+                }
+                
+                // 否则返回处理后的数据
+                return data;
+            };
+        }
+
+        // 定义API函数
+        const fetchLogisticsToday = createApi({
+            url: '/Manage/Logistics/GetLogisticsToday',
+            method: 'post',
+            settings: {
+                type: 'form',
+                loading: false,
+                failMessage: false,
+                validSuccess: false,
+                originResponse: true,
+                injectHeaders: true
+            }
+        });
+
+        const fetchHospitalData = createApi({
+            url: '/Manage/Hospital/GetCacheHospitalData',
+            method: 'post',
+            settings: {
+                type: 'form',
+                loading: false,
+                failMessage: false,
+                validSuccess: false,
+                originResponse: true,
+                injectHeaders: true
+            }
+        });
+
+        const fetchExpressTypeData = createApi({
+            url: '/Manage/PreScription/GetExpressTypeDataByCache',
+            method: 'post',
+            settings: {
+                type: 'form',
+                loading: false,
+                failMessage: false,
+                validSuccess: false,
+                originResponse: true,
+                injectHeaders: true
+            }
+        });
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type === 'success' ? 'success' : (type === 'error' ? 'error' : 'info');
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML += `<span class="${className}">[${timestamp}] ${message}</span>\n`;
+            resultDiv.scrollTop = resultDiv.scrollHeight;
+            console.log(`[${timestamp}] ${message}`);
+        }
+
+        function clearResult() {
+            document.getElementById('result').innerHTML = '结果已清空，点击按钮开始测试...\n';
+            document.getElementById('table-container').innerHTML = '';
+        }
+
+        // 测试物流数据API
+        window.testLogisticsAPI = async function() {
+            log('开始测试物流数据API...');
+
+            try {
+                const params = {
+                    page: 1,
+                    limit: 10,
+                    hospital: 0,
+                    logisticsselect: '',
+                    searchcontent: '',
+                    logisticsptype: '',
+                    quertime: '',
+                    logistictime: '',
+                    decmothed: -1
+                };
+
+                log('请求参数: ' + JSON.stringify(params));
+
+                const response = await fetchLogisticsToday(params);
+
+                log('物流API调用成功!', 'success');
+                log('返回状态: ' + response.code);
+                log('数据总数: ' + response.count);
+                log('当前页数据: ' + (response.data ? response.data.length : 0) + ' 条');
+                
+                if (response.data && response.data.length > 0) {
+                    log('第一条数据示例:');
+                    log(JSON.stringify(response.data[0], null, 2));
+                    
+                    // 显示表格
+                    displayLogisticsTable(response.data);
+                }
+
+            } catch (error) {
+                log('物流API调用失败: ' + error.message, 'error');
+                console.error('详细错误:', error);
+            }
+        };
+
+        // 测试医院数据API
+        window.testHospitalAPI = async function() {
+            log('开始测试医院数据API...');
+
+            try {
+                const response = await fetchHospitalData({});
+
+                log('医院API调用成功!', 'success');
+                log('返回状态: ' + response.code);
+                
+                if (response.data && response.data.itemlist) {
+                    log('医院数量: ' + response.data.itemlist.length + ' 个');
+                    if (response.data.itemlist.length > 0) {
+                        log('第一个医院示例:');
+                        log(JSON.stringify(response.data.itemlist[0], null, 2));
+                    }
+                }
+
+            } catch (error) {
+                log('医院API调用失败: ' + error.message, 'error');
+                console.error('详细错误:', error);
+            }
+        };
+
+        // 测试快递类型API
+        window.testExpressTypeAPI = async function() {
+            log('开始测试快递类型API...');
+
+            try {
+                const response = await fetchExpressTypeData({});
+
+                log('快递类型API调用成功!', 'success');
+                log('返回状态: ' + response.code);
+                
+                if (response.data) {
+                    log('快递类型数量: ' + response.data.length + ' 种');
+                    if (response.data.length > 0) {
+                        log('第一种快递类型示例:');
+                        log(JSON.stringify(response.data[0], null, 2));
+                    }
+                }
+
+            } catch (error) {
+                log('快递类型API调用失败: ' + error.message, 'error');
+                console.error('详细错误:', error);
+            }
+        };
+
+        // 显示物流数据表格
+        function displayLogisticsTable(data) {
+            const container = document.getElementById('table-container');
+            
+            let html = '<h3>物流数据表格</h3><table>';
+            html += '<tr><th>订单号</th><th>患者姓名</th><th>医院</th><th>快递类型</th><th>快递单号</th><th>剂量</th><th>下单时间</th></tr>';
+            
+            data.slice(0, 10).forEach(item => {
+                html += '<tr>';
+                html += '<td>' + (item.pspnum || '') + '</td>';
+                html += '<td>' + (item.patientname || '') + '</td>';
+                html += '<td>' + (item.hname || '') + '</td>';
+                html += '<td>' + (item.expresstype || '') + '</td>';
+                html += '<td>' + (item.expressnumber || '暂无') + '</td>';
+                html += '<td>' + (item.dose || 0) + '</td>';
+                html += '<td>' + (item.dotime || '') + '</td>';
+                html += '</tr>';
+            });
+            
+            html += '</table>';
+            container.innerHTML = html;
+        }
+
+        // 页面加载时显示说明
+        window.onload = function() {
+            log('物流API修复测试工具已就绪');
+            log('使用createApi方式调用接口，模拟Vue组件中的API调用');
+        };
+    </script>
+</body>
+</html>

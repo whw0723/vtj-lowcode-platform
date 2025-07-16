@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>物流接口简单测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .result {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+            margin-top: 10px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .success { color: #28a745; }
+        .error { color: #dc3545; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>物流接口简单测试</h1>
+        <p>测试修复后的物流接口是否正常工作</p>
+
+        <button onclick="testLogistics()">测试物流数据接口</button>
+        <button onclick="testHospital()">测试医院数据接口</button>
+        <button onclick="testExpressType()">测试快递类型接口</button>
+        <button onclick="clearResult()">清空结果</button>
+
+        <div id="result" class="result">点击按钮开始测试...</div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        // 配置axios
+        axios.defaults.withCredentials = true;
+        axios.defaults.timeout = 10000;
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type === 'success' ? 'success' : (type === 'error' ? 'error' : '');
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML += `<span class="${className}">[${timestamp}] ${message}</span>\n`;
+            resultDiv.scrollTop = resultDiv.scrollHeight;
+            console.log(`[${timestamp}] ${message}`);
+        }
+
+        function clearResult() {
+            document.getElementById('result').innerHTML = '结果已清空，点击按钮开始测试...\n';
+        }
+
+        // 测试物流数据接口
+        async function testLogistics() {
+            log('开始测试物流数据接口...');
+
+            try {
+                const params = new URLSearchParams();
+                params.append('page', '1');
+                params.append('limit', '5');
+                params.append('hospital', '0');
+                params.append('logisticsselect', '');
+                params.append('searchcontent', '');
+                params.append('logisticsptype', '');
+                params.append('quertime', '');
+                params.append('logistictime', '');
+                params.append('decmothed', '-1');
+
+                const response = await axios.post('/Manage/Logistics/GetLogisticsToday', params, {
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                        'Accept': 'application/json, text/javascript, */*; q=0.01',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                log('物流接口调用成功!', 'success');
+                log(`返回状态: ${response.data.code}`);
+                log(`数据总数: ${response.data.count}`);
+                log(`当前页数据: ${response.data.data.length} 条`);
+                
+                if (response.data.data.length > 0) {
+                    log('第一条数据示例:');
+                    log(JSON.stringify(response.data.data[0], null, 2));
+                }
+
+            } catch (error) {
+                log(`物流接口调用失败: ${error.message}`, 'error');
+                if (error.response) {
+                    log(`响应状态: ${error.response.status}`, 'error');
+                    log(`响应数据: ${JSON.stringify(error.response.data, null, 2)}`, 'error');
+                }
+            }
+        }
+
+        // 测试医院数据接口
+        async function testHospital() {
+            log('开始测试医院数据接口...');
+
+            try {
+                const params = new URLSearchParams();
+                
+                const response = await axios.post('/Manage/Hospital/GetCacheHospitalData', params, {
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                        'Accept': 'application/json, text/javascript, */*; q=0.01',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                log('医院接口调用成功!', 'success');
+                log(`返回状态: ${response.data.code}`);
+                
+                if (response.data.data && response.data.data.itemlist) {
+                    log(`医院数量: ${response.data.data.itemlist.length} 个`);
+                    if (response.data.data.itemlist.length > 0) {
+                        log('第一个医院示例:');
+                        log(JSON.stringify(response.data.data.itemlist[0], null, 2));
+                    }
+                }
+
+            } catch (error) {
+                log(`医院接口调用失败: ${error.message}`, 'error');
+                if (error.response) {
+                    log(`响应状态: ${error.response.status}`, 'error');
+                }
+            }
+        }
+
+        // 测试快递类型接口
+        async function testExpressType() {
+            log('开始测试快递类型接口...');
+
+            try {
+                const params = new URLSearchParams();
+                
+                const response = await axios.post('/Manage/PreScription/GetExpressTypeDataByCache', params, {
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                        'Accept': 'application/json, text/javascript, */*; q=0.01',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                log('快递类型接口调用成功!', 'success');
+                log(`返回状态: ${response.data.code}`);
+                
+                if (response.data.data) {
+                    log(`快递类型数量: ${response.data.data.length} 种`);
+                    if (response.data.data.length > 0) {
+                        log('第一种快递类型示例:');
+                        log(JSON.stringify(response.data.data[0], null, 2));
+                    }
+                }
+
+            } catch (error) {
+                log(`快递类型接口调用失败: ${error.message}`, 'error');
+                if (error.response) {
+                    log(`响应状态: ${error.response.status}`, 'error');
+                }
+            }
+        }
+
+        // 页面加载时显示说明
+        window.onload = function() {
+            log('物流接口测试工具已就绪');
+            log('点击按钮开始测试修复后的接口');
+        };
+    </script>
+</body>
+</html>

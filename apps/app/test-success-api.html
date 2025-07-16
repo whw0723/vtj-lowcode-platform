@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试成功案例的接口</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .result { margin: 10px 0; padding: 10px; border: 1px solid #ccc; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+    </style>
+</head>
+<body>
+    <h1>测试成功案例的接口</h1>
+    <button onclick="testHospitalDrug()">测试医院药品接口</button>
+    <button onclick="testFactoryDrug()">测试厂家药品接口</button>
+    <button onclick="testLogistics()">测试物流接口</button>
+    <div id="result"></div>
+
+    <script>
+        function log(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `result ${type}`;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong>: ${message}`;
+            document.getElementById('result').appendChild(div);
+        }
+
+        async function testHospitalDrug() {
+            log('🔄 测试医院药品接口（q7631vmj.vue使用的）...', 'info');
+            
+            try {
+                const params = new URLSearchParams();
+                params.append('page', '1');
+                params.append('limit', '10');
+
+                const response = await axios.post('/Manage/HospitalDrug/GetHospitalDrugList', params, {
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                        'Accept': 'application/json, text/javascript, */*; q=0.01',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                log(`✅ 医院药品接口测试成功！状态: ${response.status}`, 'success');
+                log(`📊 响应数据: ${JSON.stringify(response.data, null, 2)}`, 'info');
+                
+            } catch (error) {
+                log(`❌ 医院药品接口测试失败: ${error.message}`, 'error');
+                log(`🔍 错误详情: ${error.response?.status} - ${error.response?.statusText}`, 'error');
+            }
+        }
+
+        async function testFactoryDrug() {
+            log('🔄 测试厂家药品接口（r7638b5g.vue使用的）...', 'info');
+            
+            try {
+                const formData = new FormData();
+                formData.append('page', '1');
+                formData.append('limit', '10');
+                formData.append('drugname', '');
+                formData.append('drugcode', '');
+                formData.append('isdel', '');
+
+                const response = await axios.post('/Manage/FactoryDrug/GetFactoryDrugList', formData, {
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                        'Accept': 'application/json, text/javascript, */*; q=0.01',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                log(`✅ 厂家药品接口测试成功！状态: ${response.status}`, 'success');
+                log(`📊 响应数据: ${JSON.stringify(response.data, null, 2)}`, 'info');
+                
+            } catch (error) {
+                log(`❌ 厂家药品接口测试失败: ${error.message}`, 'error');
+                log(`🔍 错误详情: ${error.response?.status} - ${error.response?.statusText}`, 'error');
+            }
+        }
+
+        async function testLogistics() {
+            log('🔄 测试物流接口...', 'info');
+            
+            try {
+                const params = new URLSearchParams();
+                params.append('page', '1');
+                params.append('limit', '5');
+                params.append('hospital', '0');
+                params.append('logisticsselect', '');
+                params.append('searchcontent', '');
+                params.append('logisticsptype', '');
+                params.append('quertime', '');
+                params.append('logistictime', '');
+                params.append('decmothed', '-1');
+
+                const response = await axios.post('/Manage/Logistics/GetLogisticsToday', params, {
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                        'Accept': 'application/json, text/javascript, */*; q=0.01',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                log(`✅ 物流接口测试成功！状态: ${response.status}`, 'success');
+                log(`📊 响应数据: ${JSON.stringify(response.data, null, 2)}`, 'info');
+                
+            } catch (error) {
+                log(`❌ 物流接口测试失败: ${error.message}`, 'error');
+                log(`🔍 错误详情: ${error.response?.status} - ${error.response?.statusText}`, 'error');
+                if (error.response?.data) {
+                    log(`📄 错误响应: ${typeof error.response.data === 'string' ? error.response.data.substring(0, 200) + '...' : JSON.stringify(error.response.data)}`, 'error');
+                }
+            }
+        }
+
+        // 页面加载时显示说明
+        window.onload = function() {
+            log('📋 接口测试工具已就绪', 'info');
+            log('🔗 代理配置: /Manage -> http://192.168.80.79:8000', 'info');
+            log('💡 点击按钮测试不同的接口', 'info');
+        };
+    </script>
+</body>
+</html>

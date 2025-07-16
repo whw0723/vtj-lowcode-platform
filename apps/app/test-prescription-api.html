@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>处方接口测试</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .success { color: green; font-weight: bold; }
+        .error { color: red; font-weight: bold; }
+        .warning { color: orange; font-weight: bold; }
+        .test-item { 
+            border: 1px solid #ddd; 
+            margin: 10px 0; 
+            padding: 15px; 
+            border-radius: 5px; 
+        }
+        .test-item h3 { margin-top: 0; }
+        button { 
+            margin: 5px; 
+            padding: 10px 15px; 
+            background-color: #007bff; 
+            color: white; 
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer; 
+        }
+        button:hover { background-color: #0056b3; }
+        pre { background-color: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; max-height: 300px; overflow-y: auto; }
+        .info { background-color: #e7f3ff; padding: 10px; border-radius: 5px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>🔍 处方接口诊断工具</h1>
+    
+    <div class="info">
+        <h3>当前配置信息：</h3>
+                 <p><strong>代理配置：</strong> /Manage → http://192.168.80.79:8000</p>
+        <p><strong>目标接口：</strong> /Manage/PreScription/GetMyPreScriptionList</p>
+        <p><strong>问题：</strong> 请求发向 localhost:9527 而不是代理服务器</p>
+    </div>
+    
+    <div>
+        <button onclick="testProxyConnection()">1. 测试代理连接</button>
+        <button onclick="testKnownWorkingAPI()">2. 测试已知可用接口</button>
+        <button onclick="testPrescriptionPaths()">3. 测试处方接口路径</button>
+        <button onclick="testDirectConnection()">4. 测试直连服务器</button>
+        <button onclick="runAllTests()">🚀 运行全部测试</button>
+    </div>
+    
+    <div id="results"></div>
+
+    <script>
+        // 配置axios默认设置
+        axios.defaults.withCredentials = true;
+        
+        // 添加拦截器来查看实际请求的URL
+        axios.interceptors.request.use(request => {
+            console.log('🚀 发送请求:', request.method.toUpperCase(), request.url);
+            console.log('📋 请求头:', request.headers);
+            if (request.data) {
+                console.log('📝 请求数据:', request.data);
+            }
+            return request;
+        });
+
+        axios.interceptors.response.use(
+            response => {
+                console.log('✅ 响应成功:', response.status, response.statusText);
+                console.log('📊 响应数据:', response.data);
+                return response;
+            },
+            error => {
+                console.log('❌ 响应错误:', error.response?.status, error.message);
+                if (error.response) {
+                    console.log('📊 错误响应:', error.response.data);
+                }
+                return Promise.reject(error);
+            }
+        );
+
+        // 已知可用的接口
+        const knownWorkingAPIs = [
+            '/Manage/ModuleType/GetModelTypeByPage',
+            '/Manage/ModuleType/GetModuleTypeSelectList',
+            '/Manage/PreScription/GetExpressTypeDataByCache'
+        ];
+
+        // 可能的处方接口路径
+        const prescriptionPaths = [
+            '/Manage/PreScription/GetMyPreScriptionList',
+            '/Manage/Prescription/GetMyPreScriptionList',
+            '/Manage/PreScription/GetPreScriptionList',
+            '/Manage/Prescription/GetPreScriptionList',
+            '/Manage/PreScription/GetList',
+            '/Manage/Prescription/GetList'
+        ];
+
+        function log(message, type = 'info') {
+            const resultsDiv = document.getElementById('results');
+            const timestamp = new Date().toLocaleTimeString();
+            let className = type;
+            let icon = '';
+            
+            switch(type) {
+                case 'success': icon = '✅'; break;
+                case 'error': icon = '❌'; break;
+                case 'warning': icon = '⚠️'; break;
+                case 'info': icon = 'ℹ️'; break;
+            }
+            
+            resultsDiv.innerHTML += `<div class="${className}">[${timestamp}] ${icon} ${message}</div>`;
+            resultsDiv.scrollTop = resultsDiv.scrollHeight;
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+
+        // 1. 测试代理连接
+        async function testProxyConnection() {
+            clearResults();
+            log('开始测试代理连接...', 'info');
+            
+            try {
+                // 测试一个简单的接口来检查代理是否工作
+                const response = await axios.post('/Manage/ModuleType/GetModuleTypeSelectList', '', {
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                        'Accept': 'application/json, text/javascript, */*; q=0.01',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    timeout: 10000
+                });
+                
+                log('代理连接测试成功！', 'success');
+                log(`响应状态: ${response.status}`, 'success');
+                log(`响应数据: ${JSON.stringify(response.data).substring(0, 200)}...`, 'info');
+                
+                return true;
+            } catch (error) {
+                log(`代理连接失败: ${error.message}`, 'error');
+                log(`错误详情: ${error.response?.status} - ${error.response?.statusText}`, 'error');
+                
+                if (error.message.includes('localhost:9527')) {
+                    log('⚠️ 检测到请求发向localhost:9527，代理配置可能未生效！', 'warning');
+                    log('解决方案：', 'info');
+                    log('1. 检查开发服务器是否正确加载了proxy.config.ts', 'info');
+                    log('2. 重启开发服务器', 'info');
+                                         log('3. 确认代理服务器192.168.80.79:8000是否可访问', 'info');
+                }
+                
+                return false;
+            }
+        }
+
+        // 2. 测试已知可用接口
+        async function testKnownWorkingAPI() {
+            clearResults();
+            log('测试已知可用接口...', 'info');
+            
+            for (const apiPath of knownWorkingAPIs) {
+                try {
+                    log(`测试接口: ${apiPath}`, 'info');
+                    
+                    let requestData = '';
+                    if (apiPath.includes('GetModelTypeByPage')) {
+                        const params = new URLSearchParams();
+                        params.append('page', '1');
+                        params.append('limit', '5');
+                        requestData = params;
+                    }
+                    
+                    const response = await axios.post(apiPath, requestData, {
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                            'Accept': 'application/json, text/javascript, */*; q=0.01',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        timeout: 10000
+                    });
+                    
+                    log(`✅ ${apiPath} - 成功 (${response.status})`, 'success');
+                    
+                    if (response.data && response.data.code === '0') {
+                        log(`数据条数: ${response.data.data?.length || 0}`, 'info');
+                    }
+                    
+                } catch (error) {
+                    log(`❌ ${apiPath} - 失败: ${error.message}`, 'error');
+                }
+                
+                // 添加延迟
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+        }
+
+        // 3. 测试处方接口路径
+        async function testPrescriptionPaths() {
+            clearResults();
+            log('测试处方接口路径...', 'info');
+            
+            for (const path of prescriptionPaths) {
+                try {
+                    log(`测试路径: ${path}`, 'info');
+                    
+                    const formData = new FormData();
+                    formData.append('page', '1');
+                    formData.append('limit', '5');
+                    formData.append('patienttype', 'mypatient');
+                    formData.append('queryselect', '');
+                    formData.append('querycontent', '');
+                    formData.append('hospitalsel', '0');
+                    formData.append('patientlaydate', '');
+                    formData.append('automation', '-2');
+                    formData.append('printstate', '');
+                    formData.append('logisticstime', '');
+                    formData.append('decmothed', '0');
+                    formData.append('packagenum', '0');
+                    formData.append('ptype', '0');
+                    formData.append('pstate', '0');
+                    formData.append('processtype', '0');
+                    formData.append('isrepetition', '1');
+                    formData.append('addtype', '-1');
+                    
+                    const response = await axios.post(path, formData, {
+                        headers: {
+                            'Accept': 'application/json, text/javascript, */*; q=0.01',
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                        },
+                        timeout: 15000
+                    });
+                    
+                    log(`✅ ${path} - 成功响应!`, 'success');
+                    log(`状态码: ${response.status}`, 'success');
+                    log(`响应代码: ${response.data?.code}`, 'info');
+                    log(`数据条数: ${response.data?.data?.length || 0}`, 'info');
+                    log(`总记录数: ${response.data?.count || 'N/A'}`, 'info');
+                    
+                    if (response.data && response.data.code === '0') {
+                        log(`🎉 找到正确的处方接口: ${path}`, 'success');
+                    }
+                    
+                } catch (error) {
+                    log(`❌ ${path} - ${error.response?.status || 'Network Error'}: ${error.message}`, 'error');
+                }
+                
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+        }
+
+        // 4. 测试直连服务器
+        async function testDirectConnection() {
+            clearResults();
+            log('测试直连服务器...', 'info');
+            
+            try {
+                // 尝试直接连接代理目标服务器
+                                 const directUrl = 'http://192.168.80.79:8000/PreScription/GetExpressTypeDataByCache';
+                log(`尝试直连: ${directUrl}`, 'info');
+                
+                const response = await axios.post(directUrl, '', {
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                        'Accept': 'application/json, text/javascript, */*; q=0.01',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    timeout: 15000
+                });
+                
+                log('✅ 直连服务器成功！', 'success');
+                log(`响应状态: ${response.status}`, 'success');
+                log('这说明目标服务器是可访问的，问题在于代理配置', 'warning');
+                
+            } catch (error) {
+                log(`❌ 直连服务器失败: ${error.message}`, 'error');
+                
+                if (error.code === 'ERR_NETWORK' || error.message.includes('Network Error')) {
+                                         log('⚠️ 服务器192.168.80.79:8000不可访问', 'warning');
+                    log('可能的原因：', 'info');
+                    log('1. 服务器未启动', 'info');
+                    log('2. 网络不通', 'info');
+                    log('3. 防火墙阻止', 'info');
+                                         log('4. 端口8000未开放', 'info');
+                } else {
+                    log(`其他错误: ${error.response?.status} - ${error.response?.statusText}`, 'error');
+                }
+            }
+        }
+
+        // 运行全部测试
+        async function runAllTests() {
+            clearResults();
+            log('🚀 开始运行全部测试...', 'info');
+            log('', 'info');
+            
+            log('=== 1. 测试代理连接 ===', 'info');
+            const proxyWorking = await testProxyConnection();
+            log('', 'info');
+            
+            if (proxyWorking) {
+                log('=== 2. 测试已知可用接口 ===', 'info');
+                await testKnownWorkingAPI();
+                log('', 'info');
+                
+                log('=== 3. 测试处方接口路径 ===', 'info');
+                await testPrescriptionPaths();
+                log('', 'info');
+            } else {
+                log('=== 代理不可用，测试直连服务器 ===', 'warning');
+                await testDirectConnection();
+                log('', 'info');
+            }
+            
+            log('=== 测试完成 ===', 'success');
+            log('请根据上述结果调整配置', 'info');
+        }
+    </script>
+</body>
+</html> 

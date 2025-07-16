@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>处方详情API测试</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        input[type="number"] {
+            width: 200px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #409EFF;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #66b1ff;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .loading {
+            background-color: #f39c12 !important;
+        }
+        .loading:hover {
+            background-color: #f39c12 !important;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .detail-section {
+            margin: 10px 0;
+            padding: 10px;
+            border-left: 3px solid #409EFF;
+            background-color: #f8f9fa;
+        }
+        .detail-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🏥 处方详情API测试</h1>
+        
+        <div class="form-group">
+            <label for="pid">处方ID (PID):</label>
+            <input type="number" id="pid" value="2260" placeholder="请输入处方ID">
+        </div>
+        
+        <button onclick="testPrescriptionDetail()" id="testBtn">获取处方详情</button>
+        <button onclick="clearResult()">清空结果</button>
+        
+        <div id="result"></div>
+    </div>
+
+    <script>
+        // 设置axios全局配置
+        const axios = window.axios || (() => {
+            console.error('axios未加载，请确保axios库可用');
+            return null;
+        })();
+
+        if (axios) {
+            axios.defaults.withCredentials = true;
+        }
+
+        function showResult(message, type = 'info') {
+            const resultDiv = document.getElementById('result');
+            resultDiv.className = type;
+            resultDiv.textContent = message;
+            resultDiv.style.display = 'block';
+        }
+
+        function showDetailedResult(data) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.className = 'success';
+            
+            let html = '<div class="detail-title">✅ API调用成功</div>';
+            
+            if (data.prescription) {
+                html += `
+                    <div class="detail-section">
+                        <div class="detail-title">📋 处方基本信息</div>
+                        处方号: ${data.prescription.pspnum || '未知'}<br>
+                        医院名称: ${data.prescription.hospitalname || '未知'}<br>
+                        患者姓名: ${data.prescription.patientname || '未知'}<br>
+                        性别: ${data.prescription.sex === 1 ? '男' : data.prescription.sex === 2 ? '女' : '未知'}<br>
+                        年龄: ${data.prescription.age || '未知'}<br>
+                        电话: ${data.prescription.phone || '未知'}<br>
+                        地址: ${data.prescription.address || '未知'}<br>
+                        医生: ${data.prescription.doctor || '未知'}<br>
+                        剂数: ${data.prescription.dose || '未知'}<br>
+                        服用次数: ${data.prescription.takenum || '未知'}<br>
+                        金额: ￥${data.prescription.money || '0'}
+                    </div>
+                `;
+            }
+            
+            if (data.drug && Array.isArray(data.drug)) {
+                html += `
+                    <div class="detail-section">
+                        <div class="detail-title">💊 药物列表 (${data.drug.length}种)</div>
+                `;
+                data.drug.forEach((drug, index) => {
+                    html += `${index + 1}. ${drug.drugname || '未知药物'} - ${drug.singledose || 0}${drug.unit || 'g'} × ${drug.drugweight || 0}${drug.unit || 'g'}<br>`;
+                });
+                html += '</div>';
+            }
+            
+            if (data.hospital && Array.isArray(data.hospital)) {
+                html += `
+                    <div class="detail-section">
+                        <div class="detail-title">🏥 可选医院 (${data.hospital.length}个)</div>
+                `;
+                data.hospital.forEach((hospital, index) => {
+                    html += `${index + 1}. ${hospital.Hname} (ID: ${hospital.HID})<br>`;
+                });
+                html += '</div>';
+            }
+            
+            if (data.processtype && Array.isArray(data.processtype)) {
+                html += `
+                    <div class="detail-section">
+                        <div class="detail-title">⚙️ 加工类型选项 (${data.processtype.length}种)</div>
+                `;
+                data.processtype.forEach((type, index) => {
+                    const isDefault = type.ischeck ? ' ✓' : '';
+                    html += `${index + 1}. ${type.itemname}${isDefault}<br>`;
+                });
+                html += '</div>';
+            }
+            
+            html += `
+                <div class="detail-section">
+                    <div class="detail-title">📊 完整JSON数据</div>
+                    <pre style="max-height: 300px; overflow-y: auto; background: #f8f9fa; padding: 10px; border-radius: 4px;">${JSON.stringify(data, null, 2)}</pre>
+                </div>
+            `;
+            
+            resultDiv.innerHTML = html;
+            resultDiv.style.display = 'block';
+        }
+
+        async function testPrescriptionDetail() {
+            const pid = document.getElementById('pid').value;
+            const testBtn = document.getElementById('testBtn');
+            
+            if (!pid) {
+                showResult('❌ 请输入处方ID', 'error');
+                return;
+            }
+
+            if (!axios) {
+                showResult('❌ axios库未加载，无法进行API测试', 'error');
+                return;
+            }
+
+            testBtn.disabled = true;
+            testBtn.className = 'loading';
+            testBtn.textContent = '获取中...';
+            
+            showResult('🔄 正在获取处方详情，尝试多种API调用方法...', 'info');
+
+            try {
+                console.log('发送处方详情请求，PID:', pid);
+
+                // 尝试方法1：使用标准的处方详情API
+                try {
+                    const formData1 = new FormData();
+                    formData1.append('pid', pid);
+
+                    const response1 = await axios.post('/Manage/PreScription/GetPatientDataByPid', formData1, {
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                            'Accept': 'application/json, text/javascript, */*; q=0.01',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+
+                    console.log('方法1 - 处方详情API响应:', response1);
+
+                    if (response1.data && response1.data.code === "0") {
+                        console.log('✅ 方法1成功 - 获取处方详情成功:', response1.data.data);
+                        showDetailedResult(response1.data.data);
+                        return;
+                    }
+                } catch (error1) {
+                    console.log('方法1失败，尝试方法2:', error1.message);
+                }
+
+                // 尝试方法2：使用parentid参数
+                try {
+                    const formData2 = new FormData();
+                    formData2.append('parentid', pid);
+
+                    const response2 = await axios.post('/Manage/PreScription/GetPatientDataByPid', formData2, {
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                            'Accept': 'application/json, text/javascript, */*; q=0.01',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+
+                    console.log('方法2 - 处方详情API响应 (parentid):', response2);
+
+                    if (response2.data && response2.data.code === "0") {
+                        console.log('✅ 方法2成功 - 获取处方详情成功:', response2.data.data);
+                        showDetailedResult(response2.data.data);
+                        return;
+                    }
+                } catch (error2) {
+                    console.log('方法2失败，尝试方法3:', error2.message);
+                }
+
+                // 尝试方法3：使用URL参数
+                try {
+                    const response3 = await axios.post(`/Manage/PreScription/GetPatientDataByPid?pid=${pid}`, '', {
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                            'Accept': 'application/json, text/javascript, */*; q=0.01',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+
+                    console.log('方法3 - 处方详情API响应 (URL参数):', response3);
+
+                    if (response3.data && response3.data.code === "0") {
+                        console.log('✅ 方法3成功 - 获取处方详情成功:', response3.data.data);
+                        showDetailedResult(response3.data.data);
+                        return;
+                    }
+                } catch (error3) {
+                    console.log('方法3失败，尝试方法4:', error3.message);
+                }
+
+                // 尝试方法4：使用不同的API端点
+                try {
+                    const formData4 = new FormData();
+                    formData4.append('pid', pid);
+
+                    const response4 = await axios.post('/Manage/PreScription/GetPreScriptionDetail', formData4, {
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                            'Accept': 'application/json, text/javascript, */*; q=0.01',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+
+                    console.log('方法4 - 处方详情API响应 (GetPreScriptionDetail):', response4);
+
+                    if (response4.data && response4.data.code === "0") {
+                        console.log('✅ 方法4成功 - 获取处方详情成功:', response4.data.data);
+                        showDetailedResult(response4.data.data);
+                        return;
+                    }
+                } catch (error4) {
+                    console.log('方法4失败:', error4.message);
+                }
+
+                // 所有方法都失败
+                showResult('❌ 所有API调用方法都失败，请检查：\n1. 处方ID是否正确\n2. 是否已登录\n3. 是否有访问权限\n4. API服务是否正常', 'error');
+
+            } catch (error) {
+                console.error('处方详情API测试失败:', error);
+                
+                let errorMessage = '❌ 网络请求失败:\n';
+                if (error.response) {
+                    errorMessage += `状态码: ${error.response.status}\n`;
+                    errorMessage += `响应数据: ${JSON.stringify(error.response.data, null, 2)}`;
+                } else if (error.request) {
+                    errorMessage += '无响应 - 请检查网络连接和代理配置';
+                } else {
+                    errorMessage += `错误信息: ${error.message}`;
+                }
+                
+                showResult(errorMessage, 'error');
+            } finally {
+                testBtn.disabled = false;
+                testBtn.className = '';
+                testBtn.textContent = '获取处方详情';
+            }
+        }
+
+        function clearResult() {
+            document.getElementById('result').style.display = 'none';
+        }
+
+        // 页面加载时显示说明
+        window.onload = function() {
+            showResult(`📋 处方详情API测试工具
+
+此工具用于测试处方详情获取接口：
+- 接口路径: /Manage/PreScription/GetPatientDataByPid
+- 请求方法: POST
+- 参数: pid (处方ID)
+
+请输入有效的处方ID进行测试。默认PID为2260。
+
+注意: 需要确保已登录并且有访问权限。`, 'info');
+        };
+    </script>
+    
+    <!-- 引入axios库 -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</body>
+</html> 

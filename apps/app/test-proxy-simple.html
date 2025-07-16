@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>代理连接测试</title>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #409eff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #66b1ff;
+        }
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 4px;
+            border-left: 4px solid #409eff;
+            background-color: #f8f9fa;
+        }
+        .success {
+            border-left-color: #67c23a;
+            background-color: #f0f9ff;
+        }
+        .error {
+            border-left-color: #f56c6c;
+            background-color: #fef0f0;
+        }
+        pre {
+            background-color: #2d3748;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-size: 13px;
+        }
+        .status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .status.success { background-color: #67c23a; color: white; }
+        .status.error { background-color: #f56c6c; color: white; }
+        .status.warning { background-color: #e6a23c; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔌 代理连接测试</h1>
+        <p>测试VTJ应用与后端服务器的连接状态</p>
+
+        <div class="test-section">
+            <h3>📡 基础连接测试</h3>
+            <p>测试代理服务器连接: <code>http://192.168.80.79:8000</code></p>
+            <button onclick="testBasicConnection()">测试基础连接</button>
+            <div id="basic-result" class="result" style="display: none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🏥 医院数据API</h3>
+            <p>测试路径: <code>/Manage/Hospital/GetCacheHospitalData</code></p>
+            <button onclick="testHospitalApi()">测试医院API</button>
+            <div id="hospital-result" class="result" style="display: none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🚚 快递类型API</h3>
+            <p>测试路径: <code>/Manage/PreScription/GetExpressTypeDataByCache</code></p>
+            <button onclick="testExpressApi()">测试快递API</button>
+            <div id="express-result" class="result" style="display: none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>📦 物流数据API</h3>
+            <p>测试路径: <code>/Manage/Logistics/GetLogisticsToday</code></p>
+            <button onclick="testLogisticsApi()">测试物流API</button>
+            <div id="logistics-result" class="result" style="display: none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🔄 批量测试</h3>
+            <button onclick="runAllTests()">运行所有测试</button>
+            <button onclick="clearResults()">清除结果</button>
+            <div id="summary-result" class="result" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        // 配置axios
+        axios.defaults.withCredentials = true;
+        axios.defaults.timeout = 10000;
+
+        // 显示结果的通用函数
+        function showResult(elementId, success, title, data, error = null) {
+            const resultDiv = document.getElementById(elementId);
+            resultDiv.style.display = 'block';
+            
+            const statusClass = success ? 'success' : 'error';
+            const statusIcon = success ? '✅' : '❌';
+            const statusText = success ? 'SUCCESS' : 'ERROR';
+            
+            resultDiv.className = `result ${statusClass}`;
+            
+            let html = `
+                <div>
+                    <span class="status ${statusClass}">${statusText}</span>
+                    <strong>${title}</strong>
+                </div>
+            `;
+            
+            if (success && data) {
+                html += `<div style="margin-top: 10px;">`;
+                if (data.status) {
+                    html += `<p><strong>状态码:</strong> ${data.status}</p>`;
+                }
+                if (data.responseTime) {
+                    html += `<p><strong>响应时间:</strong> ${data.responseTime}ms</p>`;
+                }
+                if (data.dataInfo) {
+                    html += `<p><strong>数据信息:</strong> ${data.dataInfo}</p>`;
+                }
+                html += `<p><strong>响应数据:</strong></p>`;
+                html += `<pre>${JSON.stringify(data.response, null, 2)}</pre>`;
+                html += `</div>`;
+            } else if (error) {
+                html += `<div style="margin-top: 10px;">`;
+                html += `<p><strong>错误信息:</strong> ${error.message}</p>`;
+                if (error.status) {
+                    html += `<p><strong>状态码:</strong> ${error.status}</p>`;
+                }
+                if (error.response) {
+                    html += `<p><strong>响应数据:</strong></p>`;
+                    html += `<pre>${JSON.stringify(error.response, null, 2)}</pre>`;
+                }
+                html += `</div>`;
+            }
+            
+            resultDiv.innerHTML = html;
+        }
+
+        // 测试基础连接
+        async function testBasicConnection() {
+            const startTime = Date.now();
+            try {
+                console.log('🔌 测试基础连接...');
+                
+                // 测试一个简单的GET请求到/Manage路径
+                const response = await axios.get('/Manage/test', {
+                    validateStatus: function (status) {
+                        return status < 500; // 只有5xx错误才算失败
+                    }
+                });
+                
+                const responseTime = Date.now() - startTime;
+                
+                console.log('✅ 基础连接测试成功:', response);
+                
+                showResult('basic-result', true, '代理连接正常', {
+                    status: response.status,
+                    responseTime,
+                    response: response.data,
+                    dataInfo: '代理服务器响应正常'
+                });
+                
+            } catch (error) {
+                console.error('❌ 基础连接测试失败:', error);
+                
+                showResult('basic-result', false, '代理连接失败', null, {
+                    message: error.message,
+                    status: error.response?.status,
+                    response: error.response?.data
+                });
+            }
+        }
+
+        // 测试医院API
+        async function testHospitalApi() {
+            const startTime = Date.now();
+            try {
+                console.log('🏥 测试医院API...');
+                
+                const response = await axios.post('/Manage/Hospital/GetCacheHospitalData', {}, {
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    }
+                });
+                
+                const responseTime = Date.now() - startTime;
+                
+                console.log('✅ 医院API测试成功:', response);
+                
+                let dataInfo = '数据获取成功';
+                if (response.data && response.data.code === '0') {
+                    const itemCount = response.data.data?.itemlist?.length || 0;
+                    dataInfo = `获取到 ${itemCount} 个医院数据`;
+                }
+                
+                showResult('hospital-result', true, '医院API正常', {
+                    status: response.status,
+                    responseTime,
+                    response: response.data,
+                    dataInfo
+                });
+                
+            } catch (error) {
+                console.error('❌ 医院API测试失败:', error);
+                
+                showResult('hospital-result', false, '医院API失败', null, {
+                    message: error.message,
+                    status: error.response?.status,
+                    response: error.response?.data
+                });
+            }
+        }
+
+        // 测试快递API
+        async function testExpressApi() {
+            const startTime = Date.now();
+            try {
+                console.log('🚚 测试快递API...');
+                
+                const response = await axios.post('/Manage/PreScription/GetExpressTypeDataByCache', {}, {
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    }
+                });
+                
+                const responseTime = Date.now() - startTime;
+                
+                console.log('✅ 快递API测试成功:', response);
+                
+                let dataInfo = '数据获取成功';
+                if (response.data && response.data.code === '0') {
+                    const itemCount = response.data.data?.length || 0;
+                    dataInfo = `获取到 ${itemCount} 种快递类型`;
+                }
+                
+                showResult('express-result', true, '快递API正常', {
+                    status: response.status,
+                    responseTime,
+                    response: response.data,
+                    dataInfo
+                });
+                
+            } catch (error) {
+                console.error('❌ 快递API测试失败:', error);
+                
+                showResult('express-result', false, '快递API失败', null, {
+                    message: error.message,
+                    status: error.response?.status,
+                    response: error.response?.data
+                });
+            }
+        }
+
+        // 测试物流API
+        async function testLogisticsApi() {
+            const startTime = Date.now();
+            try {
+                console.log('📦 测试物流API...');
+                
+                const params = new URLSearchParams({
+                    page: '1',
+                    limit: '5',
+                    hospital: '0',
+                    logisticsselect: '',
+                    searchcontent: '',
+                    logisticsptype: '',
+                    quertime: '',
+                    logistictime: '',
+                    decmothed: '-1'
+                });
+                
+                const response = await axios.post('/Manage/Logistics/GetLogisticsToday', params, {
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    }
+                });
+                
+                const responseTime = Date.now() - startTime;
+                
+                console.log('✅ 物流API测试成功:', response);
+                
+                let dataInfo = '数据获取成功';
+                if (response.data && response.data.code === '0') {
+                    const itemCount = response.data.data?.length || 0;
+                    const totalCount = response.data.count || 0;
+                    dataInfo = `获取到 ${itemCount} 条物流数据，总计 ${totalCount} 条`;
+                }
+                
+                showResult('logistics-result', true, '物流API正常', {
+                    status: response.status,
+                    responseTime,
+                    response: response.data,
+                    dataInfo
+                });
+                
+            } catch (error) {
+                console.error('❌ 物流API测试失败:', error);
+                
+                showResult('logistics-result', false, '物流API失败', null, {
+                    message: error.message,
+                    status: error.response?.status,
+                    response: error.response?.data
+                });
+            }
+        }
+
+        // 运行所有测试
+        async function runAllTests() {
+            console.log('🔄 开始批量测试...');
+            
+            const summaryDiv = document.getElementById('summary-result');
+            summaryDiv.style.display = 'block';
+            summaryDiv.innerHTML = '<p>🔄 正在运行所有测试...</p>';
+            
+            const tests = [
+                { name: '基础连接', fn: testBasicConnection },
+                { name: '医院API', fn: testHospitalApi },
+                { name: '快递API', fn: testExpressApi },
+                { name: '物流API', fn: testLogisticsApi }
+            ];
+            
+            let results = [];
+            
+            for (const test of tests) {
+                try {
+                    await test.fn();
+                    results.push({ name: test.name, success: true });
+                } catch (error) {
+                    results.push({ name: test.name, success: false, error: error.message });
+                }
+                
+                // 添加小延迟
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+            
+            // 显示总结
+            const successCount = results.filter(r => r.success).length;
+            const totalCount = results.length;
+            
+            let html = `<h4>📊 测试总结</h4>`;
+            html += `<p><strong>成功:</strong> ${successCount}/${totalCount}</p>`;
+            
+            results.forEach(result => {
+                const icon = result.success ? '✅' : '❌';
+                const status = result.success ? 'success' : 'error';
+                html += `<div style="margin: 5px 0;"><span class="status ${status}">${icon}</span> ${result.name}</div>`;
+            });
+            
+            if (successCount === totalCount) {
+                html += `<div style="margin-top: 15px; padding: 10px; background-color: #f0f9ff; border-left: 4px solid #67c23a; border-radius: 4px;">
+                    <strong>🎉 所有测试通过！系统运行正常。</strong>
+                </div>`;
+            } else {
+                html += `<div style="margin-top: 15px; padding: 10px; background-color: #fef0f0; border-left: 4px solid #f56c6c; border-radius: 4px;">
+                    <strong>⚠️ 部分测试失败，请检查具体错误信息。</strong>
+                </div>`;
+            }
+            
+            summaryDiv.innerHTML = html;
+        }
+
+        // 清除结果
+        function clearResults() {
+            const resultIds = ['basic-result', 'hospital-result', 'express-result', 'logistics-result', 'summary-result'];
+            resultIds.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.style.display = 'none';
+                    element.innerHTML = '';
+                }
+            });
+        }
+
+        // 页面加载时自动测试基础连接
+        window.onload = function() {
+            console.log('📱 页面加载完成，开始基础连接测试...');
+            setTimeout(testBasicConnection, 1000);
+        };
+    </script>
+</body>
+</html> 

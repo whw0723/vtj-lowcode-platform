@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试 GetHospitalDrugList 接口</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <h1>测试 GetHospitalDrugList 接口</h1>
+    <button onclick="testAPI()">测试接口</button>
+    <div id="result"></div>
+
+    <script>
+        async function testAPI() {
+            try {
+                console.log('开始测试接口...');
+                
+                // 构建请求参数
+                const params = new URLSearchParams();
+                params.append('page', '1');
+                params.append('limit', '10');
+                
+                console.log('请求参数:', params.toString());
+                
+                // 调用接口 - 注意：这个测试文件需要在VTJ开发环境中运行才能使用代理
+                const response = await axios.post('/Manage/HospitalDrug/GetHospitalDrugList', params, {
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                        'Accept': 'application/json, text/javascript, */*; q=0.01',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                
+                console.log('接口调用成功:', response.data);
+                document.getElementById('result').innerHTML = '<pre>' + JSON.stringify(response.data, null, 2) + '</pre>';
+                
+            } catch (error) {
+                console.error('接口调用失败:', error);
+                document.getElementById('result').innerHTML = '<p style="color: red;">接口调用失败: ' + error.message + '</p>';
+            }
+        }
+    </script>
+</body>
+</html>

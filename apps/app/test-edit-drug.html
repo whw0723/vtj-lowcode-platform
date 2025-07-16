@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>药品编辑功能测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+        }
+        .test-button {
+            background: #409eff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        .test-button:hover {
+            background: #337ab7;
+        }
+        .log-area {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: monospace;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            margin-top: 10px;
+        }
+        .success { color: #28a745; }
+        .error { color: #dc3545; }
+        .info { color: #17a2b8; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>药品编辑功能测试</h1>
+        
+        <div class="test-section">
+            <h3>1. 测试获取药品详情接口</h3>
+            <p>测试接口：<code>/Manage/FactoryDrug/Detail?fdrugid=1277</code></p>
+            <button class="test-button" onclick="testGetDrugDetail()">测试获取详情</button>
+            <div id="detailLog" class="log-area"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>2. 测试药品编辑接口</h3>
+            <p>测试接口：<code>/Manage/FactoryDrug/Edit</code></p>
+            <button class="test-button" onclick="testEditDrug()">测试编辑药品</button>
+            <div id="editLog" class="log-area"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>3. 接口数据格式验证</h3>
+            <p>验证接口返回的数据格式是否符合预期</p>
+            <button class="test-button" onclick="validateDataFormat()">验证数据格式</button>
+            <div id="validateLog" class="log-area"></div>
+        </div>
+    </div>
+
+    <script>
+        // 配置axios
+        const API_BASE = '/'; // 使用VTJ代理
+
+        // 日志记录函数
+        function log(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type === 'success' ? 'success' : type === 'error' ? 'error' : 'info';
+            element.innerHTML += `<span class="${className}">[${timestamp}] ${message}</span>\n`;
+            element.scrollTop = element.scrollHeight;
+        }
+
+        // 清空日志
+        function clearLog(elementId) {
+            document.getElementById(elementId).innerHTML = '';
+        }
+
+        // 1. 测试获取药品详情
+        async function testGetDrugDetail() {
+            clearLog('detailLog');
+            log('detailLog', '🔄 开始测试获取药品详情...', 'info');
+            
+            try {
+                const response = await fetch('/Manage/FactoryDrug/Detail?fdrugid=1277', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                        'Accept': 'application/json, text/javascript, */*; q=0.01',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    credentials: 'include'
+                });
+
+                log('detailLog', `📡 响应状态: ${response.status} ${response.statusText}`, 'info');
+
+                if (response.ok) {
+                    const data = await response.json();
+                    log('detailLog', '✅ 接口调用成功', 'success');
+                    log('detailLog', `📋 响应数据: ${JSON.stringify(data, null, 2)}`, 'info');
+                    
+                    // 验证数据结构
+                    if (data.code === '0' && data.data && data.data.length > 0) {
+                        const drugDetail = data.data[0];
+                        log('detailLog', '✅ 数据格式验证通过', 'success');
+                        log('detailLog', `药品名称: ${drugDetail.drugname}`, 'info');
+                        log('detailLog', `药品编码: ${drugDetail.drugcode}`, 'info');
+                        log('detailLog', `单位选项数量: ${drugDetail.allunit ? drugDetail.allunit.length : 0}`, 'info');
+                    } else {
+                        log('detailLog', '❌ 数据格式异常', 'error');
+                    }
+                } else {
+                    log('detailLog', `❌ 请求失败: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                log('detailLog', `❌ 请求异常: ${error.message}`, 'error');
+            }
+        }
+
+        // 2. 测试编辑药品
+        async function testEditDrug() {
+            clearLog('editLog');
+            log('editLog', '🔄 开始测试药品编辑...', 'info');
+            
+            // 模拟编辑数据
+            const testData = {
+                fid: 1277,
+                drugname: "两面针(测试)",
+                drugcode: "D14341",
+                drugtype: "1",
+                drugspecificat: "1000g",
+                purunit: "12",
+                type: "1",
+                istoxicity: "0",
+                mnemonic: "LMZ",
+                positionnum: "18640",
+                producer: "北京韩美",
+                producingarea: "",
+                maximum: "1",
+                ointmenttype: "0",
+                tisanesway: "",
+                remark: "测试编辑功能"
+            };
+
+            try {
+                const formData = new FormData();
+                formData.append('factorydrug', JSON.stringify(testData));
+
+                log('editLog', `📤 提交数据: ${JSON.stringify(testData, null, 2)}`, 'info');
+
+                const response = await fetch('/Manage/FactoryDrug/Edit', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json, text/javascript, */*; q=0.01',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    credentials: 'include',
+                    body: formData
+                });
+
+                log('editLog', `📡 响应状态: ${response.status} ${response.statusText}`, 'info');
+
+                if (response.ok) {
+                    const data = await response.json();
+                    log('editLog', '✅ 接口调用成功', 'success');
+                    log('editLog', `📋 响应数据: ${JSON.stringify(data, null, 2)}`, 'info');
+                    
+                    if (data.data > 0) {
+                        log('editLog', '✅ 药品编辑成功', 'success');
+                    } else if (data.data === 0) {
+                        log('editLog', '⚠️ 多次提交修改', 'error');
+                    } else {
+                        log('editLog', `❌ 编辑失败: ${data.msg}`, 'error');
+                    }
+                } else {
+                    log('editLog', `❌ 请求失败: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                log('editLog', `❌ 请求异常: ${error.message}`, 'error');
+            }
+        }
+
+        // 3. 验证数据格式
+        function validateDataFormat() {
+            clearLog('validateLog');
+            log('validateLog', '🔍 开始验证数据格式...', 'info');
+            
+            const expectedDetailStructure = {
+                code: "0",
+                msg: "成功",
+                data: [{
+                    fid: 1277,
+                    drugname: "两面针",
+                    drugcode: "D14341",
+                    drugtype: 1,
+                    drugspecificat: "1000g",
+                    purunit: 12,
+                    mnemonic: "LMZ",
+                    positionnum: "18640",
+                    producer: "北京韩美",
+                    producingarea: "undefined",
+                    tisanesway: "",
+                    remark: "",
+                    type: 1,
+                    istoxicity: 0,
+                    allunit: "数组格式，包含KName和Kvalue字段",
+                    maximum: 1,
+                    ointmenttype: 0
+                }]
+            };
+
+            log('validateLog', '✅ 预期的详情接口数据结构:', 'success');
+            log('validateLog', JSON.stringify(expectedDetailStructure, null, 2), 'info');
+            
+            log('validateLog', '📋 关键字段说明:', 'info');
+            log('validateLog', '- fid: 药品ID (数字)', 'info');
+            log('validateLog', '- drugtype: 药品类型 (1=中药饮片, 2=西药)', 'info');
+            log('validateLog', '- purunit: 药品单位ID (数字)', 'info');
+            log('validateLog', '- type: 药品种类 (1=普通饮片, 2=精致饮片, 3=动物类, 5=中成药类, 6=矿石类)', 'info');
+            log('validateLog', '- istoxicity: 毒性 (0=非毒性, 1=毒性)', 'info');
+            log('validateLog', '- ointmenttype: 制膏分类 (0=普通, 1=贵细)', 'info');
+            log('validateLog', '- allunit: 单位选项数组 [{KName: "克", Kvalue: "17"}, ...]', 'info');
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            log('detailLog', '📱 测试页面已加载，可以开始测试', 'success');
+            log('editLog', '📱 测试页面已加载，可以开始测试', 'success');
+            log('validateLog', '📱 测试页面已加载，可以开始测试', 'success');
+        });
+    </script>
+</body>
+</html> 

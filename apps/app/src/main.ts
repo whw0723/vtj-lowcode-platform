@@ -19,6 +19,8 @@ import router from './router';
 import App from './App.vue';
 import { name } from '../package.json';
 import enhance from './enhance';
+// 引入认证服务，确保认证拦截器生效
+import './services/auth';
 
 const app = createApp(App);
 const adapter = createAdapter({ loading, notify, Startup, useTitle });

@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>物流API路径测试</title>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-item {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #409eff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #66b1ff;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            border-left: 4px solid #409eff;
+        }
+        .error {
+            border-left-color: #f56c6c;
+            background-color: #fef0f0;
+        }
+        .success {
+            border-left-color: #67c23a;
+            background-color: #f0f9ff;
+        }
+        pre {
+            background-color: #2d3748;
+            color: #e2e8f0;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>物流API路径测试</h1>
+        <p>测试不同的物流API路径，找到正确的接口地址</p>
+
+        <div class="test-item">
+            <h3>1. 原始路径</h3>
+            <p><strong>路径:</strong> /Manage/Logistics/GetLogisticsToday</p>
+            <button onclick="testPath('/Manage/Logistics/GetLogisticsToday')">测试</button>
+            <div id="result-1" class="result" style="display: none;"></div>
+        </div>
+
+        <div class="test-item">
+            <h3>2. 简化路径</h3>
+            <p><strong>路径:</strong> /Manage/Logistics/GetLogistics</p>
+            <button onclick="testPath('/Manage/Logistics/GetLogistics')">测试</button>
+            <div id="result-2" class="result" style="display: none;"></div>
+        </div>
+
+        <div class="test-item">
+            <h3>3. 通用物流路径</h3>
+            <p><strong>路径:</strong> /Manage/Logistics/GetData</p>
+            <button onclick="testPath('/Manage/Logistics/GetData')">测试</button>
+            <div id="result-3" class="result" style="display: none;"></div>
+        </div>
+
+        <div class="test-item">
+            <h3>4. 物流列表路径</h3>
+            <p><strong>路径:</strong> /Manage/Logistics/GetList</p>
+            <button onclick="testPath('/Manage/Logistics/GetList')">测试</button>
+            <div id="result-4" class="result" style="display: none;"></div>
+        </div>
+
+        <div class="test-item">
+            <h3>5. 物流管理路径</h3>
+            <p><strong>路径:</strong> /Manage/Logistics/GetLogisticsData</p>
+            <button onclick="testPath('/Manage/Logistics/GetLogisticsData')">测试</button>
+            <div id="result-5" class="result" style="display: none;"></div>
+        </div>
+
+        <div class="test-item">
+            <h3>6. 直接物流路径</h3>
+            <p><strong>路径:</strong> /Manage/GetLogistics</p>
+            <button onclick="testPath('/Manage/GetLogistics')">测试</button>
+            <div id="result-6" class="result" style="display: none;"></div>
+        </div>
+
+        <div class="test-item">
+            <h3>7. 处方物流路径</h3>
+            <p><strong>路径:</strong> /Manage/PreScription/GetLogistics</p>
+            <button onclick="testPath('/Manage/PreScription/GetLogistics')">测试</button>
+            <div id="result-7" class="result" style="display: none;"></div>
+        </div>
+
+        <div class="test-item">
+            <h3>8. 批量测试</h3>
+            <button onclick="testAllPaths()">测试所有路径</button>
+            <div id="result-all" class="result" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        // 配置axios
+        axios.defaults.withCredentials = true;
+        axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
+
+        let testIndex = 0;
+
+        async function testPath(path) {
+            testIndex++;
+            const resultId = `result-${testIndex > 7 ? 'all' : testIndex}`;
+            const resultDiv = document.getElementById(resultId);
+            
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = `<p>🔄 正在测试路径: ${path}</p>`;
+
+            try {
+                const params = new URLSearchParams({
+                    page: '1',
+                    limit: '10',
+                    hospital: '0',
+                    logisticsselect: '',
+                    searchcontent: '',
+                    logisticsptype: '',
+                    quertime: '',
+                    logistictime: '',
+                    decmothed: '-1'
+                });
+
+                const response = await axios.post(path, params, {
+                    timeout: 10000,
+                    validateStatus: function (status) {
+                        return status < 500; // 只有5xx错误才算失败
+                    }
+                });
+
+                console.log(`✅ 路径 ${path} 测试成功:`, response);
+
+                resultDiv.className = 'result success';
+                resultDiv.innerHTML = `
+                    <p>✅ <strong>成功!</strong> 状态码: ${response.status}</p>
+                    <p><strong>路径:</strong> ${path}</p>
+                    <p><strong>响应数据:</strong></p>
+                    <pre>${JSON.stringify(response.data, null, 2)}</pre>
+                `;
+
+                // 如果找到了有效的数据，高亮显示
+                if (response.data && response.data.code === '0') {
+                    resultDiv.style.borderLeftColor = '#67c23a';
+                    resultDiv.style.backgroundColor = '#f0f9ff';
+                }
+
+            } catch (error) {
+                console.error(`❌ 路径 ${path} 测试失败:`, error);
+
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `
+                    <p>❌ <strong>失败!</strong> 状态码: ${error.response?.status || 'N/A'}</p>
+                    <p><strong>路径:</strong> ${path}</p>
+                    <p><strong>错误信息:</strong> ${error.message}</p>
+                    <p><strong>响应数据:</strong></p>
+                    <pre>${JSON.stringify(error.response?.data || error.message, null, 2)}</pre>
+                `;
+            }
+        }
+
+        async function testAllPaths() {
+            const paths = [
+                '/Manage/Logistics/GetLogisticsToday',
+                '/Manage/Logistics/GetLogistics',
+                '/Manage/Logistics/GetData',
+                '/Manage/Logistics/GetList',
+                '/Manage/Logistics/GetLogisticsData',
+                '/Manage/GetLogistics',
+                '/Manage/PreScription/GetLogistics'
+            ];
+
+            const resultDiv = document.getElementById('result-all');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '<p>🔄 正在批量测试所有路径...</p>';
+
+            let results = [];
+
+            for (let i = 0; i < paths.length; i++) {
+                const path = paths[i];
+                try {
+                    const params = new URLSearchParams({
+                        page: '1',
+                        limit: '10',
+                        hospital: '0',
+                        logisticsselect: '',
+                        searchcontent: '',
+                        logisticsptype: '',
+                        quertime: '',
+                        logistictime: '',
+                        decmothed: '-1'
+                    });
+
+                    const response = await axios.post(path, params, {
+                        timeout: 5000,
+                        validateStatus: function (status) {
+                            return status < 500;
+                        }
+                    });
+
+                    results.push({
+                        path,
+                        status: response.status,
+                        success: true,
+                        data: response.data,
+                        hasValidData: response.data && response.data.code === '0'
+                    });
+
+                } catch (error) {
+                    results.push({
+                        path,
+                        status: error.response?.status || 'N/A',
+                        success: false,
+                        error: error.message,
+                        data: error.response?.data
+                    });
+                }
+            }
+
+            // 显示结果
+            let html = '<h4>批量测试结果:</h4>';
+            results.forEach((result, index) => {
+                const statusClass = result.success ? 'success' : 'error';
+                const statusIcon = result.success ? '✅' : '❌';
+                const validDataIcon = result.hasValidData ? '🎯' : '';
+                
+                html += `
+                    <div style="margin-bottom: 10px; padding: 10px; border-left: 4px solid ${result.success ? '#67c23a' : '#f56c6c'}; background-color: ${result.success ? '#f0f9ff' : '#fef0f0'};">
+                        <strong>${statusIcon} ${validDataIcon} 路径 ${index + 1}:</strong> ${result.path}<br>
+                        <strong>状态码:</strong> ${result.status}<br>
+                        ${result.hasValidData ? '<strong>🎯 包含有效数据!</strong><br>' : ''}
+                        ${result.success ? `<strong>响应:</strong> ${JSON.stringify(result.data).substring(0, 100)}...` : `<strong>错误:</strong> ${result.error}`}
+                    </div>
+                `;
+            });
+
+            resultDiv.innerHTML = html;
+
+            // 找到有效的路径
+            const validPaths = results.filter(r => r.hasValidData);
+            if (validPaths.length > 0) {
+                html += `<div style="margin-top: 20px; padding: 15px; background-color: #e6f7ff; border-left: 4px solid #1890ff; border-radius: 4px;">
+                    <h4>🎯 找到有效路径:</h4>
+                    ${validPaths.map(p => `<p><strong>${p.path}</strong></p>`).join('')}
+                </div>`;
+                resultDiv.innerHTML = html;
+            }
+        }
+
+        // 重置测试索引
+        function resetTestIndex() {
+            testIndex = 0;
+        }
+
+        // 页面加载时自动测试第一个路径
+        window.onload = function() {
+            console.log('📱 页面加载完成');
+            resetTestIndex();
+        };
+    </script>
+</body>
+</html>

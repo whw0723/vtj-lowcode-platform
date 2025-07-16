@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>药品编辑接口测试</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        button {
+            background-color: #409eff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #337ecc;
+        }
+        .result {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 10px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .error {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+        .success {
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 药品编辑接口测试</h1>
+        
+        <!-- 获取药品详情测试 -->
+        <div class="section">
+            <h3>📋 获取药品详情测试</h3>
+            <label for="drugId">药品ID:</label>
+            <input type="number" id="drugId" value="47" placeholder="请输入药品ID">
+            <button onclick="testGetDrugDetail()">获取药品详情</button>
+            <div id="detailResult" class="result"></div>
+        </div>
+
+        <!-- 编辑药品测试 -->
+        <div class="section">
+            <h3>✏️ 编辑药品测试</h3>
+            <form id="editForm">
+                <label for="editDrugId">药品ID:</label>
+                <input type="number" id="editDrugId" value="47" required>
+                
+                <label for="editHospital">医院ID:</label>
+                <select id="editHospital" required>
+                    <option value="">请选择医院</option>
+                </select>
+                
+                <label for="editDrugName">药品名称:</label>
+                <input type="text" id="editDrugName" required>
+                
+                <label for="editDrugCode">药品编号:</label>
+                <input type="text" id="editDrugCode" required>
+                
+                <label for="editPurunit">药单位:</label>
+                <select id="editPurunit" required>
+                    <option value="">请选择单位</option>
+                </select>
+                
+                <label for="editDrugSpec">药品规格:</label>
+                <input type="text" id="editDrugSpec">
+                
+                <label for="editDrugType">药品类型:</label>
+                <select id="editDrugType" required>
+                    <option value="">请选择类型</option>
+                    <option value="1">中药饮片</option>
+                    <option value="2">西药</option>
+                </select>
+                
+                <label for="editMnemonic">助记码:</label>
+                <input type="text" id="editMnemonic">
+                
+                <label for="editRemark">备注:</label>
+                <textarea id="editRemark" rows="3"></textarea>
+                
+                <button type="button" onclick="testEditDrug()">提交编辑</button>
+            </form>
+            <div id="editResult" class="result"></div>
+        </div>
+    </div>
+
+    <script>
+        // 配置axios
+        axios.defaults.withCredentials = true;
+        
+        let hospitalOptions = [];
+        let unitOptions = [];
+
+        // 获取药品详情
+        async function testGetDrugDetail() {
+            const drugId = document.getElementById('drugId').value;
+            const resultDiv = document.getElementById('detailResult');
+            
+            if (!drugId) {
+                resultDiv.innerHTML = '请输入药品ID';
+                resultDiv.className = 'result error';
+                return;
+            }
+
+            try {
+                console.log('🔄 开始获取药品详情，ID:', drugId);
+                resultDiv.innerHTML = '正在获取药品详情...';
+                resultDiv.className = 'result';
+
+                const params = new URLSearchParams();
+                params.append('hdrugid', drugId);
+
+                const response = await axios.post(`/Manage/HospitalDrug/Detail?hdrugid=${drugId}`, params, {
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                        'Accept': 'application/json, text/javascript, */*; q=0.01',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                console.log('✅ 接口响应:', response.data);
+
+                if (response.data && response.data.code === '0' && response.data.data && response.data.data.length > 0) {
+                    const drugData = response.data.data[0];
+                    
+                    // 填充编辑表单
+                    document.getElementById('editDrugId').value = drugData.id || drugId;
+                    document.getElementById('editHospital').value = drugData.hospital || '';
+                    document.getElementById('editDrugName').value = drugData.hdrugname || '';
+                    document.getElementById('editDrugCode').value = drugData.hdrugcode || '';
+                    document.getElementById('editPurunit').value = drugData.purunit || '';
+                    document.getElementById('editDrugSpec').value = drugData.drugspecificat || '';
+                    document.getElementById('editDrugType').value = drugData.drugtype || '';
+                    document.getElementById('editMnemonic').value = drugData.mnemonic || '';
+                    document.getElementById('editRemark').value = drugData.remark || '';
+
+                    // 更新医院选项
+                    if (drugData.allhospital && Array.isArray(drugData.allhospital)) {
+                        hospitalOptions = drugData.allhospital;
+                        const hospitalSelect = document.getElementById('editHospital');
+                        hospitalSelect.innerHTML = '<option value="">请选择医院</option>';
+                        drugData.allhospital.forEach(hospital => {
+                            const option = document.createElement('option');
+                            option.value = hospital.HID;
+                            option.textContent = hospital.Hname;
+                            if (hospital.HID === drugData.hospital) {
+                                option.selected = true;
+                            }
+                            hospitalSelect.appendChild(option);
+                        });
+                    }
+
+                    // 更新单位选项
+                    if (drugData.allunit && Array.isArray(drugData.allunit)) {
+                        unitOptions = drugData.allunit;
+                        const unitSelect = document.getElementById('editPurunit');
+                        unitSelect.innerHTML = '<option value="">请选择单位</option>';
+                        drugData.allunit.forEach(unit => {
+                            const option = document.createElement('option');
+                            option.value = unit.Kvalue;
+                            option.textContent = unit.KName;
+                            if (parseInt(unit.Kvalue) === drugData.purunit) {
+                                option.selected = true;
+                            }
+                            unitSelect.appendChild(option);
+                        });
+                    }
+
+                    resultDiv.innerHTML = '✅ 获取成功！\n\n' + JSON.stringify(response.data, null, 2);
+                    resultDiv.className = 'result success';
+                } else {
+                    const errorMsg = response.data?.msg || '未获取到药品详情数据';
+                    resultDiv.innerHTML = '❌ 获取失败: ' + errorMsg + '\n\n' + JSON.stringify(response.data, null, 2);
+                    resultDiv.className = 'result error';
+                }
+            } catch (error) {
+                console.error('❌ 获取药品详情失败:', error);
+                resultDiv.innerHTML = '❌ 请求失败: ' + (error.response?.data?.msg || error.message) + '\n\n' + JSON.stringify(error.response?.data || error.message, null, 2);
+                resultDiv.className = 'result error';
+            }
+        }
+
+        // 编辑药品
+        async function testEditDrug() {
+            const resultDiv = document.getElementById('editResult');
+            
+            try {
+                console.log('🔄 开始提交药品编辑...');
+                resultDiv.innerHTML = '正在提交编辑...';
+                resultDiv.className = 'result';
+
+                const updateData = new URLSearchParams();
+                updateData.append('hdrugid', document.getElementById('editDrugId').value);
+                updateData.append('hospitaldrug', document.getElementById('editHospital').value);
+                updateData.append('hdrugname', document.getElementById('editDrugName').value);
+                updateData.append('hdrugcode', document.getElementById('editDrugCode').value);
+                updateData.append('purunit', document.getElementById('editPurunit').value);
+                updateData.append('drugspecificat', document.getElementById('editDrugSpec').value);
+                updateData.append('drugtype', document.getElementById('editDrugType').value);
+                updateData.append('mnemonic', document.getElementById('editMnemonic').value);
+                updateData.append('remark', document.getElementById('editRemark').value);
+
+                console.log('📋 提交数据:', Object.fromEntries(updateData));
+
+                const response = await axios.post('/Manage/HospitalDrug/Edit', updateData, {
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                        'Accept': 'application/json, text/javascript, */*; q=0.01',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                console.log('✅ 编辑接口响应:', response.data);
+
+                if (response.data && (response.data.data > 0 || response.data.code === '0' || response.data.code === 0)) {
+                    resultDiv.innerHTML = '✅ 编辑成功！\n\n' + JSON.stringify(response.data, null, 2);
+                    resultDiv.className = 'result success';
+                } else {
+                    const errorMsg = response.data?.msg || '编辑失败';
+                    resultDiv.innerHTML = '❌ 编辑失败: ' + errorMsg + '\n\n' + JSON.stringify(response.data, null, 2);
+                    resultDiv.className = 'result error';
+                }
+            } catch (error) {
+                console.error('❌ 提交编辑失败:', error);
+                resultDiv.innerHTML = '❌ 请求失败: ' + (error.response?.data?.msg || error.message) + '\n\n' + JSON.stringify(error.response?.data || error.message, null, 2);
+                resultDiv.className = 'result error';
+            }
+        }
+
+        // 页面加载完成后自动获取药品详情
+        window.onload = function() {
+            console.log('🚀 页面加载完成，准备测试药品编辑接口');
+        };
+    </script>
+</body>
+</html> 

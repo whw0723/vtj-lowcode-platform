@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>协定方编辑接口测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .test-section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        button {
+            background: #409eff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #66b1ff;
+        }
+        .result {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .success {
+            background: #f0f9ff;
+            border: 1px solid #67c23a;
+            color: #67c23a;
+        }
+        .error {
+            background: #fef0f0;
+            border: 1px solid #f56c6c;
+            color: #f56c6c;
+        }
+        .info {
+            background: #f4f4f5;
+            border: 1px solid #909399;
+            color: #606266;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 协定方编辑接口测试</h1>
+        <p>测试EditAgreementParty接口的不同调用方式</p>
+    </div>
+
+    <div class="container">
+        <div class="test-section">
+            <h3>📋 测试数据</h3>
+            <div class="form-group">
+                <label>协定方ID:</label>
+                <input type="text" id="apid" value="3">
+            </div>
+            <div class="form-group">
+                <label>协定方编码:</label>
+                <input type="text" id="apcode" value="XDF2023010674">
+            </div>
+            <div class="form-group">
+                <label>协定方名称:</label>
+                <input type="text" id="apname" value="测试协定方2">
+            </div>
+            <div class="form-group">
+                <label>医院:</label>
+                <input type="text" id="hospital" value="凤阳县中医院">
+            </div>
+            <div class="form-group">
+                <label>服用方式:</label>
+                <input type="text" id="takemethod" value="外洗">
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>🔧 测试方法</h3>
+            <button onclick="testMethod1()">方法1: FormData + agreementparty</button>
+            <button onclick="testMethod2()">方法2: FormData + agreement</button>
+            <button onclick="testMethod3()">方法3: URLSearchParams + agreementparty</button>
+            <button onclick="testMethod4()">方法4: 直接JSON + application/json</button>
+            <button onclick="testMethod5()">方法5: 直接JSON字符串 + form-urlencoded</button>
+            <button onclick="testInterfaceExists()">🔍 检查接口是否存在</button>
+            <button onclick="testWithMinimalData()">🧪 最小数据测试</button>
+            <button onclick="testOtherParamNames()">🔧 测试其他参数名</button>
+            <button onclick="testPossiblePaths()">🔍 测试可能的接口路径</button>
+            <div id="testResult" class="result info">点击上方按钮开始测试...</div>
+        </div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const resultDiv = document.getElementById('testResult');
+            const timestamp = new Date().toLocaleTimeString();
+            resultDiv.textContent += `[${timestamp}] ${message}\n`;
+            resultDiv.className = `result ${type}`;
+        }
+
+        function clearLog() {
+            document.getElementById('testResult').textContent = '';
+        }
+
+        function getTestData() {
+            return {
+                apid: document.getElementById('apid').value,
+                apcode: document.getElementById('apcode').value,
+                apname: document.getElementById('apname').value,
+                hospital: document.getElementById('hospital').value,
+                takemethod: document.getElementById('takemethod').value,
+                ispregnant: "否",
+                contacter: "病明",
+                phone: "病明",
+                address: "病明",
+                druglist: [
+                    {
+                        id: "1",
+                        drugcode: "cs1",
+                        drugname: "测试药品1",
+                        drugspecificat: "g",
+                        singledose: "1",
+                        drugunit: "g"
+                    },
+                    {
+                        id: "2",
+                        drugcode: "cs2",
+                        drugname: "测试药品2",
+                        drugspecificat: "g",
+                        singledose: "1",
+                        drugunit: "g"
+                    }
+                ]
+            };
+        }
+
+        // 方法1: FormData + agreementparty参数名
+        async function testMethod1() {
+            clearLog();
+            log('🧪 测试方法1: FormData + agreementparty参数名', 'info');
+            
+            try {
+                const data = getTestData();
+                const jsonString = JSON.stringify(data);
+                
+                const formData = new FormData();
+                formData.append('agreementparty', jsonString);
+                
+                log('📤 发送数据: FormData with agreementparty parameter', 'info');
+                log('📋 JSON内容: ' + jsonString, 'info');
+                
+                const response = await fetch('/Manage/AgreementParty/EditAgreementParty', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json, text/javascript, */*; q=0.01',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    credentials: 'include',
+                    body: formData
+                });
+                
+                log(`📡 响应状态: ${response.status} ${response.statusText}`, 'info');
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    log('✅ 请求成功!', 'success');
+                    log('📋 响应数据: ' + JSON.stringify(result, null, 2), 'success');
+                } else {
+                    const errorText = await response.text();
+                    log('❌ 请求失败: ' + response.status, 'error');
+                    log('📋 错误内容: ' + errorText.substring(0, 200) + '...', 'error');
+                }
+            } catch (error) {
+                log('❌ 请求异常: ' + error.message, 'error');
+            }
+        }
+
+        // 方法2: FormData + agreement参数名
+        async function testMethod2() {
+            clearLog();
+            log('🧪 测试方法2: FormData + agreement参数名', 'info');
+            
+            try {
+                const data = getTestData();
+                const jsonString = JSON.stringify(data);
+                
+                const formData = new FormData();
+                formData.append('agreement', jsonString);
+                
+                log('📤 发送数据: FormData with agreement parameter', 'info');
+                
+                const response = await fetch('/Manage/AgreementParty/EditAgreementParty', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json, text/javascript, */*; q=0.01',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    credentials: 'include',
+                    body: formData
+                });
+                
+                log(`📡 响应状态: ${response.status} ${response.statusText}`, 'info');
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    log('✅ 请求成功!', 'success');
+                    log('📋 响应数据: ' + JSON.stringify(result, null, 2), 'success');
+                } else {
+                    const errorText = await response.text();
+                    log('❌ 请求失败: ' + response.status, 'error');
+                    log('📋 错误内容: ' + errorText.substring(0, 200) + '...', 'error');
+                }
+            } catch (error) {
+                log('❌ 请求异常: ' + error.message, 'error');
+            }
+        }
+
+        // 方法3: URLSearchParams + agreementparty
+        async function testMethod3() {
+            clearLog();
+            log('🧪 测试方法3: URLSearchParams + agreementparty', 'info');
+            
+            try {
+                const data = getTestData();
+                const jsonString = JSON.stringify(data);
+                
+                const params = new URLSearchParams();
+                params.append('agreementparty', jsonString);
+                
+                log('📤 发送数据: URLSearchParams', 'info');
+                
+                const response = await fetch('/Manage/AgreementParty/EditAgreementParty', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                        'Accept': 'application/json, text/javascript, */*; q=0.01',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    credentials: 'include',
+                    body: params
+                });
+                
+                log(`📡 响应状态: ${response.status} ${response.statusText}`, 'info');
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    log('✅ 请求成功!', 'success');
+                    log('📋 响应数据: ' + JSON.stringify(result, null, 2), 'success');
+                } else {
+                    const errorText = await response.text();
+                    log('❌ 请求失败: ' + response.status, 'error');
+                    log('📋 错误内容: ' + errorText.substring(0, 200) + '...', 'error');
+                }
+            } catch (error) {
+                log('❌ 请求异常: ' + error.message, 'error');
+            }
+        }
+
+        // 方法4: 直接JSON + application/json
+        async function testMethod4() {
+            clearLog();
+            log('🧪 测试方法4: 直接JSON + application/json', 'info');
+            
+            try {
+                const data = getTestData();
+                
+                log('📤 发送数据: 直接JSON对象', 'info');
+                
+                const response = await fetch('/Manage/AgreementParty/EditAgreementParty', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json; charset=UTF-8',
+                        'Accept': 'application/json, text/javascript, */*; q=0.01',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(data)
+                });
+                
+                log(`📡 响应状态: ${response.status} ${response.statusText}`, 'info');
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    log('✅ 请求成功!', 'success');
+                    log('📋 响应数据: ' + JSON.stringify(result, null, 2), 'success');
+                } else {
+                    const errorText = await response.text();
+                    log('❌ 请求失败: ' + response.status, 'error');
+                    log('📋 错误内容: ' + errorText.substring(0, 200) + '...', 'error');
+                }
+            } catch (error) {
+                log('❌ 请求异常: ' + error.message, 'error');
+            }
+        }
+
+        // 方法5: 直接JSON字符串 + form-urlencoded
+        async function testMethod5() {
+            clearLog();
+            log('🧪 测试方法5: 直接JSON字符串 + form-urlencoded', 'info');
+            
+            try {
+                const data = getTestData();
+                const jsonString = JSON.stringify(data);
+                
+                log('📤 发送数据: 直接JSON字符串', 'info');
+                
+                const response = await fetch('/Manage/AgreementParty/EditAgreementParty', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                        'Accept': 'application/json, text/javascript, */*; q=0.01',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    credentials: 'include',
+                    body: jsonString
+                });
+                
+                log(`📡 响应状态: ${response.status} ${response.statusText}`, 'info');
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    log('✅ 请求成功!', 'success');
+                    log('📋 响应数据: ' + JSON.stringify(result, null, 2), 'success');
+                } else {
+                    const errorText = await response.text();
+                    log('❌ 请求失败: ' + response.status, 'error');
+                    log('📋 错误内容: ' + errorText.substring(0, 200) + '...', 'error');
+                }
+            } catch (error) {
+                log('❌ 请求异常: ' + error.message, 'error');
+            }
+        }
+
+        // 检查接口是否存在
+        async function testInterfaceExists() {
+            clearLog();
+            log('🔍 检查EditAgreementParty接口是否存在', 'info');
+
+            try {
+                // 尝试GET请求看接口是否存在
+                const response = await fetch('/Manage/AgreementParty/EditAgreementParty', {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+
+                log(`📡 GET响应状态: ${response.status} ${response.statusText}`, 'info');
+
+                if (response.status === 404) {
+                    log('❌ 接口不存在 (404)', 'error');
+                } else if (response.status === 405) {
+                    log('✅ 接口存在但不支持GET方法 (405)', 'success');
+                } else {
+                    log(`📋 其他响应: ${response.status}`, 'info');
+                }
+
+                // 尝试OPTIONS请求查看支持的方法
+                const optionsResponse = await fetch('/Manage/AgreementParty/EditAgreementParty', {
+                    method: 'OPTIONS',
+                    credentials: 'include'
+                });
+
+                log(`📡 OPTIONS响应状态: ${optionsResponse.status}`, 'info');
+                const allowHeader = optionsResponse.headers.get('Allow');
+                if (allowHeader) {
+                    log(`📋 支持的方法: ${allowHeader}`, 'info');
+                }
+
+            } catch (error) {
+                log('❌ 检查接口异常: ' + error.message, 'error');
+            }
+        }
+
+        // 最小数据测试
+        async function testWithMinimalData() {
+            clearLog();
+            log('🧪 使用最小数据测试接口', 'info');
+
+            try {
+                // 只包含必需字段的最小数据
+                const minimalData = {
+                    apid: "3"
+                };
+
+                const jsonString = JSON.stringify(minimalData);
+                const formData = new FormData();
+                formData.append('agreementparty', jsonString);
+
+                log('📤 发送最小数据: ' + jsonString, 'info');
+
+                const response = await fetch('/Manage/AgreementParty/EditAgreementParty', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json, text/javascript, */*; q=0.01',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    credentials: 'include',
+                    body: formData
+                });
+
+                log(`📡 响应状态: ${response.status} ${response.statusText}`, 'info');
+
+                if (response.ok) {
+                    const result = await response.json();
+                    log('✅ 最小数据测试成功!', 'success');
+                    log('📋 响应数据: ' + JSON.stringify(result, null, 2), 'success');
+                } else {
+                    const errorText = await response.text();
+                    log('❌ 最小数据测试失败: ' + response.status, 'error');
+                    log('📋 错误内容: ' + errorText.substring(0, 500) + '...', 'error');
+                }
+            } catch (error) {
+                log('❌ 最小数据测试异常: ' + error.message, 'error');
+            }
+        }
+
+        // 测试其他可能的参数名
+        async function testOtherParamNames() {
+            clearLog();
+            log('🔧 测试其他可能的参数名', 'info');
+
+            const data = getTestData();
+            const jsonString = JSON.stringify(data);
+
+            // 尝试多种可能的参数名
+            const paramNames = ['data', 'json', 'model', 'entity', 'agreementParty', 'ap', 'party'];
+
+            for (const paramName of paramNames) {
+                try {
+                    log(`📤 测试参数名: ${paramName}`, 'info');
+
+                    const formData = new FormData();
+                    formData.append(paramName, jsonString);
+
+                    const response = await fetch('/Manage/AgreementParty/EditAgreementParty', {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json, text/javascript, */*; q=0.01',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        credentials: 'include',
+                        body: formData
+                    });
+
+                    log(`📡 ${paramName} 响应状态: ${response.status}`, 'info');
+
+                    if (response.ok) {
+                        const result = await response.json();
+                        log(`✅ ${paramName} 参数名成功!`, 'success');
+                        log('📋 响应数据: ' + JSON.stringify(result, null, 2), 'success');
+                        return; // 找到成功的参数名就停止
+                    } else if (response.status !== 500) {
+                        // 如果不是500错误，可能是其他类型的错误，值得注意
+                        const errorText = await response.text();
+                        log(`⚠️ ${paramName} 返回 ${response.status}: ${errorText.substring(0, 100)}...`, 'info');
+                    }
+                } catch (error) {
+                    log(`❌ ${paramName} 测试异常: ${error.message}`, 'error');
+                }
+
+                // 添加延迟避免请求过快
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+
+            log('❌ 所有参数名都测试失败', 'error');
+        }
+
+        // 测试可能的接口路径
+        async function testPossiblePaths() {
+            clearLog();
+            log('🔍 测试可能的协定方编辑接口路径', 'info');
+
+            const data = getTestData();
+            const jsonString = JSON.stringify(data);
+
+            // 基于其他成功接口的路径模式，尝试可能的协定方编辑接口路径
+            const possiblePaths = [
+                '/Manage/AgreementParty/Edit',           // 最常见的编辑接口模式
+                '/Manage/AgreementParty/Update',         // 更新接口
+                '/Manage/AgreementParty/Save',           // 保存接口
+                '/Manage/AgreementParty/EditData',       // 编辑数据接口
+                '/Manage/AgreementParty/UpdateData',     // 更新数据接口
+                '/Manage/Agreement/Edit',                // 简化路径
+                '/Manage/Agreement/Update',              // 简化路径
+                '/Manage/AgreementParty/Modify',         // 修改接口
+                '/Manage/AgreementParty/Change',         // 变更接口
+                '/Manage/AgreementParty/EditAgreement',  // 编辑协定接口
+            ];
+
+            for (const path of possiblePaths) {
+                try {
+                    log(`📤 测试路径: ${path}`, 'info');
+
+                    // 先用GET测试路径是否存在
+                    const getResponse = await fetch(path, {
+                        method: 'GET',
+                        credentials: 'include'
+                    });
+
+                    log(`📡 GET ${path}: ${getResponse.status}`, 'info');
+
+                    if (getResponse.status === 404) {
+                        log(`❌ ${path} 不存在 (404)`, 'error');
+                        continue;
+                    }
+
+                    // 如果路径存在，尝试POST请求
+                    const formData = new FormData();
+                    formData.append('agreementparty', jsonString);
+
+                    const postResponse = await fetch(path, {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json, text/javascript, */*; q=0.01',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        credentials: 'include',
+                        body: formData
+                    });
+
+                    log(`📡 POST ${path}: ${postResponse.status}`, 'info');
+
+                    if (postResponse.ok) {
+                        const result = await postResponse.json();
+                        log(`✅ 找到正确路径: ${path}`, 'success');
+                        log('📋 响应数据: ' + JSON.stringify(result, null, 2), 'success');
+                        return; // 找到成功的路径就停止
+                    } else if (postResponse.status === 405) {
+                        log(`⚠️ ${path} 存在但不支持POST (405)`, 'info');
+                    } else if (postResponse.status !== 500) {
+                        const errorText = await postResponse.text();
+                        log(`⚠️ ${path} 返回 ${postResponse.status}: ${errorText.substring(0, 100)}...`, 'info');
+                    }
+                } catch (error) {
+                    log(`❌ ${path} 测试异常: ${error.message}`, 'error');
+                }
+
+                // 添加延迟避免请求过快
+                await new Promise(resolve => setTimeout(resolve, 300));
+            }
+
+            log('❌ 所有可能的路径都测试失败', 'error');
+            log('💡 建议：检查服务器端是否实现了协定方编辑接口', 'info');
+        }
+
+        log('🚀 协定方编辑接口测试页面已加载', 'info');
+        log('📝 请选择一种测试方法来验证接口对接', 'info');
+    </script>
+</body>
+</html>
